@@ -1,0 +1,448 @@
+{
+    "generated_at": "2026-06-17T19:16:04+00:00",
+    "host": "Mac-Studio-Tod.local",
+    "repo": {
+        "branch": "main",
+        "commit": "33da7b6",
+        "dirty": false
+    },
+    "runtime": {
+        "orders_enabled": true,
+        "paper_only": true,
+        "paper_base_host_ok": true,
+        "data_key_set": true,
+        "paper_key_set": true
+    },
+    "alpaca": {
+        "clock": {
+            "timestamp": "2026-06-17T15:16:07.175276938-04:00",
+            "is_open": true,
+            "next_open": "2026-06-18T09:30:00-04:00",
+            "next_close": "2026-06-17T16:00:00-04:00"
+        },
+        "account": {
+            "id_statusExportLast4": "5e95",
+            "account_number_statusExportLast4": "SV1U",
+            "status": "ACTIVE",
+            "currency": "USD",
+            "cash": 15182.64,
+            "equity": 30137.58,
+            "buying_power": 419.26,
+            "multiplier": "2",
+            "pattern_day_trader": false,
+            "daytrade_count": 0,
+            "trading_blocked": false,
+            "transfers_blocked": false,
+            "account_blocked": false,
+            "shorting_enabled": true
+        },
+        "positions": [
+            {
+                "symbol": "TECL",
+                "side": "long",
+                "qty": 66,
+                "avg_entry_price": 224.505455,
+                "current_price": 226.59,
+                "market_value": 14954.94,
+                "cost_basis": 14817.36003,
+                "unrealized_pl": 137.57997,
+                "unrealized_plpc": 0.00929,
+                "change_today": 0.03052
+            }
+        ],
+        "open_orders": [
+            {
+                "id_statusExportLast4": "8c0b",
+                "client_order_id": "ftt_USD_20260617_sma20",
+                "symbol": "USD",
+                "side": "buy",
+                "type": "limit",
+                "qty": 150,
+                "filled_qty": 0,
+                "limit_price": 99.82,
+                "stop_price": null,
+                "status": "new",
+                "time_in_force": "day",
+                "created_at": "2026-06-17T18:23:49.327448756Z",
+                "updated_at": "2026-06-17T18:23:49.378033855Z",
+                "submitted_at": "2026-06-17T18:23:49.376900541Z",
+                "filled_at": null
+            }
+        ]
+    },
+    "bot": {
+        "states": [
+            {
+                "symbol": "TECL",
+                "status": "open",
+                "qty": 66,
+                "avg_entry_price": 224.505455,
+                "market_price": 229.6787,
+                "entry_price": 211.6568,
+                "stop_price": 178.9308,
+                "break_even_trigger_price": 215.89,
+                "target_price": 277.109,
+                "break_even_armed": false,
+                "partial_done": false,
+                "last_action": "sync_open",
+                "last_event_at": "2026-06-17T18:48:53+00:00"
+            }
+        ],
+        "recent_orders": [
+            {
+                "client_order_id": "ftt_USD_20260617_sma20",
+                "symbol": "USD",
+                "side": "buy",
+                "type": "limit",
+                "qty": 150,
+                "limit_price": 99.82,
+                "status": "pending_new",
+                "submitted": true,
+                "order_id_last4": "8c0b",
+                "planned_at": "2026-06-17T18:20:12+00:00",
+                "submitted_at": "2026-06-17T18:23:46+00:00",
+                "updated_at": "2026-06-17T18:23:46+00:00"
+            },
+            {
+                "client_order_id": "ftt_TECL_20260617_sma20",
+                "symbol": "TECL",
+                "side": "buy",
+                "type": "limit",
+                "qty": 66,
+                "limit_price": 225.24,
+                "status": "pending_new",
+                "submitted": true,
+                "order_id_last4": "6f13",
+                "planned_at": "2026-06-17T18:20:12+00:00",
+                "submitted_at": "2026-06-17T18:23:46+00:00",
+                "updated_at": "2026-06-17T18:23:46+00:00"
+            },
+            {
+                "client_order_id": "ftt_TQQQ_20260617_sma10",
+                "symbol": "TQQQ",
+                "side": "buy",
+                "type": "limit",
+                "qty": 40,
+                "limit_price": 77.59,
+                "status": "submit_failed",
+                "submitted": false,
+                "order_id_last4": null,
+                "planned_at": "2026-06-17T18:20:12+00:00",
+                "submitted_at": null,
+                "updated_at": "2026-06-17T18:23:46+00:00"
+            }
+        ],
+        "recent_actions": [
+            {
+                "id": 41,
+                "created_at": "2026-06-17T18:48:53+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184853",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 40,
+                "created_at": "2026-06-17T18:47:50+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184750",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 39,
+                "created_at": "2026-06-17T18:46:48+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184648",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 38,
+                "created_at": "2026-06-17T18:45:45+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184545",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 37,
+                "created_at": "2026-06-17T18:44:43+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184443",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 36,
+                "created_at": "2026-06-17T18:43:40+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184340",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 35,
+                "created_at": "2026-06-17T18:42:38+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184238",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 34,
+                "created_at": "2026-06-17T18:41:35+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184135",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 33,
+                "created_at": "2026-06-17T18:40:33+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617184033",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 32,
+                "created_at": "2026-06-17T18:39:30+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183930",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 31,
+                "created_at": "2026-06-17T18:38:28+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183828",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 30,
+                "created_at": "2026-06-17T18:37:25+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183725",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 29,
+                "created_at": "2026-06-17T18:36:23+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183623",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 28,
+                "created_at": "2026-06-17T18:35:20+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183520",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 27,
+                "created_at": "2026-06-17T18:34:18+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183418",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 26,
+                "created_at": "2026-06-17T18:33:15+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183315",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 25,
+                "created_at": "2026-06-17T18:32:13+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183213",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 24,
+                "created_at": "2026-06-17T18:31:10+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183110",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 23,
+                "created_at": "2026-06-17T18:30:07+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617183007",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            },
+            {
+                "id": 22,
+                "created_at": "2026-06-17T18:29:05+00:00",
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": "fttmon_TECL_reviewmodelmissing_20260617182905",
+                "reason": "TECL exists at Alpaca but is absent from model open positions."
+            }
+        ]
+    },
+    "latest_cycle": {
+        "generated_at": "2026-06-17T18:23:52+00:00",
+        "ok": true,
+        "submit_requested": true,
+        "profile": "tuned-daily",
+        "daily_summary": {
+            "as_of": "2026-06-17",
+            "action": "REVIEW_NEW_SIGNALS",
+            "symbols_loaded": 5,
+            "symbols_requested": 5,
+            "data_age_days": 0,
+            "signals_today": 4,
+            "model_open_positions": 4,
+            "return_pct": 66.50171512961367,
+            "annualized_return_pct": 1.1664935669094478,
+            "max_drawdown_pct": -0.335630618071577,
+            "profit_factor": 5.547279667193568
+        },
+        "order_plan_summary": {
+            "orders": 3,
+            "skipped": 1,
+            "submitted": 2,
+            "available_slots": 4,
+            "slot_budget": 15000,
+            "paper_positions_count": 0,
+            "paper_open_orders_count": 0,
+            "maintenance_limit": 21000,
+            "estimated_maintenance_used": 20963.64,
+            "estimated_maintenance_pct_of_equity": 0.6988,
+            "symbols": [
+                "USD",
+                "TECL",
+                "TQQQ"
+            ]
+        },
+        "monitor_summary": {
+            "market_open": true,
+            "positions_count": 1,
+            "open_orders_count": 1,
+            "actions": 1,
+            "submitted_orders": 0
+        }
+    },
+    "latest_monitor": {
+        "generated_at": "2026-06-17T18:48:53+00:00",
+        "dry_run": false,
+        "submit_allowed": true,
+        "market_open": true,
+        "positions_count": 1,
+        "open_orders_count": 1,
+        "actions": [
+            {
+                "symbol": "TECL",
+                "action": "review_model_missing",
+                "reason": "TECL exists at Alpaca but is absent from model open positions.",
+                "submitted": false,
+                "order": null
+            }
+        ],
+        "suppressed_actions_count": 0
+    },
+    "latest_plan": {
+        "generated_at": "2026-06-17T18:23:46+00:00",
+        "dry_run": null,
+        "submit_allowed": null,
+        "orders_count": null,
+        "skipped_count": null,
+        "orders": []
+    },
+    "errors": []
+}
