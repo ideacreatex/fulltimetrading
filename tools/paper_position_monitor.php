@@ -20,6 +20,7 @@ $options = [
     'partial-pct' => '',
     'close-when-model-closed' => 'false',
     'time-in-force' => 'day',
+    'review-cooldown-minutes' => '1440',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -49,12 +50,14 @@ $partialPct = (string) $options['partial-pct'] !== ''
     : (float) $config->get('strategy.partial_take_profit_pct', 0.25);
 $partialPct = max(0.0, min(1.0, $partialPct));
 $breakEvenPct = (float) $config->get('strategy.club_rules.break_even_profit_pct', 0.02);
+$reviewCooldownMinutes = max(0, (int) $options['review-cooldown-minutes']);
 
 $report = readJson((string) $options['report']);
 $modelPositions = indexBySymbol($report['model']['open_positions'] ?? []);
 $signals = indexBestSignalBySymbol(array_merge($report['signals_today'] ?? [], $report['recent_signals'] ?? []));
 $states = $repo->loadPaperPositionStates();
 $actions = [];
+$suppressedActions = [];
 $submittedOrders = [];
 
 try {
@@ -82,15 +85,25 @@ foreach ($positions as $position) {
     }
     $positionSymbols[$symbol] = true;
     $state = stateFromPosition($position, $states[$symbol] ?? null, $modelPositions[$symbol] ?? null, $signals[$symbol] ?? null, $breakEvenPct, $now);
+    $managedByReport = isset($modelPositions[$symbol]) || isset($signals[$symbol]);
     $decisionRows = decisionsForPosition(
         $state,
         $position,
-        isset($modelPositions[$symbol]),
+        $managedByReport,
         $partialPct,
         boolOption((string) $options['close-when-model-closed']),
     );
 
     foreach ($decisionRows as $decision) {
+        if (shouldSuppressDecision($state, $decision, $now, $reviewCooldownMinutes)) {
+            $suppressedActions[] = [
+                'symbol' => $symbol,
+                'action' => $dryRun ? 'would_' . $decision['action'] : $decision['action'],
+                'reason' => (string) $decision['reason'],
+            ];
+            continue;
+        }
+
         $orderPayload = null;
         $submitted = false;
         $orderId = null;
@@ -154,7 +167,7 @@ foreach ($positions as $position) {
             'order' => $orderPayload,
         ];
 
-        if (!$dryRun && ($submitted || $decision['action'] === 'arm_break_even')) {
+        if (!$dryRun && ($submitted || in_array($decision['action'], ['arm_break_even', 'review_model_missing'], true))) {
             $state = applySubmittedDecision($state, $decision, $now, $orderPayload['client_order_id'] ?? null);
         }
     }
@@ -212,6 +225,7 @@ $payload = [
     'partial_pct' => $partialPct,
     'break_even_pct' => $breakEvenPct,
     'actions' => $actions,
+    'suppressed_actions' => $suppressedActions,
     'submitted_orders' => $submittedOrders,
     'state' => $repo->loadPaperPositionStates(),
     'recent_actions' => $repo->recentPaperActions(10),
@@ -318,6 +332,10 @@ function stateFromPosition(array $position, ?array $existing, ?array $model, ?ar
         $breakEvenTrigger = $entry * (1.0 + $breakEvenPct);
     }
 
+    $payload = is_array($existing['payload'] ?? null) ? $existing['payload'] : [];
+    $payload['model_position'] = $model;
+    $payload['signal'] = $signal;
+
     return [
         'symbol' => $symbol,
         'status' => 'open',
@@ -338,15 +356,12 @@ function stateFromPosition(array $position, ?array $existing, ?array $model, ?ar
         'last_event_at' => $now->format(DateTimeInterface::ATOM),
         'last_action' => $existing['last_action'] ?? 'sync_open',
         'client_order_id' => $existing['client_order_id'] ?? null,
-        'payload' => [
-            'model_position' => $model,
-            'signal' => $signal,
-        ],
+        'payload' => $payload,
     ];
 }
 
 /** @param array<string, mixed> $state @param array<string, mixed> $position @return list<array<string, mixed>> */
-function decisionsForPosition(array $state, array $position, bool $modelOpen, float $partialPct, bool $closeWhenModelClosed): array
+function decisionsForPosition(array $state, array $position, bool $managedOpen, float $partialPct, bool $closeWhenModelClosed): array
 {
     $rows = [];
     $qty = (float) $state['qty'];
@@ -360,11 +375,11 @@ function decisionsForPosition(array $state, array $position, bool $modelOpen, fl
         return $rows;
     }
 
-    if (!$modelOpen) {
+    if (!$managedOpen) {
         $rows[] = [
             'action' => $closeWhenModelClosed ? 'close_model_missing' : 'review_model_missing',
             'severity' => $closeWhenModelClosed ? 'warning' : 'info',
-            'reason' => $symbol . ' exists at Alpaca but is absent from model open positions.',
+            'reason' => $symbol . ' exists at Alpaca but is absent from model/report-managed positions.',
             'qty' => $qty,
         ];
         if (!$closeWhenModelClosed) {
@@ -419,11 +434,38 @@ function applySubmittedDecision(array $state, array $decision, DateTimeImmutable
     if (in_array($action, ['close_stop', 'close_model_missing'], true)) {
         $state['status'] = 'closing';
     }
+    if ($action === 'review_model_missing') {
+        $payload = is_array($state['payload'] ?? null) ? $state['payload'] : [];
+        $payload['last_review_model_missing_at'] = $now->format(DateTimeInterface::ATOM);
+        $state['payload'] = $payload;
+    }
     $state['last_action'] = $action;
     $state['last_event_at'] = $now->format(DateTimeInterface::ATOM);
     $state['client_order_id'] = $clientOrderId;
 
     return $state;
+}
+
+/** @param array<string, mixed> $state @param array<string, mixed> $decision */
+function shouldSuppressDecision(array $state, array $decision, DateTimeImmutable $now, int $cooldownMinutes): bool
+{
+    if ((string) ($decision['action'] ?? '') !== 'review_model_missing' || $cooldownMinutes <= 0) {
+        return false;
+    }
+
+    $payload = is_array($state['payload'] ?? null) ? $state['payload'] : [];
+    $lastAt = (string) ($payload['last_review_model_missing_at'] ?? '');
+    if ($lastAt === '') {
+        return false;
+    }
+
+    try {
+        $last = new DateTimeImmutable($lastAt);
+    } catch (Throwable) {
+        return false;
+    }
+
+    return ($now->getTimestamp() - $last->getTimestamp()) < ($cooldownMinutes * 60);
 }
 
 /** @return array<string, mixed> */
@@ -515,6 +557,7 @@ function monitorText(array $payload): string
     );
     $lines[] = 'Positions: ' . (int) $payload['positions_count'] . ', open orders: ' . (int) $payload['open_orders_count'];
     $actions = is_array($payload['actions'] ?? null) ? $payload['actions'] : [];
+    $suppressedActions = is_array($payload['suppressed_actions'] ?? null) ? $payload['suppressed_actions'] : [];
     if ($actions === []) {
         $lines[] = 'Actions: none';
     } else {
@@ -531,6 +574,9 @@ function monitorText(array $payload): string
                 !empty($action['submitted']) ? ' [submitted]' : '',
             );
         }
+    }
+    if ($suppressedActions !== []) {
+        $lines[] = 'Suppressed duplicate info actions: ' . count($suppressedActions);
     }
 
     return implode("\n", $lines);
