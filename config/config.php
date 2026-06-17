@@ -24,7 +24,7 @@ return [
             'paper_base_url' => 'https://paper-api.alpaca.markets/v2',
             'live_base_url' => 'https://api.alpaca.markets/v2',
             'paper_only' => true,
-            'orders_enabled' => false,
+            'orders_enabled' => true,
         ],
     ],
     'strategy' => [
