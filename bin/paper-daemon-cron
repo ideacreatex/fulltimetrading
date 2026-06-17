@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)}"
+PHP_BIN="${PHP_BIN:-/opt/homebrew/bin/php}"
+SUBMIT="${SUBMIT:-true}"
+TELEGRAM="${TELEGRAM:-true}"
+INTERVAL="${INTERVAL:-60}"
+
+cd "$PROJECT_DIR"
+exec "$PHP_BIN" bin/trade paper-daemon \
+  --submit="$SUBMIT" \
+  --telegram="$TELEGRAM" \
+  --monitor-interval-seconds="$INTERVAL"
