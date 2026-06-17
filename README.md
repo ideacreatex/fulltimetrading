@@ -1,6 +1,6 @@
 # Fulltime Trading Bot
 
-PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `trading.alpaca.orders_enabled=true`.
+PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `FTT_ORDERS_ENABLED=true`.
 
 ## Что уже есть
 
@@ -47,6 +47,8 @@ APCA_PAPER_ACCOUNT_ID=...
 APCA_PAPER_ACCOUNT_LABEL=paper_strategy_test
 APCA_PAPER_EXPECTED_MULTIPLIER=2
 APCA_PAPER_EXPECTED_SHORTING_ENABLED=true
+FTT_PAPER_ONLY=true
+FTT_ORDERS_ENABLED=false
 ```
 
 По умолчанию используется feed `iex`, потому что `sip` часто требует отдельную подписку.
@@ -58,7 +60,7 @@ APCA_PAPER_EXPECTED_SHORTING_ENABLED=true
 - `AlpacaBarsProvider` откажется работать с `api.alpaca.markets` и `paper-api.alpaca.markets`.
 - `APCA_DATA_*` используются для исторических данных. Старые `APCA_API_KEY_ID/APCA_API_SECRET_KEY` поддерживаются только как fallback для совместимости.
 - `APCA_PAPER_*` используются только `AlpacaPaperClient` против `paper-api.alpaca.markets/v2`.
-- По умолчанию `trading.alpaca.orders_enabled=false`, поэтому команды `paper-plan`, `paper-monitor` и `paper-cycle` работают в dry-run/guarded режиме и не отправляют ордера.
+- По умолчанию `FTT_ORDERS_ENABLED=false`, поэтому команды `paper-plan`, `paper-monitor` и `paper-cycle` работают в dry-run/guarded режиме и не отправляют ордера.
 - Если paper accounts несколько, выбери нужный paper account в Alpaca dashboard и создай/скопируй ключи именно из него. Для Trading API пара ключей определяет аккаунт; отдельный account id не отправляется в каждом запросе.
 - `APCA_PAPER_ACCOUNT_ID` нужен как локальная защита: после read-only `/v2/account` бот сверяет ожидаемое значение с фактическим `id` или `account_number`. Значение из кабинета вида `Paper - PA3BEBVCD1SY` нужно указывать как `PA3BEBVCD1SY`.
 - Для paper-теста с авторской нагрузкой нужен paper account equity минимум `$2,000`, `Shorting Enabled=on`, `Fractional Trading=on`, `Max Margin Multiplier=2x`, `Trades Suspended=off`, `Allow PTP Entry=off`. При equity `$1,000` Alpaca оставит фактический `multiplier=1`, даже если shorting включен в настройках.
@@ -76,7 +78,7 @@ rg "api.alpaca.markets|paper-api.alpaca.markets|/v2/orders|/v2/account" .
 
 В текущем проекте таких live/paper trading-вызовов быть не должно.
 
-Paper trading endpoint уже прописан в `config/config.php` как `trading.alpaca.paper_base_url`. Безопасный порядок запуска: сначала read-only проверка `/v2/account`, затем dry-run генерация заявок, затем paper-submit с kill-switch `trading.alpaca.orders_enabled`.
+Paper trading endpoint уже прописан в `config/config.php` как `trading.alpaca.paper_base_url`. Безопасный порядок запуска: сначала read-only проверка `/v2/account`, затем dry-run генерация заявок, затем paper-submit с kill-switch `FTT_ORDERS_ENABLED`.
 
 Проверить, что ключи видны проекту, не выводя сами секреты:
 
@@ -331,7 +333,7 @@ php bin/trade paper-daemon \
   --monitor-interval-seconds=60
 ```
 
-For paper trading after `orders_enabled=true`:
+For paper trading after `FTT_ORDERS_ENABLED=true` in `.env`:
 
 ```bash
 cd /Users/admin/Desktop/fulltimetrading
@@ -508,7 +510,7 @@ find . -path ./materials -prune -o -name '*.php' -print -o -path ./bin/trade -pr
 
 ## Важные ограничения
 
-- Авторазмещение заявок пока не включено: `trading.alpaca.orders_enabled=false`, `paper_only=true`. Текущий слой безопасен для daily dry-run/status и paper preflight.
+- Авторазмещение заявок по умолчанию заблокировано: `FTT_ORDERS_ENABLED=false`, `FTT_PAPER_ONLY=true`. Текущий слой безопасен для daily dry-run/status и paper preflight.
 - Real-time dashboard `fstock` сохраняется в `dashboard_metrics`, но без исторического API эти значения не используются как hard-rule в backtest.
 - FBMA/fstock/seasonality используются в backtest только после импорта исторических значений или формализации Pine-логики.
 - MP4/YouTube стримы пока не расшифровываются автоматически в этой среде; нужен текстовый transcript или установка инструментов транскрибации.

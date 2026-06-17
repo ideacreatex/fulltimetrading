@@ -23,8 +23,8 @@ return [
         'alpaca' => [
             'paper_base_url' => 'https://paper-api.alpaca.markets/v2',
             'live_base_url' => 'https://api.alpaca.markets/v2',
-            'paper_only' => true,
-            'orders_enabled' => true,
+            'paper_only' => filter_var(getenv('FTT_PAPER_ONLY') === false ? 'true' : getenv('FTT_PAPER_ONLY'), FILTER_VALIDATE_BOOLEAN),
+            'orders_enabled' => filter_var(getenv('FTT_ORDERS_ENABLED') === false ? 'false' : getenv('FTT_ORDERS_ENABLED'), FILTER_VALIDATE_BOOLEAN),
         ],
     ],
     'strategy' => [
