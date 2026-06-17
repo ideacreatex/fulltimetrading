@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)}"
+PHP_BIN="${PHP_BIN:-/opt/homebrew/bin/php}"
+REMOTE="${REMOTE:-origin}"
+BRANCH="${BRANCH:-main}"
+
+cd "$PROJECT_DIR"
+git pull --rebase --autostash "$REMOTE" "$BRANCH" >/dev/null 2>&1 || true
+exec "$PHP_BIN" bin/trade paper-status-export \
+  --git=true \
+  --push=true \
+  --remote="$REMOTE" \
+  --branch="$BRANCH"

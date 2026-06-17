@@ -351,6 +351,21 @@ Cron restart pattern:
 
 The daemon uses `var/run/paper_daemon.lock`, so cron can call it every minute without starting duplicates. If the daemon crashes, the lock is released and the next cron run starts it again. Heartbeat: `var/run/paper_daemon_heartbeat.json`; state: `var/run/paper_daemon_state.json`; log: `var/log/paper_daemon.log`.
 
+Sanitized status export to GitHub:
+
+```cron
+*/15 * * * * /Users/admin/Desktop/fulltimetrading/bin/paper-status-export-cron >> /Users/admin/Desktop/fulltimetrading/var/log/paper_status_export_cron.log 2>&1
+```
+
+It commits and pushes only:
+
+```text
+var/status/latest_paper_status.json
+var/status/latest_paper_status.md
+```
+
+It does not commit `.env`, SQLite DB, raw logs, cache, PDF/video materials, or full Alpaca account identifiers.
+
 ```bash
 php bin/trade paper-cycle \
   --profile=tuned-daily \

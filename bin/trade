@@ -671,6 +671,7 @@ Usage:
   php bin/trade paper-plan [--report=var/reports/daily/alpaca_selected_best_partial_live_signal_report.json] [--submit=false] [--telegram=false]
   php bin/trade paper-monitor [--report=var/reports/daily/alpaca_selected_best_partial_live_signal_report.json] [--submit=false] [--telegram=true]
   php bin/trade paper-status [--limit=20]
+  php bin/trade paper-status-export [--git=false] [--push=false]
   php bin/trade import-dashboard --file=dashboard.csv [--session=regular]
   php bin/trade import-indicators --file=indicators.csv
   php bin/trade import-history --file=history.csv [--source=fstock|tradingview] [--session=regular]
@@ -775,6 +776,11 @@ try {
 
     if ($command === 'paper-status') {
         require __DIR__ . '/../tools/paper_status.php';
+        exit(0);
+    }
+
+    if ($command === 'paper-status-export') {
+        require __DIR__ . '/../tools/paper_status_export.php';
         exit(0);
     }
 
