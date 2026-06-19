@@ -1,17 +1,18 @@
 # FTT Paper Status
 
-- Generated: `2026-06-17T19:16:04+00:00`
-- Market open: `yes`
+- Generated: `2026-06-19T08:45:27+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
-- Equity: `$30,137.58`
-- Cash: `$15,182.64`
-- Buying power: `$419.26`
+- Equity: `$32,129.93`
+- Cash: `$215.09`
+- Buying power: `$430.18`
 
 ## Positions
-- `TECL` qty `66`, price `$226.59`, value `$14954.94`, P/L `$137.58`
+- `TECL` qty `66`, price `$236.49`, value `$15608.34`, P/L `$790.98`
+- `USD` qty `150`, price `$108.71`, value `$16306.50`, P/L `$1338.96`
 
 ## Open Orders
-- `USD` buy limit qty `150`, limit `$99.82`, status `new`
+- none
 
 ## Recent Actions
 - `2026-06-17T18:48:53` `TECL` `review_model_missing`: TECL exists at Alpaca but is absent from model open positions.
