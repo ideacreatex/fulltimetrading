@@ -25,18 +25,34 @@ $report = [
     ],
     'market' => ['allows_long_risk' => true],
     'model' => ['open_positions' => []],
-    'signals_today' => [[
-        'symbol' => 'AAPL',
-        'direction' => 'long',
-        'entry' => 200.0,
-        'stop' => 190.0,
-        'target' => 215.0,
-        'score' => 10.0,
-        'signal_date' => '2026-07-14',
-        'timeframe' => 'D',
-        'ma_type' => 'ema',
-        'ma_period' => 20,
-    ]],
+    'signals_today' => [
+        [
+            'symbol' => 'AAPL',
+            'direction' => 'long',
+            'entry' => 200.0,
+            'stop' => 190.0,
+            'target' => 215.0,
+            'score' => 10.0,
+            'setup_key' => 'z-setup',
+            'signal_date' => '2026-07-14',
+            'timeframe' => 'D',
+            'ma_type' => 'ema',
+            'ma_period' => 20,
+        ],
+        [
+            'symbol' => 'ZZZ',
+            'direction' => 'long',
+            'entry' => 100.0,
+            'stop' => 95.0,
+            'target' => 110.0,
+            'score' => 10.0,
+            'setup_key' => 'a-setup',
+            'signal_date' => '2026-07-14',
+            'timeframe' => 'D',
+            'ma_type' => 'ema',
+            'ma_period' => 20,
+        ],
+    ],
 ];
 file_put_contents($reportPath, json_encode($report, JSON_THROW_ON_ERROR));
 
@@ -75,6 +91,7 @@ try {
     assertSame(0, count(is_array($plan['orders'] ?? null) ? $plan['orders'] : []), 'Blocked validation must produce no entry orders.');
     $skipped = is_array($plan['skipped'] ?? null) ? $plan['skipped'] : [];
     assertSame('production_validation_blocks_entries', $skipped[0]['reason'] ?? null, 'Signal must carry the production validation skip reason.');
+    assertSame('ZZZ', $skipped[0]['symbol'] ?? null, 'Planner tie-break must preserve the serialized backtester setup_key order.');
 } finally {
     @unlink($reportPath);
     @unlink($outputPath);

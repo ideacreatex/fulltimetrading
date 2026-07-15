@@ -13,6 +13,7 @@ use FulltimeTrading\Data\CacheDirectoryMarketDataProvider;
 use FulltimeTrading\Data\CachedMarketDataProvider;
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Data\MarketDataProvider;
+use FulltimeTrading\Data\MarketDataCoverageAnalyzer;
 use FulltimeTrading\Data\YahooChartProvider;
 use FulltimeTrading\Domain\Bar;
 use FulltimeTrading\Domain\Signal;
@@ -49,6 +50,7 @@ $options = [
     'max-pre-split-drawdown-pct' => '0.35',
     'production-max-gross' => '2.0',
     'production-max-open' => '4',
+    'min-symbol-session-coverage-pct' => '0.98',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -84,6 +86,11 @@ $barsBySymbol = loadBarsSafely($provider, $symbols, (string) $options['start'], 
 $marketBars = loadBarsSafely($provider, $marketSymbols, (string) $options['start'], (string) $options['end'], (string) $config->get('cache_path'));
 assertBarsAvailable($symbols, $barsBySymbol, 'experiment symbols');
 assertBarsAvailable($marketSymbols, $marketBars, 'market symbols');
+$dataCoverage = (new MarketDataCoverageAnalyzer())->analyze(
+    array_merge($marketBars, $barsBySymbol),
+    $marketBars[$benchmark] ?? [],
+    (float) $options['min-symbol-session-coverage-pct'],
+);
 
 $indicatorCalculator = new IndicatorCalculator();
 $robustnessAnalyzer = new RobustnessAnalyzer();
@@ -142,11 +149,16 @@ foreach ($variants as $name => $variant) {
         'annualized_return_pct' => $ann,
         'max_drawdown_pct' => $dd,
         'trades' => (int) $summary['trades'],
+        'wins' => (int) ($summary['wins'] ?? 0),
+        'losses' => (int) ($summary['losses'] ?? 0),
+        'win_rate' => (float) ($summary['win_rate'] ?? 0.0),
         'profit_factor' => $summary['profit_factor'],
         'sharpe' => $summary['sharpe'],
         'score_return_drawdown' => $score,
         'robust_score' => $robustScore,
         'active_pct' => $diagnostics['active_pct'],
+        'avg_open_positions' => $diagnostics['avg_open_positions'],
+        'max_open_positions' => $diagnostics['max_open_positions'],
         'avg_gross_exposure_all_days' => $diagnostics['avg_gross_exposure_all_days'],
         'avg_gross_exposure_active_days' => $diagnostics['avg_gross_exposure_active_days'],
         'max_gross_exposure' => $diagnostics['max_gross_exposure'],
@@ -266,6 +278,8 @@ $walkForwardProduction = addFrozenHoldoutEvaluation(
     $rowsByVariant,
     (string) $options['robust-split-date'],
 );
+$walkForwardUnconstrained = applyDataQualityGate($walkForwardUnconstrained, $dataCoverage);
+$walkForwardProduction = applyDataQualityGate($walkForwardProduction, $dataCoverage);
 
 usort($summaries, static fn (array $a, array $b): int => $b['robust_score'] <=> $a['robust_score']);
 $summaryPath = $outputDir . '/summary.json';
@@ -278,6 +292,7 @@ file_put_contents($summaryPath, json_encode([
     'cache_namespace' => $options['cache-namespace'],
     'symbols' => $symbols,
     'portfolio_sizing_basis' => 'marked_equity_and_current_market_value',
+    'data_coverage' => $dataCoverage,
     'robust_split_date' => $options['robust-split-date'],
     'robustness_policy' => $robustnessPolicy,
     'variants' => count($variants),
@@ -352,12 +367,11 @@ function loadBarsSafely(MarketDataProvider $provider, array $symbols, string $st
     try {
         return $provider->getBars($symbols, '1Day', $start, $end);
     } catch (Throwable $e) {
-        $cached = (new CacheDirectoryMarketDataProvider($cachePath))->getBars($symbols, '1Day', $start, $end);
-        if ($cached !== []) {
-            return $cached;
-        }
-
-        throw $e;
+        throw new RuntimeException(
+            'Market-data request failed; refusing an implicit unscoped cache fallback: ' . $e->getMessage(),
+            0,
+            $e,
+        );
     }
 }
 
@@ -412,7 +426,7 @@ function experimentVariants(array $symbols, array $options = []): array
         'hard_stop_fill_mode' => enumOption($options, 'hard-stop-fill-mode', ['gap_open', 'stop_price'], 'gap_open'),
     ];
 
-    $variants = ['baseline' => $base];
+    $variants = boolOption($options, 'risk-only') ? [] : ['baseline' => $base];
     $add = static function (string $prefix, array $overrides) use (&$variants, $base): void {
         $variant = array_merge($base, $overrides);
         $name = $prefix . '_' . shortParams($overrides);
@@ -705,11 +719,13 @@ function diagnostics(array $positionStates, array $curve): array
     $sumExposure = 0.0;
     $exposureDays = 0;
     $maxExposure = 0.0;
+    $maxOpen = 0;
     foreach ($curve as $point) {
         $date = (string) $point['date'];
         $equity = (float) $point['equity'];
         $openPositions = $positionsByDate[$date] ?? [];
         $open = count($openPositions);
+        $maxOpen = max($maxOpen, $open);
         $notional = 0.0;
         foreach ($openPositions as $positionState) {
             $notional += abs((float) ($positionState['market_value'] ?? 0.0));
@@ -735,6 +751,7 @@ function diagnostics(array $positionStates, array $curve): array
         'active_days' => $activeDays,
         'active_pct' => $activeDays / $days,
         'avg_open_positions' => $sumOpen / $days,
+        'max_open_positions' => $maxOpen,
         'avg_gross_exposure_all_days' => $sumExposure / $days,
         'avg_gross_exposure_active_days' => $exposureDays > 0 ? $sumExposure / $exposureDays : 0.0,
         'max_gross_exposure' => $maxExposure,
@@ -826,6 +843,37 @@ function addFrozenHoldoutEvaluation(array $selection, array $rowsByVariant, stri
         'passes' => $row['meets_holdout_validation'],
         'failures' => $row['holdout_validation_failures'],
     ];
+
+    return $selection;
+}
+
+/**
+ * Market-data gaps can manufacture signals and fills. Preserve the strategy-
+ * only selector diagnostics, but never expose a production candidate when the
+ * requested universe does not meet the declared session-coverage floor.
+ *
+ * @param array<string, mixed> $selection
+ * @param array<string, mixed> $dataCoverage
+ * @return array<string, mixed>
+ */
+function applyDataQualityGate(array $selection, array $dataCoverage): array
+{
+    $selection['strategy_eligible_count'] = (int) ($selection['eligible_count'] ?? 0);
+    $selection['strategy_selected_variant'] = $selection['selected_variant'] ?? null;
+    $selection['data_quality_passes'] = ($dataCoverage['passes'] ?? false) === true;
+    $selection['data_quality_failures'] = is_array($dataCoverage['failures'] ?? null)
+        ? array_values($dataCoverage['failures'])
+        : ['data_coverage_unavailable'];
+    if ($selection['data_quality_passes']) {
+        return $selection;
+    }
+
+    $selection['eligible_count'] = 0;
+    $selection['selected_variant'] = null;
+    $selection['selected_params'] = null;
+    $selection['selected_training'] = null;
+    $selection['train_score'] = null;
+    $selection['frozen_oos_evaluation'] = null;
 
     return $selection;
 }

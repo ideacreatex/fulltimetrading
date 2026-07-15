@@ -6,6 +6,7 @@ declare(strict_types=1);
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
+use FulltimeTrading\Support\PaperPlanStatusSummary;
 use FulltimeTrading\Support\StatusExportGitPublisher;
 use FulltimeTrading\Support\StatusSnapshotSafety;
 use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
@@ -93,6 +94,7 @@ $payload = [
     ],
     'bot' => [
         'states' => statusExportSanitizeStates($repo->loadPaperPositionStates()),
+        'recent_orders_scope' => 'local_order_history_not_current_open_orders',
         'recent_orders' => array_map('statusExportSanitizeStoredOrder', $repo->recentPaperOrders((int) $options['limit'])),
         'recent_actions' => array_map('statusExportSanitizeAction', $repo->recentPaperActions((int) $options['limit'])),
     ],
@@ -380,18 +382,17 @@ function statusExportSanitizeMonitorAction(mixed $action): array
 /** @param ?array<string, mixed> $plan @return array<string, mixed>|null */
 function statusExportSummarizePlan(?array $plan): ?array
 {
-    if ($plan === null) {
+    $summary = PaperPlanStatusSummary::fromPayload($plan);
+    if ($summary === null) {
         return null;
     }
 
-    return [
-        'generated_at' => $plan['generated_at'] ?? null,
-        'dry_run' => $plan['dry_run'] ?? null,
-        'submit_allowed' => $plan['submit_allowed'] ?? null,
-        'orders_count' => is_array($plan['orders'] ?? null) ? count($plan['orders']) : null,
-        'skipped_count' => is_array($plan['skipped'] ?? null) ? count($plan['skipped']) : null,
-        'orders' => array_map('statusExportSanitizeStoredOrder', is_array($plan['orders'] ?? null) ? $plan['orders'] : []),
-    ];
+    $summary['orders'] = array_map(
+        'statusExportSanitizeStoredOrder',
+        is_array($summary['orders'] ?? null) ? $summary['orders'] : [],
+    );
+
+    return $summary;
 }
 
 /** @param array<string, mixed> $payload */

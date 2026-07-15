@@ -104,6 +104,11 @@ final class PaperDailyReportFreshnessGuard
             return self::failure($base, 'report_as_of_stale');
         }
 
+        $symbolBars = self::validateSymbolBars($report, $asOf->format('Y-m-d'));
+        if (!$symbolBars['ok']) {
+            return self::failure($base, (string) $symbolBars['reason'], (string) $symbolBars['detail']);
+        }
+
         return array_merge($base, [
             'ok' => true,
             'reason' => 'fresh_report_verified',
@@ -112,6 +117,8 @@ final class PaperDailyReportFreshnessGuard
             'latest_expected_closed_bar' => $latestClosedDate->format('Y-m-d'),
             'calendar_age_days' => $calendarAgeDays,
             'missing_trading_sessions' => $missingSessions,
+            'verified_symbol_bars' => $symbolBars['verified_symbol_bars'],
+            'verified_market_symbol_bars' => $symbolBars['verified_market_symbol_bars'],
         ]);
     }
 
@@ -193,6 +200,106 @@ final class PaperDailyReportFreshnessGuard
         }
 
         return $count;
+    }
+
+    /**
+     * @param array<string, mixed> $report
+     * @return array{ok:bool,reason:string,detail:string,verified_symbol_bars:int,verified_market_symbol_bars:int}
+     */
+    private static function validateSymbolBars(array $report, string $asOf): array
+    {
+        $data = is_array($report['data'] ?? null) ? $report['data'] : [];
+        $requested = (int) ($data['symbols_requested'] ?? 0);
+        $loaded = (int) ($data['symbols_loaded'] ?? 0);
+        $missing = is_array($data['missing_symbols'] ?? null) ? $data['missing_symbols'] : [];
+        $snapshots = is_array($data['latest_closed_bars'] ?? null) ? $data['latest_closed_bars'] : [];
+
+        if ($requested <= 0 || $loaded !== $requested || $missing !== [] || count($snapshots) !== $requested) {
+            return [
+                'ok' => false,
+                'reason' => 'report_symbol_bars_incomplete',
+                'detail' => sprintf(
+                    'requested=%d loaded=%d snapshots=%d missing=%s',
+                    $requested,
+                    $loaded,
+                    count($snapshots),
+                    implode(',', array_map('strval', $missing)),
+                ),
+                'verified_symbol_bars' => 0,
+                'verified_market_symbol_bars' => 0,
+            ];
+        }
+
+        $stale = [];
+        foreach ($snapshots as $symbol => $snapshot) {
+            $date = is_array($snapshot) ? (string) ($snapshot['date'] ?? '') : '';
+            if ($date !== $asOf) {
+                $stale[] = strtoupper((string) $symbol) . ':' . ($date !== '' ? $date : 'missing');
+            }
+        }
+        if ($stale !== []) {
+            sort($stale, SORT_STRING);
+
+            return [
+                'ok' => false,
+                'reason' => 'report_symbol_bars_stale',
+                'detail' => implode(',', $stale),
+                'verified_symbol_bars' => count($snapshots) - count($stale),
+                'verified_market_symbol_bars' => 0,
+            ];
+        }
+
+        $marketRequested = (int) ($data['market_symbols_requested'] ?? 0);
+        $marketLoaded = (int) ($data['market_symbols_loaded'] ?? 0);
+        $missingMarket = is_array($data['missing_market_symbols'] ?? null) ? $data['missing_market_symbols'] : [];
+        $marketSnapshots = is_array($data['latest_closed_market_bars'] ?? null) ? $data['latest_closed_market_bars'] : [];
+        if (
+            $marketRequested <= 0
+            || $marketLoaded !== $marketRequested
+            || $missingMarket !== []
+            || count($marketSnapshots) !== $marketRequested
+        ) {
+            return [
+                'ok' => false,
+                'reason' => 'report_market_symbol_bars_incomplete',
+                'detail' => sprintf(
+                    'requested=%d loaded=%d snapshots=%d missing=%s',
+                    $marketRequested,
+                    $marketLoaded,
+                    count($marketSnapshots),
+                    implode(',', array_map('strval', $missingMarket)),
+                ),
+                'verified_symbol_bars' => count($snapshots),
+                'verified_market_symbol_bars' => 0,
+            ];
+        }
+
+        $staleMarket = [];
+        foreach ($marketSnapshots as $symbol => $snapshot) {
+            $date = is_array($snapshot) ? (string) ($snapshot['date'] ?? '') : '';
+            if ($date !== $asOf) {
+                $staleMarket[] = strtoupper((string) $symbol) . ':' . ($date !== '' ? $date : 'missing');
+            }
+        }
+        if ($staleMarket !== []) {
+            sort($staleMarket, SORT_STRING);
+
+            return [
+                'ok' => false,
+                'reason' => 'report_market_symbol_bars_stale',
+                'detail' => implode(',', $staleMarket),
+                'verified_symbol_bars' => count($snapshots),
+                'verified_market_symbol_bars' => count($marketSnapshots) - count($staleMarket),
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'reason' => 'symbol_bars_verified',
+            'detail' => '',
+            'verified_symbol_bars' => count($snapshots),
+            'verified_market_symbol_bars' => count($marketSnapshots),
+        ];
     }
 
     private static function isExpectedUsTradingDay(\DateTimeImmutable $date): bool

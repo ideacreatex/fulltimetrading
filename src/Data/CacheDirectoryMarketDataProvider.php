@@ -20,22 +20,42 @@ final readonly class CacheDirectoryMarketDataProvider implements MarketDataProvi
      */
     public function getBars(array $symbols, string $timeframe, string $start, string $end): array
     {
+        $legacySymbols = array_values(array_unique(array_map(
+            static fn (string $symbol): string => strtoupper(trim($symbol)),
+            $symbols,
+        )));
         $symbols = array_values(array_unique(array_map(
             static fn (string $symbol): string => strtoupper(trim($symbol)),
             $symbols,
         )));
+        sort($symbols, SORT_STRING);
         $wanted = array_fill_keys($symbols, true);
 
         if ($this->namespace !== null && $this->namespace !== '') {
-            $file = rtrim($this->cachePath, '/') . '/' . sha1(
+            $canonicalFile = rtrim($this->cachePath, '/') . '/' . sha1(
                 $this->namespace . '|' . implode(',', $symbols) . '|' . $timeframe . '|' . $start . '|' . $end,
             ) . '.json';
-            if (is_file($file)) {
+            $legacyFile = rtrim($this->cachePath, '/') . '/' . sha1(
+                $this->namespace . '|' . implode(',', $legacySymbols) . '|' . $timeframe . '|' . $start . '|' . $end,
+            ) . '.json';
+            foreach (array_values(array_unique([$canonicalFile, $legacyFile])) as $file) {
+                if (!is_file($file)) {
+                    continue;
+                }
                 $payload = json_decode((string) file_get_contents($file), true);
                 if (is_array($payload)) {
                     return $this->decodePayload($payload, $wanted, $timeframe, $start, $end, true);
                 }
             }
+
+            throw new \RuntimeException(sprintf(
+                'Exact cache snapshot is missing for namespace %s, symbols %s, timeframe %s, %s..%s.',
+                $this->namespace,
+                implode(',', $symbols),
+                $timeframe,
+                $start,
+                $end,
+            ));
         }
 
         $rowsBySymbolTime = $this->loadRowsFromDirectory($wanted, $timeframe, $start, $end);

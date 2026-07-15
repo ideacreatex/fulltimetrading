@@ -3,10 +3,12 @@
 
 declare(strict_types=1);
 
+use FulltimeTrading\Support\TelegramSignalAlignment;
+
 require __DIR__ . '/../bootstrap.php';
 
 $options = [
-    'telegram' => __DIR__ . '/../var/reports/telegram_setups.json',
+    'telegram' => __DIR__ . '/../var/reports/telegram_classified.json',
     'signals' => __DIR__ . '/../var/reports/author_grid/best_signals.json',
     'output' => __DIR__ . '/../var/reports/author_grid/telegram_signal_comparison.json',
     'authors' => 'FTT_Admin Official',
@@ -14,6 +16,9 @@ $options = [
     'family-match' => '1',
     'classes' => '',
     'class-match' => 'any',
+    'direction-aware' => '1',
+    'action-aware' => '1',
+    'setup-aware' => '1',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -38,6 +43,10 @@ $windowDays = (int) $options['window-days'];
 $familyMatchEnabled = !in_array(strtolower((string) $options['family-match']), ['0', 'false', 'no', 'off'], true);
 $classLookup = classLookup((string) $options['classes']);
 $classMatchMode = strtolower((string) $options['class-match']) === 'primary' ? 'primary' : 'any';
+$directionAware = booleanOption((string) $options['direction-aware']);
+$actionAware = booleanOption((string) $options['action-aware']);
+$setupAware = booleanOption((string) $options['setup-aware']);
+$alignmentEvaluator = new TelegramSignalAlignment();
 
 $signalsBySymbol = [];
 $signalsByFamily = [];
@@ -63,6 +72,18 @@ $tickerRows = 0;
 $matchedTickerRows = 0;
 $exactMatchedTickerRows = 0;
 $familyMatchedTickerRows = 0;
+$temporalMatchedEvents = 0;
+$temporalMatchedTickerRows = 0;
+$directionMismatchEvents = 0;
+$directionMismatchTickerRows = 0;
+$coarseMatchedEvents = 0;
+$coarseMatchedTickerRows = 0;
+$setupMismatchEvents = 0;
+$setupMismatchTickerRows = 0;
+$setupAmbiguousEvents = 0;
+$setupAmbiguousTickerRows = 0;
+$nonComparableEvents = 0;
+$nonComparableTickerRows = 0;
 
 foreach ($events as $event) {
     if (!is_array($event)) {
@@ -84,6 +105,12 @@ foreach ($events as $event) {
     $eventMatched = false;
     $exactEventMatched = false;
     $familyEventMatched = false;
+    $temporalEventMatched = false;
+    $directionMismatchEvent = false;
+    $coarseMatchedEvent = false;
+    $setupMismatchEvent = false;
+    $setupAmbiguousEvent = false;
+    $eventHadComparableRow = false;
     foreach ($tickers as $ticker) {
         $tickerRows++;
         $family = symbolFamily($ticker);
@@ -100,10 +127,56 @@ foreach ($events as $event) {
                 $family,
             );
         }
-        $matches = mergeMatches($exactMatches, $familyMatches);
-        $exactMatched = $exactMatches !== [];
+        $temporalMatches = mergeMatches($exactMatches, $familyMatches);
+        $comparisonEvent = $event;
+        $comparisonEvent['comparison_ticker'] = $ticker;
+        $alignment = $alignmentEvaluator->evaluate(
+            $comparisonEvent,
+            $temporalMatches,
+            $directionAware,
+            $actionAware,
+            $setupAware,
+        );
+        $exactAlignment = $alignmentEvaluator->evaluate(
+            $comparisonEvent,
+            $exactMatches,
+            $directionAware,
+            $actionAware,
+            $setupAware,
+        );
+        $matches = is_array($alignment['matches'] ?? null) ? $alignment['matches'] : [];
+        $exactMatched = ($exactAlignment['matched'] ?? false) === true;
         $familyMatched = $matches !== [] && !$exactMatched;
-        if ($matches !== []) {
+        $temporalMatched = $temporalMatches !== [];
+        $comparable = ($alignment['action_comparable'] ?? false) === true
+            && ($alignment['direction_comparable'] ?? false) === true
+            && ($alignment['setup_comparable'] ?? false) === true;
+        if ($temporalMatched) {
+            $temporalMatchedTickerRows++;
+            $temporalEventMatched = true;
+        }
+        if ($comparable) {
+            $eventHadComparableRow = true;
+        } else {
+            $nonComparableTickerRows++;
+        }
+        if (($alignment['direction_mismatch'] ?? false) === true) {
+            $directionMismatchTickerRows++;
+            $directionMismatchEvent = true;
+        }
+        if (($alignment['coarse_matched'] ?? false) === true) {
+            $coarseMatchedTickerRows++;
+            $coarseMatchedEvent = true;
+        }
+        if (($alignment['setup_mismatch'] ?? false) === true) {
+            $setupMismatchTickerRows++;
+            $setupMismatchEvent = true;
+        }
+        if (($alignment['setup_ambiguous'] ?? false) === true) {
+            $setupAmbiguousTickerRows++;
+            $setupAmbiguousEvent = true;
+        }
+        if (($alignment['matched'] ?? false) === true) {
             $matchedTickerRows++;
             $eventMatched = true;
         }
@@ -124,10 +197,25 @@ foreach ($events as $event) {
             'family' => $family,
             'keywords' => $event['keywords'] ?? [],
             'support_mentions' => $event['support_mentions'] ?? [],
-            'matched' => $matches !== [],
+            'event_action' => $alignment['event_action'] ?? null,
+            'verified_real_action' => $alignment['verified_real_action'] ?? false,
+            'event_market_direction' => $alignment['event_market_direction'] ?? null,
+            'required_signal_direction' => $alignment['required_signal_direction'] ?? null,
+            'action_comparable' => $alignment['action_comparable'] ?? false,
+            'direction_comparable' => $alignment['direction_comparable'] ?? false,
+            'setup_comparable' => $alignment['setup_comparable'] ?? false,
+            'setup_ambiguous' => $alignment['setup_ambiguous'] ?? false,
+            'alignment_reason' => $alignment['reason'] ?? null,
+            'temporal_matched' => $temporalMatched,
+            'coarse_matched' => $alignment['coarse_matched'] ?? false,
+            'direction_mismatch' => $alignment['direction_mismatch'] ?? false,
+            'setup_mismatch' => $alignment['setup_mismatch'] ?? false,
+            'matched' => ($alignment['matched'] ?? false) === true,
             'exact_matched' => $exactMatched,
             'family_matched' => $familyMatched,
             'matches' => array_slice($matches, 0, 5),
+            'temporal_matches' => array_slice($temporalMatches, 0, 5),
+            'coarse_matches' => array_slice(is_array($alignment['coarse_matches'] ?? null) ? $alignment['coarse_matches'] : [], 0, 5),
             'text_excerpt' => mb_substr(preg_replace('/\s+/u', ' ', (string) ($event['text'] ?? '')) ?? '', 0, 360),
         ];
     }
@@ -143,16 +231,49 @@ foreach ($events as $event) {
     if ($eventMatched && !$exactEventMatched) {
         $familyOnlyMatchedEvents++;
     }
+    if ($temporalEventMatched) {
+        $temporalMatchedEvents++;
+    }
+    if ($directionMismatchEvent) {
+        $directionMismatchEvents++;
+    }
+    if ($coarseMatchedEvent) {
+        $coarseMatchedEvents++;
+    }
+    if ($setupMismatchEvent) {
+        $setupMismatchEvents++;
+    }
+    if ($setupAmbiguousEvent) {
+        $setupAmbiguousEvents++;
+    }
+    if (!$eventHadComparableRow) {
+        $nonComparableEvents++;
+    }
 }
 
 $byTicker = [];
 foreach ($rows as $row) {
     $ticker = (string) $row['ticker'];
     if (!isset($byTicker[$ticker])) {
-        $byTicker[$ticker] = ['rows' => 0, 'matched' => 0, 'exact_matched' => 0, 'family_matched' => 0];
+        $byTicker[$ticker] = [
+            'rows' => 0,
+            'matched' => 0,
+            'temporal_matched' => 0,
+            'coarse_matched' => 0,
+            'direction_mismatch' => 0,
+            'setup_mismatch' => 0,
+            'setup_ambiguous' => 0,
+            'exact_matched' => 0,
+            'family_matched' => 0,
+        ];
     }
     $byTicker[$ticker]['rows']++;
     $byTicker[$ticker]['matched'] += $row['matched'] ? 1 : 0;
+    $byTicker[$ticker]['temporal_matched'] += $row['temporal_matched'] ? 1 : 0;
+    $byTicker[$ticker]['coarse_matched'] += $row['coarse_matched'] ? 1 : 0;
+    $byTicker[$ticker]['direction_mismatch'] += $row['direction_mismatch'] ? 1 : 0;
+    $byTicker[$ticker]['setup_mismatch'] += $row['setup_mismatch'] ? 1 : 0;
+    $byTicker[$ticker]['setup_ambiguous'] += $row['setup_ambiguous'] ? 1 : 0;
     $byTicker[$ticker]['exact_matched'] += $row['exact_matched'] ? 1 : 0;
     $byTicker[$ticker]['family_matched'] += $row['family_matched'] ? 1 : 0;
 }
@@ -168,8 +289,14 @@ $result = [
     'family_match_enabled' => $familyMatchEnabled,
     'classes' => array_keys($classLookup),
     'class_match' => $classMatchMode,
+    'direction_aware' => $directionAware,
+    'action_aware' => $actionAware,
+    'setup_aware' => $setupAware,
+    'comparison_scope' => 'initial_entry_or_setup_only; add/hold/exit require position-state comparison',
     'summary' => [
         'events' => $eventCount,
+        'temporal_matched_events' => $temporalMatchedEvents,
+        'temporal_event_match_rate' => $eventCount > 0 ? $temporalMatchedEvents / $eventCount : 0.0,
         'matched_events' => $matchedEvents,
         'event_match_rate' => $eventCount > 0 ? $matchedEvents / $eventCount : 0.0,
         'exact_matched_events' => $exactMatchedEvents,
@@ -179,12 +306,26 @@ $result = [
         'family_only_matched_events' => $familyOnlyMatchedEvents,
         'family_only_event_match_rate' => $eventCount > 0 ? $familyOnlyMatchedEvents / $eventCount : 0.0,
         'ticker_rows' => $tickerRows,
+        'temporal_matched_ticker_rows' => $temporalMatchedTickerRows,
+        'temporal_ticker_match_rate' => $tickerRows > 0 ? $temporalMatchedTickerRows / $tickerRows : 0.0,
+        'coarse_matched_events' => $coarseMatchedEvents,
+        'coarse_event_match_rate' => $eventCount > 0 ? $coarseMatchedEvents / $eventCount : 0.0,
+        'coarse_matched_ticker_rows' => $coarseMatchedTickerRows,
+        'coarse_ticker_match_rate' => $tickerRows > 0 ? $coarseMatchedTickerRows / $tickerRows : 0.0,
         'matched_ticker_rows' => $matchedTickerRows,
         'ticker_match_rate' => $tickerRows > 0 ? $matchedTickerRows / $tickerRows : 0.0,
         'exact_matched_ticker_rows' => $exactMatchedTickerRows,
         'exact_ticker_match_rate' => $tickerRows > 0 ? $exactMatchedTickerRows / $tickerRows : 0.0,
         'family_only_matched_ticker_rows' => $familyMatchedTickerRows,
         'family_only_ticker_match_rate' => $tickerRows > 0 ? $familyMatchedTickerRows / $tickerRows : 0.0,
+        'direction_mismatch_events' => $directionMismatchEvents,
+        'direction_mismatch_ticker_rows' => $directionMismatchTickerRows,
+        'setup_mismatch_events' => $setupMismatchEvents,
+        'setup_mismatch_ticker_rows' => $setupMismatchTickerRows,
+        'setup_ambiguous_events' => $setupAmbiguousEvents,
+        'setup_ambiguous_ticker_rows' => $setupAmbiguousTickerRows,
+        'non_comparable_events' => $nonComparableEvents,
+        'non_comparable_ticker_rows' => $nonComparableTickerRows,
         'signals' => count($signals),
         'top_tickers' => array_slice($byTicker, 0, 30, true),
     ],
@@ -327,4 +468,9 @@ function eventMatchesClasses(array $event, array $classLookup, string $matchMode
     }
 
     return false;
+}
+
+function booleanOption(string $value): bool
+{
+    return !in_array(strtolower(trim($value)), ['0', 'false', 'no', 'off'], true);
 }

@@ -1,5 +1,7 @@
 # FullTimeTrading — current paper state
 
+> Research update 2026-07-16: активный paper runtime ниже не переключался и не перезапускался. Новая изолированная регрессия не выбрала production-кандидата; старые `+395.79%` зависели от порядка universe. Актуальные детерминированные сравнения: `docs/STRATEGY_REGRESSION_2026-07-16.md`.
+
 Обновлено: 2026-07-15 (Asia/Nicosia). Здесь хранится только sanitized operational context: без ключей и полных идентификаторов аккаунта.
 
 ## Safety и выбранное решение

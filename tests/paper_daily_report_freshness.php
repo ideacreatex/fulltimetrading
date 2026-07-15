@@ -29,7 +29,22 @@ function writeFreshnessReport(string $path, string $generatedAt, string $asOf): 
     file_put_contents($path, json_encode([
         'generated_at' => $generatedAt,
         'as_of' => $asOf,
-        'data' => ['symbols_loaded' => 5],
+        'data' => [
+            'symbols_requested' => 2,
+            'symbols_loaded' => 2,
+            'missing_symbols' => [],
+            'latest_closed_bars' => [
+                'AAA' => ['date' => $asOf, 'close' => 100.0],
+                'BBB' => ['date' => $asOf, 'close' => 200.0],
+            ],
+            'market_symbols_requested' => 2,
+            'market_symbols_loaded' => 2,
+            'missing_market_symbols' => [],
+            'latest_closed_market_bars' => [
+                'SPY' => ['date' => $asOf, 'close' => 600.0],
+                'QQQ' => ['date' => $asOf, 'close' => 550.0],
+            ],
+        ],
     ], JSON_THROW_ON_ERROR));
 }
 
@@ -67,6 +82,72 @@ try {
     );
     expectFreshness(PaperDailyReportFreshnessGuard::allowsDownstream($fresh), 'Friday report must remain current during the weekend.');
     expectFreshness(($fresh['latest_expected_closed_bar'] ?? '') === '2026-07-17', 'Weekend gate must target Friday, not Sunday.');
+    expectFreshness(($fresh['verified_symbol_bars'] ?? 0) === 2, 'Every requested symbol bar must be verified.');
+    expectFreshness(($fresh['verified_market_symbol_bars'] ?? 0) === 2, 'Every market-regime symbol bar must be verified.');
+
+    $staleSymbolReport = $tempDir . '/report.stale-symbol.json';
+    writeFreshnessReport($staleSymbolReport, marketTime('2026-07-19 11:00:00')->format(DateTimeInterface::ATOM), '2026-07-17');
+    $stalePayload = json_decode((string) file_get_contents($staleSymbolReport), true, 512, JSON_THROW_ON_ERROR);
+    $stalePayload['data']['latest_closed_bars']['BBB']['date'] = '2026-07-16';
+    file_put_contents($staleSymbolReport, json_encode($stalePayload, JSON_THROW_ON_ERROR));
+    $staleSymbol = PaperDailyReportFreshnessGuard::evaluate(
+        $staleSymbolReport,
+        true,
+        ['ok' => true, 'exit_code' => 0],
+        $cycleStartedAt,
+        '',
+        true,
+        $weekendNow,
+    );
+    expectFreshnessReason($staleSymbol, 'report_symbol_bars_stale', 'A stale member of the trading universe must block the report');
+
+    $incompleteSymbolReport = $tempDir . '/report.incomplete-symbol.json';
+    writeFreshnessReport($incompleteSymbolReport, marketTime('2026-07-19 11:00:00')->format(DateTimeInterface::ATOM), '2026-07-17');
+    $incompletePayload = json_decode((string) file_get_contents($incompleteSymbolReport), true, 512, JSON_THROW_ON_ERROR);
+    unset($incompletePayload['data']['latest_closed_bars']['BBB']);
+    file_put_contents($incompleteSymbolReport, json_encode($incompletePayload, JSON_THROW_ON_ERROR));
+    $incompleteSymbol = PaperDailyReportFreshnessGuard::evaluate(
+        $incompleteSymbolReport,
+        true,
+        ['ok' => true, 'exit_code' => 0],
+        $cycleStartedAt,
+        '',
+        true,
+        $weekendNow,
+    );
+    expectFreshnessReason($incompleteSymbol, 'report_symbol_bars_incomplete', 'A missing symbol snapshot must block the report');
+
+    $staleMarketReport = $tempDir . '/report.stale-market-symbol.json';
+    writeFreshnessReport($staleMarketReport, marketTime('2026-07-19 11:00:00')->format(DateTimeInterface::ATOM), '2026-07-17');
+    $staleMarketPayload = json_decode((string) file_get_contents($staleMarketReport), true, 512, JSON_THROW_ON_ERROR);
+    $staleMarketPayload['data']['latest_closed_market_bars']['QQQ']['date'] = '2026-07-16';
+    file_put_contents($staleMarketReport, json_encode($staleMarketPayload, JSON_THROW_ON_ERROR));
+    $staleMarket = PaperDailyReportFreshnessGuard::evaluate(
+        $staleMarketReport,
+        true,
+        ['ok' => true, 'exit_code' => 0],
+        $cycleStartedAt,
+        '',
+        true,
+        $weekendNow,
+    );
+    expectFreshnessReason($staleMarket, 'report_market_symbol_bars_stale', 'A stale market-regime input must block the report');
+
+    $incompleteMarketReport = $tempDir . '/report.incomplete-market-symbol.json';
+    writeFreshnessReport($incompleteMarketReport, marketTime('2026-07-19 11:00:00')->format(DateTimeInterface::ATOM), '2026-07-17');
+    $incompleteMarketPayload = json_decode((string) file_get_contents($incompleteMarketReport), true, 512, JSON_THROW_ON_ERROR);
+    unset($incompleteMarketPayload['data']['latest_closed_market_bars']['QQQ']);
+    file_put_contents($incompleteMarketReport, json_encode($incompleteMarketPayload, JSON_THROW_ON_ERROR));
+    $incompleteMarket = PaperDailyReportFreshnessGuard::evaluate(
+        $incompleteMarketReport,
+        true,
+        ['ok' => true, 'exit_code' => 0],
+        $cycleStartedAt,
+        '',
+        true,
+        $weekendNow,
+    );
+    expectFreshnessReason($incompleteMarket, 'report_market_symbol_bars_incomplete', 'A missing market-regime snapshot must block the report');
     expectFreshness(
         PaperDailyReportFreshnessGuard::closedBarReportEnd('2026-07-19', '', $weekendNow) === '2026-07-17',
         'A normal cycle must cap provider data at the latest closed daily bar.',

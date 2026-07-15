@@ -24,16 +24,46 @@ final class CachedMarketDataProvider implements MarketDataProvider
      */
     public function getBars(array $symbols, string $timeframe, string $start, string $end): array
     {
+        $symbols = array_values(array_unique(array_map(
+            static fn (string $symbol): string => strtoupper(trim($symbol)),
+            $symbols,
+        )));
+        sort($symbols, SORT_STRING);
         $key = sha1($this->name . '|' . implode(',', $symbols) . '|' . $timeframe . '|' . $start . '|' . $end);
         $file = rtrim($this->cachePath, '/') . '/' . $key . '.json';
-        if (is_file($file)) {
+        if (is_file($file) && $this->cacheWasCreatedAfterRequestedDailyClose($file, $timeframe, $end)) {
             return $this->decode((string) file_get_contents($file));
         }
 
         $bars = $this->inner->getBars($symbols, $timeframe, $start, $end);
-        file_put_contents($file, json_encode($this->encode($bars), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $json = json_encode($this->encode($bars), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $temp = $file . '.tmp-' . bin2hex(random_bytes(6));
+        if (file_put_contents($temp, $json) === false || !rename($temp, $file)) {
+            @unlink($temp);
+            throw new \RuntimeException('Unable to atomically update market-data cache: ' . $file);
+        }
 
         return $bars;
+    }
+
+    private function cacheWasCreatedAfterRequestedDailyClose(string $file, string $timeframe, string $end): bool
+    {
+        if (!in_array(strtolower($timeframe), ['1day', '1d', 'd', 'day'], true)) {
+            return true;
+        }
+        $timezone = new \DateTimeZone('America/New_York');
+        $endDate = \DateTimeImmutable::createFromFormat('!Y-m-d', $end, $timezone);
+        if ($endDate === false || $endDate->format('Y-m-d') !== $end) {
+            return true;
+        }
+        $settledAt = $endDate->setTime(16, 15);
+        $now = new \DateTimeImmutable('now', $timezone);
+        if ($now < $settledAt) {
+            return true;
+        }
+        $modifiedAt = filemtime($file);
+
+        return $modifiedAt !== false && $modifiedAt >= $settledAt->getTimestamp();
     }
 
     /**

@@ -128,4 +128,67 @@ executionAssert(
     'Pending limits must reserve their fixed order quantity at the limit price.',
 );
 
+$priorityMethod = new ReflectionMethod($backtester, 'prioritizedSignalsForDate');
+$lower = new Signal(
+    'AAA',
+    new DateTimeImmutable('2026-07-13'),
+    'SUPPORT_REGULARITY',
+    100.0,
+    90.0,
+    130.0,
+    10.0,
+    1.0,
+    ['lower'],
+    'long',
+    ['setup_key' => 'z-lower'],
+);
+$higherTieB = new Signal(
+    'BBB',
+    new DateTimeImmutable('2026-07-13'),
+    'SUPPORT_REGULARITY',
+    100.0,
+    90.0,
+    130.0,
+    10.0,
+    2.0,
+    ['higher-b'],
+    'long',
+    ['setup_key' => 'b-higher'],
+);
+$higherTieA = new Signal(
+    'CCC',
+    new DateTimeImmutable('2026-07-13'),
+    'SUPPORT_REGULARITY',
+    100.0,
+    90.0,
+    130.0,
+    10.0,
+    2.0,
+    ['higher-a'],
+    'long',
+    ['setup_key' => 'a-higher'],
+);
+$priorityOne = $priorityMethod->invoke($backtester, [
+    'AAA' => [$lower],
+    'BBB' => [$higherTieB],
+    'CCC' => [$higherTieA],
+]);
+$priorityTwo = $priorityMethod->invoke($backtester, [
+    'CCC' => [$higherTieA],
+    'AAA' => [$lower],
+    'BBB' => [$higherTieB],
+]);
+$priorityKeys = static fn (array $signals): array => array_map(
+    static fn (Signal $candidate): string => (string) $candidate->metadata['setup_key'],
+    $signals,
+);
+executionAssert(
+    $priorityKeys($priorityOne) === ['a-higher', 'b-higher', 'z-lower'],
+    'Signals from all symbols must compete globally by score with a stable setup-key tie break.',
+);
+executionAssert(
+    $priorityKeys($priorityOne) === $priorityKeys($priorityTwo),
+    'Signal priority must not depend on the input symbol order.',
+);
+
 echo "Backtester execution semantics OK\n";

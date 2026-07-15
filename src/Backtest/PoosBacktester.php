@@ -32,6 +32,12 @@ final class PoosBacktester
      */
     public function run(array $barsBySymbol, array $marketBars): BacktestResult
     {
+        // Portfolio allocation must not depend on the caller's associative-array
+        // insertion order. Canonicalize both universes before building calendars
+        // and use an explicit cross-symbol signal priority below.
+        ksort($barsBySymbol, SORT_STRING);
+        ksort($marketBars, SORT_STRING);
+
         $startingCash = (float) ($this->riskConfig['initial_cash'] ?? 100000.0);
         $cash = $startingCash;
         $riskPct = (float) ($this->riskConfig['risk_per_trade_pct'] ?? 0.005);
@@ -157,13 +163,13 @@ final class PoosBacktester
                 }
             }
 
-            usort($fillCandidates, static function (array $a, array $b) use ($pendingBySymbol): int {
+            usort($fillCandidates, function (array $a, array $b) use ($pendingBySymbol): int {
                 /** @var Signal $signalA */
                 $signalA = $pendingBySymbol[$a['key']]['signal'];
                 /** @var Signal $signalB */
                 $signalB = $pendingBySymbol[$b['key']]['signal'];
 
-                return $signalB->score <=> $signalA->score;
+                return $this->compareSignalPriority($signalA, $signalB);
             });
 
             foreach ($fillCandidates as $candidate) {
@@ -194,74 +200,72 @@ final class PoosBacktester
                 }
             }
 
-            foreach ($signalsByDate[$date] ?? [] as $symbol => $signals) {
-                usort($signals, static fn (Signal $a, Signal $b): int => $b->score <=> $a->score);
-                foreach ($signals as $signal) {
-                    $pendingKey = $this->setupKey($signal);
-                    if (isset($pendingBySymbol[$pendingKey]) || isset($positionsBySymbol[$pendingKey])) {
-                        continue;
-                    }
-                    $sizingPositions = $this->positionsWithPendingReservations(
-                        $positionsBySymbol,
-                        $pendingBySymbol,
-                    );
-                    if (!$this->canOpenLayer($signal, $sizingPositions)) {
-                        continue;
-                    }
-                    if (!$this->canOpenAfterStop($signal, $stoppedBySymbol, $date)) {
-                        continue;
-                    }
+            foreach ($this->prioritizedSignalsForDate($signalsByDate[$date] ?? []) as $signal) {
+                $symbol = $signal->symbol;
+                $pendingKey = $this->setupKey($signal);
+                if (isset($pendingBySymbol[$pendingKey]) || isset($positionsBySymbol[$pendingKey])) {
+                    continue;
+                }
+                $sizingPositions = $this->positionsWithPendingReservations(
+                    $positionsBySymbol,
+                    $pendingBySymbol,
+                );
+                if (!$this->canOpenLayer($signal, $sizingPositions)) {
+                    continue;
+                }
+                if (!$this->canOpenAfterStop($signal, $stoppedBySymbol, $date)) {
+                    continue;
+                }
 
-                    // Quantity is fixed when the order is planned after the
-                    // signal session closes. The future fill session must not
-                    // influence sizing through its close, exits, or regime.
-                    $equity = $this->markedEquity($cash, $positionsBySymbol, $lastBarsBySymbol);
-                    $plannedShares = $this->positionSize(
-                        $equity,
-                        $this->reservedCapital($sizingPositions, $lastBarsBySymbol),
-                        count($sizingPositions),
-                        $signal,
-                        $riskPct,
-                        $maxPositionPct,
-                        $maxOpenPositions,
-                        $marketRegimes[$date] ?? null,
-                        $sizingPositions,
-                        $lastBarsBySymbol,
-                    );
-                    if ($plannedShares <= 0.0) {
-                        continue;
-                    }
+                // Quantity is fixed when the order is planned after the
+                // signal session closes. The future fill session must not
+                // influence sizing through its close, exits, or regime.
+                $equity = $this->markedEquity($cash, $positionsBySymbol, $lastBarsBySymbol);
+                $plannedShares = $this->positionSize(
+                    $equity,
+                    $this->reservedCapital($sizingPositions, $lastBarsBySymbol),
+                    count($sizingPositions),
+                    $signal,
+                    $riskPct,
+                    $maxPositionPct,
+                    $maxOpenPositions,
+                    $marketRegimes[$date] ?? null,
+                    $sizingPositions,
+                    $lastBarsBySymbol,
+                );
+                if ($plannedShares <= 0.0) {
+                    continue;
+                }
 
-                    $pendingBySymbol[$pendingKey] = [
-                        'key' => $pendingKey,
-                        'signal' => $signal,
-                        'age' => 0,
-                        'planned_shares' => $plannedShares,
-                        'planned_at' => $date,
-                        'events' => [$date . ': planned ' . $signal->direction . ' ' . $signal->strategy . ' limit at ' . round($signal->entry, 4)],
-                    ];
+                $pendingBySymbol[$pendingKey] = [
+                    'key' => $pendingKey,
+                    'signal' => $signal,
+                    'age' => 0,
+                    'planned_shares' => $plannedShares,
+                    'planned_at' => $date,
+                    'events' => [$date . ': planned ' . $signal->direction . ' ' . $signal->strategy . ' limit at ' . round($signal->entry, 4)],
+                ];
 
-                    if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') !== 'same_day_touch') {
-                        continue;
-                    }
-                    if (!isset($calendar[$date][$symbol], $contextBySymbol[$symbol])) {
-                        continue;
-                    }
+                if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') !== 'same_day_touch') {
+                    continue;
+                }
+                if (!isset($calendar[$date][$symbol], $contextBySymbol[$symbol])) {
+                    continue;
+                }
 
-                    $bar = $calendar[$date][$symbol]['bar'];
-                    $index = $calendar[$date][$symbol]['index'];
-                    $indicatorMap = $contextBySymbol[$symbol]['indicators'];
-                    if (!$this->canFill($signal, $bar, $indicatorMap, $index)) {
-                        continue;
-                    }
-                    if ($this->openPendingPosition(
-                        $positionsBySymbol,
-                        $pendingBySymbol[$pendingKey],
-                        $bar,
-                    )) {
-                        $openedToday[$pendingKey] = true;
-                        unset($pendingBySymbol[$pendingKey]);
-                    }
+                $bar = $calendar[$date][$symbol]['bar'];
+                $index = $calendar[$date][$symbol]['index'];
+                $indicatorMap = $contextBySymbol[$symbol]['indicators'];
+                if (!$this->canFill($signal, $bar, $indicatorMap, $index)) {
+                    continue;
+                }
+                if ($this->openPendingPosition(
+                    $positionsBySymbol,
+                    $pendingBySymbol[$pendingKey],
+                    $bar,
+                )) {
+                    $openedToday[$pendingKey] = true;
+                    unset($pendingBySymbol[$pendingKey]);
                 }
             }
 
@@ -292,8 +296,20 @@ final class PoosBacktester
             ];
         }
 
-        usort($allSignals, static fn (Signal $a, Signal $b): int => $a->createdAt <=> $b->createdAt);
-        usort($allTrades, static fn (Trade $a, Trade $b): int => $a->entryTime <=> $b->entryTime);
+        usort($allSignals, function (Signal $a, Signal $b): int {
+            $dateOrder = $a->createdAt <=> $b->createdAt;
+
+            return $dateOrder !== 0 ? $dateOrder : $this->compareSignalPriority($a, $b);
+        });
+        usort($allTrades, static function (Trade $a, Trade $b): int {
+            $dateOrder = $a->entryTime <=> $b->entryTime;
+            if ($dateOrder !== 0) {
+                return $dateOrder;
+            }
+            $symbolOrder = strcmp($a->symbol, $b->symbol);
+
+            return $symbolOrder !== 0 ? $symbolOrder : strcmp($a->strategy, $b->strategy);
+        });
         $endingEquity = $equityCurve !== [] ? (float) $equityCurve[array_key_last($equityCurve)]['equity'] : $cash;
 
         return new BacktestResult(
@@ -558,6 +574,33 @@ final class PoosBacktester
             $signal->strategy,
             $signal->createdAt->format('Y-m-d'),
         ]));
+    }
+
+    /**
+     * @param array<string, list<Signal>> $signalsBySymbol
+     * @return list<Signal>
+     */
+    private function prioritizedSignalsForDate(array $signalsBySymbol): array
+    {
+        $signals = [];
+        foreach ($signalsBySymbol as $symbolSignals) {
+            foreach ($symbolSignals as $signal) {
+                $signals[] = $signal;
+            }
+        }
+        usort($signals, fn (Signal $a, Signal $b): int => $this->compareSignalPriority($a, $b));
+
+        return $signals;
+    }
+
+    private function compareSignalPriority(Signal $a, Signal $b): int
+    {
+        $scoreOrder = $b->score <=> $a->score;
+        if ($scoreOrder !== 0) {
+            return $scoreOrder;
+        }
+
+        return strcmp($this->setupKey($a), $this->setupKey($b));
     }
 
     private function positionSize(

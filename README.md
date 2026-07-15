@@ -242,7 +242,7 @@ php tools/compare_telegram_positions.php \
 
 Исторический лидер этого pre-execution-parity grid — `risk_grid_g2.0_cap1.10_cd0_same30`: total `+1410.51%`, annualized `+64.80%`, max drawdown `-28.43%`, profit factor `4.17`, Sharpe `1.39`, `322` сделки. Эти цифры сохранены для воспроизводимости старого исследования, но не являются текущим paper benchmark и не сопоставимы с финальным `next_touch` grid.
 
-Почему total из старых `6000%+` последовательно уменьшался: ранние прогоны были оптимистичнее по исполнению стопов, нагрузке и доступности входа. `hard_stop_fill_mode=gap_open`, marked-equity sizing и family caps исправили часть расхождений; финальный `next_touch`/valid-1 replay дополнительно исключил fill в день уже закрывшегося сигнала. Только последний grid используется для решения об entry gate.
+Почему total из старых `6000%+` последовательно уменьшался: ранние прогоны были оптимистичнее по исполнению стопов, нагрузке и доступности входа. `hard_stop_fill_mode=gap_open`, marked-equity sizing и family caps исправили часть расхождений; `next_touch`/valid-1 исключил fill в день уже закрывшегося сигнала. Регрессия 16 июля дополнительно устранила зависимость allocation от входного порядка тикеров и ввела глобальный score priority, совпадающий с paper planner. Только детерминированный replay используется для решения об entry gate.
 
 Param experiment вокруг лучших настроек:
 
@@ -286,7 +286,9 @@ php tools/run_param_experiment.php \
   --output-dir=var/reports/param_experiment_production_planned_qty_20260715
 ```
 
-Лучший по полному периоду exploratory-вариант дал total `+604.3570%`, annualized `+42.4043%`, DD `-48.6522%`, но на train имел total `-10.9508%`, annualized `-3.8153%`, top-5 `82.1527%` и P/L без top-5 `-$18,253.86`. Поэтому post-2024 результат не используется для ретроспективного разрешения входов. Для observation оставлен авторски согласованный профиль `gross=1.75`, `open=4`, `family=1.20`, cooldown `5`, same-strength `45`, обязательный close над support, mental stop, BE `+1%`, partial `50%`: полный период `+395.7899%`, annualized `+33.6314%`, DD `-49.1552%`, 177 сделок; его train total `-20.7892%`, top-5 `89.1044%` и P/L без top-5 `-$16,564.89` также не проходят production gates. Полная сверка правил, Telegram/PDF/видео и ограничений replay: [`docs/AUTHOR_REFRESH_2026-07-15.md`](docs/AUTHOR_REFRESH_2026-07-15.md).
+Лучший по полному периоду exploratory-вариант дал total `+604.3570%`, annualized `+42.4043%`, DD `-48.6522%`, но на train имел total `-10.9508%`, annualized `-3.8153%`, top-5 `82.1527%` и P/L без top-5 `-$18,253.86`. Поэтому post-2024 результат не используется для ретроспективного разрешения входов. Для observation 15 июля был оставлен профиль `gross=1.75`, `open=4`, `family=1.20`, cooldown `5`, same-strength `45`, обязательный close над support, mental stop, BE `+1%`, partial `50%`: полный период `+395.7899%`, annualized `+33.6314%`, DD `-49.1552%`, 177 сделок; его train total `-20.7892%`, top-5 `89.1044%` и P/L без top-5 `-$16,564.89` также не проходят production gates.
+
+Регрессия 16 июля установила, что этот старый результат зависел от порядка тикеров. После глобального детерминированного signal priority актуальный locked5 hold-control дает total `+143.34%`, annualized `+17.46%`, DD `-47.87%`, train annualized `-13.84%` и P/L без top-5 `-$6,708`. Это не production-кандидат; entry gate остается закрыт. Полная сверка старых/новых результатов, 2x/3x/mixed, Alpaca/Yahoo и периодов: [`docs/STRATEGY_REGRESSION_2026-07-16.md`](docs/STRATEGY_REGRESSION_2026-07-16.md). Источники автора: [`docs/AUTHOR_REFRESH_2026-07-15.md`](docs/AUTHOR_REFRESH_2026-07-15.md).
 
 Архивный minute replay прежней выборки для диагностики hard breakeven stop на Alpaca 1Min:
 
@@ -324,7 +326,7 @@ Daily observation/status report без новых entry-заявок:
 
 Для обычного paper-запуска используй единый цикл. По умолчанию он применяет observation-профиль `tuned-daily`: locked universe `UPRO,TQQQ,SOXL,USD,TECL`, Alpaca IEX cache namespace `alpaca-param-experiment-iex`, `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, обязательный close над support, BE `+1%`, partial take profit `50%`, order validity `1` бар и `next_touch` entries. `FTT_PRODUCTION_ENTRY_ENABLED=false` блокирует новые входы с причиной `production_validation_blocks_entries`; сигналы, мониторинг уже открытых позиций и защитные exits продолжают работать.
 
-Реалистичный closed-bar replay observation-профиля на Alpaca IEX cache до 2026-07-14: total `+395.7899%`, annualized `+33.6314%`, max drawdown `-49.1552%`, profit factor `3.1788`, Sharpe `0.9619`. Количество фиксируется на signal-close и точно воспроизводится offline daily report; будущий fill-day не влияет на sizing. Train 2021–2023 дал total `-20.7892%`, поэтому full-period доходность не является основанием включать автоматические входы. В daily JSON записывается полный блок `model.robustness` с train/holdout concentration и validation failures.
+Значения `+395.7899% / +33.6314% / −49.1552%` выше описывают deployed observation snapshot 15 июля, но больше не являются корректным детерминированным benchmark. Исследовательский locked5 replay до 2026-07-15 после исправления allocation order: hold total `+143.34%`, annualized `+17.46%`, DD `−47.87%`; routine partial 50% total `+140.51%`, annualized `+17.21%`, DD `−47.12%`. Оба имеют отрицательный train и отрицательный P/L без top-5; ни один не разрешает автоматические входы. В daily JSON записывается блок `model.robustness`, а новый data-quality block дополнительно проверяет session coverage.
 
 Entry orders are limit orders, so paper-plan rounds entry quantity down to whole shares by default (`--integer-qty-for-limit=true`). Fractional trading is still useful for future market partial exits, but fractional limit entries should not be assumed to work at Alpaca.
 
@@ -494,13 +496,30 @@ php bin/trade import-history --file=history.csv --source=fstock --session=regula
 Извлечение и проверка Telegram-сетапов:
 
 ```bash
-php tools/extract_telegram_setups.php --output=var/reports/telegram_setups.json
+php tools/extract_telegram_setups.php \
+  --dir='/absolute/ChatExport_2026-07-15' \
+  --dir='/absolute/ChatExport_2026-07-15 (2)' \
+  --after=2026-06-13 \
+  --dedupe=1 \
+  --output=var/reports/telegram_setups.json
+php tools/classify_telegram_messages.php \
+  --input=var/reports/telegram_setups.json \
+  --output=var/reports/telegram_classified.json
+php tools/compare_telegram_signals.php \
+  --telegram=var/reports/telegram_classified.json \
+  --signals=var/reports/author_grid/best_signals.json \
+  --direction-aware=1 \
+  --action-aware=1 \
+  --setup-aware=1 \
+  --output=var/reports/telegram_signal_alignment.json
 php tools/analyze_telegram_setups.php \
   --input=var/reports/telegram_setups.json \
   --output=var/reports/telegram_setup_analysis.json \
   --start=2021-01-01 \
   --end=2026-06-13
 ```
+
+Importer читает Telegram Desktop `result.json` или legacy `messages*.html`, сохраняет пути photo/video/voice/file и media-only сообщения, а dedupe объединяет public/private зеркала с provenance. Строгая initial-entry сверка требует совместимости направления, проверенного действия, timeframe, типа и периода MA; coarse совпадение только по дате/семейству сохраняется отдельно и не выдается за подтвержденный setup. Плоские MA-упоминания в multi-ticker сообщении fail closed, пока нет ticker-bound связи. Add/hold/exit требуют позиции автора и сравниваются как правила, а не как новые entry-сигналы.
 
 Отчет показывает `message × ticker`: была ли цена рядом с дневной/недельной EMA/SMA, сколько похожих реакций было раньше, и что произошло через 5/10/20/63 торговых дня.
 

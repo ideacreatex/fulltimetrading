@@ -11,6 +11,7 @@ use FulltimeTrading\Data\CacheDirectoryMarketDataProvider;
 use FulltimeTrading\Data\CachedMarketDataProvider;
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Data\MarketDataProvider;
+use FulltimeTrading\Data\MarketDataCoverageAnalyzer;
 use FulltimeTrading\Data\StooqBarsProvider;
 use FulltimeTrading\Data\YahooChartProvider;
 use FulltimeTrading\Domain\Bar;
@@ -72,6 +73,7 @@ $options = [
     'unstable-market-position-pct' => '0.05',
     'stable-market-score-threshold' => '2.50',
     'robust-split-date' => '2024-01-01',
+    'min-symbol-session-coverage-pct' => '0.98',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -97,7 +99,24 @@ $barsBySymbol = loadBarsSafely($provider, $symbols, '1Day', (string) $options['s
 $marketBars = loadBarsSafely($provider, $marketSymbols, '1Day', (string) $options['start'], (string) $options['end'], (string) $config->get('cache_path'));
 $loadedSymbols = array_keys(array_filter($barsBySymbol, static fn (array $bars): bool => count($bars) > 0));
 $missingSymbols = array_values(array_diff($symbols, $loadedSymbols));
+$loadedMarketSymbols = array_keys(array_filter($marketBars, static fn (array $bars): bool => count($bars) > 0));
+$missingMarketSymbols = array_values(array_diff($marketSymbols, $loadedMarketSymbols));
+$coverageBarsBySymbol = [];
+foreach (array_values(array_unique(array_merge($symbols, $marketSymbols))) as $symbol) {
+    $coverageBarsBySymbol[$symbol] = is_array($barsBySymbol[$symbol] ?? null)
+        ? $barsBySymbol[$symbol]
+        : (is_array($marketBars[$symbol] ?? null) ? $marketBars[$symbol] : []);
+}
+$dataCoverage = (new MarketDataCoverageAnalyzer())->analyze(
+    $coverageBarsBySymbol,
+    $marketBars[$benchmark] ?? [],
+    (float) $options['min-symbol-session-coverage-pct'],
+);
 $barsBySymbol = array_intersect_key($barsBySymbol, array_fill_keys($loadedSymbols, true));
+if (($strategy['entry_submission_enabled'] ?? false) === true && ($dataCoverage['passes'] ?? false) !== true) {
+    $strategy['entry_submission_enabled'] = false;
+    $strategy['entry_submission_block_reason'] = 'historical_market_data_coverage_below_threshold';
+}
 
 $indicatorCalculator = new IndicatorCalculator();
 $marketAnalyzer = new MarketRegimeAnalyzer($indicatorCalculator, $strategy['market'] ?? []);
@@ -110,7 +129,14 @@ $signals = [];
 foreach ($barsBySymbol as $symbol => $bars) {
     $signals = array_merge($signals, $scanner->scan($symbol, $bars, $marketRegimes));
 }
-usort($signals, static fn (Signal $a, Signal $b): int => $b->score <=> $a->score);
+usort($signals, static function (Signal $a, Signal $b): int {
+    $scoreOrder = $b->score <=> $a->score;
+    if ($scoreOrder !== 0) {
+        return $scoreOrder;
+    }
+
+    return strcmp(signalStableKey($a), signalStableKey($b));
+});
 $todaySignals = array_values(array_filter(
     $signals,
     static fn (Signal $signal): bool => $signal->createdAt->format('Y-m-d') === $asOf,
@@ -141,9 +167,14 @@ $payload = [
         'symbols_loaded' => count($loadedSymbols),
         'missing_symbols' => $missingSymbols,
         'market_symbols' => $marketSymbols,
+        'market_symbols_requested' => count($marketSymbols),
+        'market_symbols_loaded' => count($loadedMarketSymbols),
+        'missing_market_symbols' => $missingMarketSymbols,
         'benchmark' => $benchmark,
         'data_age_days' => dataAgeDays($asOf),
         'latest_closed_bars' => latestClosedBarSnapshots($barsBySymbol, $asOf),
+        'latest_closed_market_bars' => latestClosedBarSnapshots($marketBars, $asOf),
+        'historical_session_coverage' => $dataCoverage,
     ],
     'market' => serializeRegime($regime),
     'risk' => [
@@ -182,6 +213,12 @@ $payload = [
     'paper_account' => $account,
     'health' => healthRows($asOf, $missingSymbols, $regime, $account, boolOption((string) $options['offline'])),
 ];
+if (($dataCoverage['passes'] ?? false) !== true) {
+    $payload['health'][] = [
+        'level' => 'warning',
+        'message' => 'historical session coverage failed: ' . implode(', ', (array) ($dataCoverage['failures'] ?? [])),
+    ];
+}
 $payload['action'] = actionFromPayload($payload);
 
 writeReport((string) $options['output'], json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
@@ -356,6 +393,16 @@ function boolOption(string $value): bool
     return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'y', 'on'], true);
 }
 
+function signalStableKey(Signal $signal): string
+{
+    return (string) ($signal->metadata['setup_key'] ?? implode(':', [
+        $signal->symbol,
+        $signal->direction,
+        $signal->strategy,
+        $signal->createdAt->format('Y-m-d'),
+    ]));
+}
+
 /** @return array<string, float|int> */
 function dailyRobustnessPolicy(): array
 {
@@ -375,12 +422,11 @@ function loadBarsSafely(MarketDataProvider $provider, array $symbols, string $ti
     try {
         return $provider->getBars($symbols, $timeframe, $start, $end);
     } catch (Throwable $e) {
-        $cached = (new CacheDirectoryMarketDataProvider($cachePath))->getBars($symbols, $timeframe, $start, $end);
-        if ($cached !== []) {
-            return $cached;
-        }
-
-        throw $e;
+        throw new RuntimeException(
+            'Market-data request failed; refusing an implicit unscoped cache fallback: ' . $e->getMessage(),
+            0,
+            $e,
+        );
     }
 }
 
@@ -562,6 +608,7 @@ function serializeSignal(Signal $signal, array $strategy, array $risk, ?MarketRe
         'target_pct' => $targetPct,
         'reward_r' => $signal->riskPerShare > 0.0 ? abs($signal->target - $signal->entry) / $signal->riskPerShare : 0.0,
         'score' => $signal->score,
+        'setup_key' => (string) ($signal->metadata['setup_key'] ?? signalStableKey($signal)),
         'recommended_position_pct' => PositionSizingPolicy::positionPct($strategy, $risk, $regime, $signal),
         'setup_success_rate' => isset($signal->metadata['setup_success_rate']) ? (float) $signal->metadata['setup_success_rate'] : null,
         'setup_touches' => isset($signal->metadata['setup_touches']) ? (int) $signal->metadata['setup_touches'] : null,

@@ -365,7 +365,14 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
     $maintenanceLimit = $maintenanceGuard && $paperEquity > 0.0 ? $paperEquity * $maintenanceBufferPct : INF;
     $maintenanceUsed = $maintenanceGuard ? existingMaintenanceRequirement($paperContext) : 0.0;
 
-    usort($signals, static fn (array $a, array $b): int => ((float) ($b['score'] ?? 0.0)) <=> ((float) ($a['score'] ?? 0.0)));
+    usort($signals, static function (array $a, array $b): int {
+        $scoreOrder = ((float) ($b['score'] ?? 0.0)) <=> ((float) ($a['score'] ?? 0.0));
+        if ($scoreOrder !== 0) {
+            return $scoreOrder;
+        }
+
+        return strcmp(serializedSignalStableKey($a), serializedSignalStableKey($b));
+    });
 
     $orders = [];
     $skipped = [];
@@ -862,6 +869,25 @@ function skipRow(array $signal, string $reason): array
         'score' => (float) ($signal['score'] ?? 0.0),
         'reason' => $reason,
     ];
+}
+
+/** @param array<string, mixed> $signal */
+function serializedSignalStableKey(array $signal): string
+{
+    $setupKey = trim((string) ($signal['setup_key'] ?? ''));
+    if ($setupKey !== '') {
+        return $setupKey;
+    }
+
+    return implode(':', [
+        strtoupper((string) ($signal['symbol'] ?? '')),
+        strtolower((string) ($signal['direction'] ?? 'long')),
+        strtoupper((string) ($signal['strategy'] ?? '')),
+        strtoupper((string) ($signal['timeframe'] ?? '')),
+        strtolower((string) ($signal['ma_type'] ?? '')),
+        (string) ($signal['ma_period'] ?? ''),
+        (string) ($signal['date'] ?? ''),
+    ]);
 }
 
 /** @param array<string, mixed> $signal */
