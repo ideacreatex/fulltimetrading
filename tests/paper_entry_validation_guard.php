@@ -68,7 +68,7 @@ try {
     $plan = is_array($payload['plan'] ?? null) ? $payload['plan'] : [];
     assertSame(false, $plan['entry_submission_enabled'] ?? null, 'Production entry gate must remain false.');
     assertSame(
-        'no_next_touch_walk_forward_candidate_2026-07-15',
+        'no_planned_quantity_walk_forward_candidate_2026-07-15',
         $plan['entry_submission_block_reason'] ?? null,
         'The config-level production validation reason must override a crafted report.',
     );

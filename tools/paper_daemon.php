@@ -56,6 +56,27 @@ ensureDir(dirname($statePath));
 ensureDir(dirname($heartbeatPath));
 ensureDir(dirname($logPath));
 
+$accountGuardVerified = true;
+if (boolOption((string) $options['submit'])) {
+    $accountGuard = runCommand(accountGuardCommand(), dirname(__DIR__));
+    logLine($logPath, ['event' => 'paper_account_guard', 'result' => $accountGuard]);
+    $accountGuardVerified = (int) ($accountGuard['exit_code'] ?? -1) === 0;
+    if (!$accountGuardVerified) {
+        writeJson($heartbeatPath, [
+            'pid' => getmypid(),
+            'started_at' => $startedAt->format(DateTimeInterface::ATOM),
+            'heartbeat_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+            'submit' => true,
+            'profile' => (string) $options['profile'],
+            'cycle_fingerprint' => $cycleFingerprint,
+            'account_guard_verified' => false,
+            'last_monitor_exit_code' => -1,
+        ]);
+        fwrite(STDERR, "Alpaca paper account guard failed; submit monitor was not started.\n");
+        exit(78);
+    }
+}
+
 logLine($logPath, ['event' => 'daemon_started', 'pid' => getmypid(), 'submit' => boolOption((string) $options['submit'])]);
 echo "FTT paper daemon started pid " . getmypid() . "\n";
 
@@ -68,6 +89,7 @@ do {
         'submit' => boolOption((string) $options['submit']),
         'profile' => (string) $options['profile'],
         'cycle_fingerprint' => $cycleFingerprint,
+        'account_guard_verified' => $accountGuardVerified,
     ]);
 
     $state = readJson($statePath);
@@ -82,6 +104,7 @@ do {
         'submit' => boolOption((string) $options['submit']),
         'profile' => (string) $options['profile'],
         'cycle_fingerprint' => $cycleFingerprint,
+        'account_guard_verified' => $accountGuardVerified,
         'last_monitor_started_at' => $monitor['started_at'] ?? null,
         'last_monitor_finished_at' => $monitor['finished_at'] ?? null,
         'last_monitor_exit_code' => (int) ($monitor['exit_code'] ?? -1),
@@ -138,6 +161,16 @@ function monitorCommand(array $options): array
         '--submit=' . (string) $options['submit'],
         '--telegram=' . (string) $options['monitor-telegram'],
         '--telegram-heartbeat=false',
+    ];
+}
+
+/** @return list<string> */
+function accountGuardCommand(): array
+{
+    return [
+        PHP_BINARY,
+        __DIR__ . '/../bin/trade',
+        'alpaca-account',
     ];
 }
 

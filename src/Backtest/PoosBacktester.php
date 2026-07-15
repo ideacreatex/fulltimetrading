@@ -179,14 +179,17 @@ final class PoosBacktester
                     $positionsBySymbol,
                     $pendingBySymbol[$pendingKey],
                     $bar,
-                    $cash,
-                    $riskPct,
-                    $maxPositionPct,
-                    $maxOpenPositions,
-                    $marketRegimes[$date] ?? null,
-                    $lastBarsBySymbol,
                 )) {
                     $openedToday[$pendingKey] = true;
+                    unset($pendingBySymbol[$pendingKey]);
+                }
+            }
+
+            // Once an unfilled order has used its final eligible bar it no
+            // longer reserves a slot or capital for the batch planned after
+            // this session closes (DAY semantics when validBars is one).
+            foreach (array_keys($pendingBySymbol) as $pendingKey) {
+                if ((int) ($pendingBySymbol[$pendingKey]['age'] ?? 0) >= $validBars) {
                     unset($pendingBySymbol[$pendingKey]);
                 }
             }
@@ -198,10 +201,34 @@ final class PoosBacktester
                     if (isset($pendingBySymbol[$pendingKey]) || isset($positionsBySymbol[$pendingKey])) {
                         continue;
                     }
-                    if (!$this->canOpenLayer($signal, $positionsBySymbol)) {
+                    $sizingPositions = $this->positionsWithPendingReservations(
+                        $positionsBySymbol,
+                        $pendingBySymbol,
+                    );
+                    if (!$this->canOpenLayer($signal, $sizingPositions)) {
                         continue;
                     }
                     if (!$this->canOpenAfterStop($signal, $stoppedBySymbol, $date)) {
+                        continue;
+                    }
+
+                    // Quantity is fixed when the order is planned after the
+                    // signal session closes. The future fill session must not
+                    // influence sizing through its close, exits, or regime.
+                    $equity = $this->markedEquity($cash, $positionsBySymbol, $lastBarsBySymbol);
+                    $plannedShares = $this->positionSize(
+                        $equity,
+                        $this->reservedCapital($sizingPositions, $lastBarsBySymbol),
+                        count($sizingPositions),
+                        $signal,
+                        $riskPct,
+                        $maxPositionPct,
+                        $maxOpenPositions,
+                        $marketRegimes[$date] ?? null,
+                        $sizingPositions,
+                        $lastBarsBySymbol,
+                    );
+                    if ($plannedShares <= 0.0) {
                         continue;
                     }
 
@@ -209,6 +236,8 @@ final class PoosBacktester
                         'key' => $pendingKey,
                         'signal' => $signal,
                         'age' => 0,
+                        'planned_shares' => $plannedShares,
+                        'planned_at' => $date,
                         'events' => [$date . ': planned ' . $signal->direction . ' ' . $signal->strategy . ' limit at ' . round($signal->entry, 4)],
                     ];
 
@@ -229,12 +258,6 @@ final class PoosBacktester
                         $positionsBySymbol,
                         $pendingBySymbol[$pendingKey],
                         $bar,
-                        $cash,
-                        $riskPct,
-                        $maxPositionPct,
-                        $maxOpenPositions,
-                        $marketRegimes[$date] ?? null,
-                        $lastBarsBySymbol,
                     )) {
                         $openedToday[$pendingKey] = true;
                         unset($pendingBySymbol[$pendingKey]);
@@ -301,18 +324,12 @@ final class PoosBacktester
 
     /**
      * @param array<string, array<string, mixed>> $positionsByKey
-     * @param array{key?:string, signal:Signal, age:int, events:list<string>} $pending
+     * @param array{key?:string, signal:Signal, age:int, planned_shares:float, planned_at?:string, events:list<string>} $pending
      */
     private function openPendingPosition(
         array &$positionsByKey,
         array $pending,
         Bar $bar,
-        float $cash,
-        float $riskPct,
-        float $maxPositionPct,
-        int $maxOpenPositions,
-        ?MarketRegime $regime,
-        array $lastBarsBySymbol,
     ): bool {
         $signal = $pending['signal'];
         $positionKey = (string) ($pending['key'] ?? $this->setupKey($signal));
@@ -320,19 +337,7 @@ final class PoosBacktester
             return false;
         }
 
-        $equity = $this->markedEquity($cash, $positionsByKey, $lastBarsBySymbol);
-        $shares = $this->positionSize(
-            $equity,
-            $this->reservedCapital($positionsByKey, $lastBarsBySymbol),
-            count($positionsByKey),
-            $signal,
-            $riskPct,
-            $maxPositionPct,
-            $maxOpenPositions,
-            $regime,
-            $positionsByKey,
-            $lastBarsBySymbol,
-        );
+        $shares = max(0.0, (float) ($pending['planned_shares'] ?? 0.0));
         if ($shares <= 0.0) {
             return false;
         }
@@ -356,6 +361,42 @@ final class PoosBacktester
         ];
 
         return true;
+    }
+
+    /**
+     * Pending limits reserve their fixed order quantity, matching the paper
+     * planner's treatment of open buy orders. They reserve capacity but are
+     * not included in marked P/L before a fill.
+     *
+     * @param array<string, array<string, mixed>> $positionsByKey
+     * @param array<string, array<string, mixed>> $pendingByKey
+     * @return array<string, array<string, mixed>>
+     */
+    private function positionsWithPendingReservations(array $positionsByKey, array $pendingByKey): array
+    {
+        $reservations = $positionsByKey;
+        foreach ($pendingByKey as $pendingKey => $pending) {
+            if (!($pending['signal'] ?? null) instanceof Signal) {
+                continue;
+            }
+
+            /** @var Signal $signal */
+            $signal = $pending['signal'];
+            $shares = max(0.0, (float) ($pending['planned_shares'] ?? 0.0));
+            if ($shares <= 0.0) {
+                continue;
+            }
+
+            $reservations['pending:' . $pendingKey] = [
+                'symbol' => $signal->symbol,
+                'signal' => $signal,
+                'remaining_shares' => $shares,
+                'reservation_price' => $signal->entry,
+                'break_even_armed' => false,
+            ];
+        }
+
+        return $reservations;
     }
 
     /**
@@ -616,9 +657,11 @@ final class PoosBacktester
             }
             /** @var Signal $openSignal */
             $openSignal = $position['signal'];
-            $markPrice = isset($lastBarsBySymbol[$symbol])
-                ? $lastBarsBySymbol[$symbol]->close
-                : $openSignal->entry;
+            $markPrice = isset($position['reservation_price'])
+                ? max(0.0, (float) $position['reservation_price'])
+                : (isset($lastBarsBySymbol[$symbol])
+                    ? $lastBarsBySymbol[$symbol]->close
+                    : $openSignal->entry);
             $reserved += abs($markPrice * (float) ($position['remaining_shares'] ?? 0.0));
         }
 
@@ -739,9 +782,11 @@ final class PoosBacktester
             /** @var Signal $signal */
             $signal = $position['signal'];
             $symbol = (string) ($position['symbol'] ?? $signal->symbol);
-            $markPrice = isset($lastBarsBySymbol[$symbol])
-                ? $lastBarsBySymbol[$symbol]->close
-                : $signal->entry;
+            $markPrice = isset($position['reservation_price'])
+                ? max(0.0, (float) $position['reservation_price'])
+                : (isset($lastBarsBySymbol[$symbol])
+                    ? $lastBarsBySymbol[$symbol]->close
+                    : $signal->entry);
             $reserved += abs($markPrice * (float) ($position['remaining_shares'] ?? 0.0));
         }
 

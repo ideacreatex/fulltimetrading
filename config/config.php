@@ -36,7 +36,7 @@ return [
             getenv('FTT_PRODUCTION_ENTRY_ENABLED') === false ? 'false' : getenv('FTT_PRODUCTION_ENTRY_ENABLED'),
             FILTER_VALIDATE_BOOLEAN,
         ),
-        'entry_submission_block_reason' => 'no_next_touch_walk_forward_candidate_2026-07-15',
+        'entry_submission_block_reason' => 'no_planned_quantity_walk_forward_candidate_2026-07-15',
         'ema_periods' => [10, 20, 21, 50, 100, 200],
         'atr_period' => 14,
         'volume_avg_period' => 50,

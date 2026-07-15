@@ -100,4 +100,32 @@ executionAssert($beTrade instanceof Trade, 'A close through a newly armed hard B
 executionAssert($beTrade->exitReason === 'break_even_stop', 'Same-session BE reversal must use the hard BE exit reason.');
 executionAssert(abs($beTrade->exit - 100.0) < 1.0e-9, 'Same-session BE reversal must exit at the armed stop.');
 
+$openPending = new ReflectionMethod($backtester, 'openPendingPosition');
+$plannedPositions = [];
+$plannedPending = [
+    'key' => 'TEST:planned',
+    'signal' => $signal,
+    'age' => 1,
+    'planned_shares' => 7.0,
+    'planned_at' => '2026-07-13',
+    'events' => ['2026-07-13: planned'],
+];
+$futureFillBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 150.0, 160.0, 99.0, 155.0, 1000.0);
+$openArgs = [&$plannedPositions, $plannedPending, $futureFillBar];
+$opened = $openPending->invokeArgs($backtester, $openArgs);
+executionAssert($opened === true, 'A valid pending order must fill with its pre-planned quantity.');
+executionAssert(
+    abs((float) ($plannedPositions['TEST:planned']['shares'] ?? 0.0) - 7.0) < 1.0e-9,
+    'Fill-session prices or regime must not resize a quantity fixed on the signal session.',
+);
+
+$reservationsMethod = new ReflectionMethod($backtester, 'positionsWithPendingReservations');
+$reservations = $reservationsMethod->invoke($backtester, [], ['TEST:planned' => $plannedPending]);
+$reservation = $reservations['pending:TEST:planned'] ?? [];
+executionAssert(
+    abs((float) ($reservation['remaining_shares'] ?? 0.0) - 7.0) < 1.0e-9
+        && abs((float) ($reservation['reservation_price'] ?? 0.0) - 100.0) < 1.0e-9,
+    'Pending limits must reserve their fixed order quantity at the limit price.',
+);
+
 echo "Backtester execution semantics OK\n";

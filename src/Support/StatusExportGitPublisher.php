@@ -25,6 +25,7 @@ final class StatusExportGitPublisher
     public function commitFiles(string $jsonPath, string $mdPath, bool $push, string $remote, string $branch): string
     {
         $statusPaths = $this->relativeStatusPaths([$jsonPath, $mdPath]);
+        $this->requireAllowedStatusPaths($statusPaths);
         $remoteCommit = null;
 
         if ($push) {
@@ -71,14 +72,7 @@ final class StatusExportGitPublisher
     /** @param list<string> $statusPaths */
     private function safePushPreflight(array $statusPaths, string $remote, string $branch): string
     {
-        $expected = self::ALLOWED_PATHS;
-        sort($expected, SORT_STRING);
-        $actual = array_values(array_unique($statusPaths));
-        sort($actual, SORT_STRING);
-        if ($actual !== $expected) {
-            throw new \RuntimeException('Git push refused: output files must be exactly ' . implode(', ', self::ALLOWED_PATHS));
-        }
-
+        $this->requireAllowedStatusPaths($statusPaths);
         $this->validateRemoteAndBranch($remote, $branch);
         $this->requireCurrentBranch($branch);
 
@@ -92,6 +86,18 @@ final class StatusExportGitPublisher
         $this->validateOutgoingCommits($remoteCommit, 'HEAD');
 
         return $remoteCommit;
+    }
+
+    /** @param list<string> $statusPaths */
+    private function requireAllowedStatusPaths(array $statusPaths): void
+    {
+        $expected = self::ALLOWED_PATHS;
+        sort($expected, SORT_STRING);
+        $actual = array_values(array_unique($statusPaths));
+        sort($actual, SORT_STRING);
+        if ($actual !== $expected) {
+            throw new \RuntimeException('Git push refused: output files must be exactly ' . implode(', ', self::ALLOWED_PATHS));
+        }
     }
 
     private function validateRemoteAndBranch(string $remote, string $branch): void

@@ -6,9 +6,9 @@
 
 После исправления реалистичности исполнения production-вариант не выбран: ни один из 716 кандидатов внутри envelope `max_gross <= 2`, `max_open <= 4` не прошел train-only гейты 2021–2023. Поэтому новые автоматические entry-заявки отключены. Сигналы продолжают рассчитываться, существующие paper-позиции продолжают мониториться, а защитные exit/stop-действия остаются активными.
 
-Для наблюдения оставлен более консервативный и близкий к автору профиль `tuned-daily`: `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, `cooldown=5`, повторный вход той же силы через 45 дней, обязательный close над support, mental initial stop, `BE +1%`, partial `50%`, `next_touch` и валидность заявки 1 бар. БУ и доля частичной фиксации совпадают с авторским диапазоном; target алгоритма по-прежнему отличается и остается `3 ATR` (около `2R` при stop `1.5 ATR`). Это observation-профиль, а не прошедший production selector.
+Для наблюдения оставлен близкий к автору профиль `tuned-daily`: `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, `cooldown=5`, повторный вход той же силы через 45 дней, обязательный close над support, mental initial stop, `BE +1%`, partial `50%`, `next_touch` и валидность заявки 1 бар. БУ и доля частичной фиксации совпадают с авторским диапазоном; target алгоритма по-прежнему отличается и остается `3 ATR` (около `2R` при stop `1.5 ATR`). Исправленный train этого профиля убыточен, поэтому это только observation-профиль, а не прошедший production selector.
 
-Перед финальным сравнением исправлена база расчета нагрузки. Backtest теперь определяет размер новой позиции от marked equity и считает уже занятую нагрузку по текущей рыночной стоимости остатка позиции, а не по realized cash и entry notional. Общий `PositionSizingPolicy` используется и backtest, и daily report; paper planner получает рекомендованный размер сигнала и отдельно ограничивает gross/family exposure с учетом текущих позиций, незаполненной части активных buy-заявок и новых заявок этого цикла. Поэтому более ранние цифры и выводы по параметрам, рассчитанные до выравнивания sizing, признаны несопоставимыми и не используются как production-решение.
+Перед финальным сравнением исправлена база и временная доступность расчета нагрузки. Backtest определяет размер новой позиции от marked equity и считает уже занятую нагрузку по текущей рыночной стоимости остатка позиции. Количество лимитной заявки фиксируется после signal-close и не пересчитывается по close, выходам или regime будущего fill-дня; pending-заявки резервируют слот и limit notional до fill/expiry. Общий `PositionSizingPolicy` используется и backtest, и daily report; paper planner отдельно ограничивает gross/family exposure с учетом текущих позиций, незаполненной части активных buy-заявок и новых заявок этого цикла. Поэтому более ранние цифры, включая первый `next_touch` grid с fill-day sizing, признаны look-ahead и не используются.
 
 Также исправлена временная доступность исполнения. Сигнал из подтвержденного дневного close становится доступен paper-циклу только после закрытия рынка, поэтому реалистичный replay использует `next_touch` и однодневную валидность заявки, а не недоступный `same_day_touch`. Mental stop, подтвержденный закрытием свечи, исполняется на следующем open с учетом gap; close в день fill сначала создает pending decision; подтвержденный внутридневной BE reversal после активации может закрыть позицию в том же баре. Старые same-day результаты остаются только exploratory и не сравниваются с paper-профилем.
 
@@ -136,35 +136,35 @@
 
 ## Историческая проверка Alpaca
 
-Источник: локальный cache Alpaca IEX, дневные бары 2021-01-01 — 2026-07-14, locked universe из 5 ETF и 25 market-context инструментов. Основной артефакт — `var/reports/param_experiment_production_next_open_20260715/summary.json`. Текущий сигнал 15 июля проверен отдельно на обновленном cache. Это replay по дневным OHLC, а не гарантия фактического intraday fill.
+Источник: локальный cache Alpaca IEX, дневные бары 2021-01-01 — 2026-07-14, locked universe из 5 ETF и 25 market-context инструментов. Основной артефакт — `var/reports/param_experiment_production_planned_qty_20260715/summary.json`. Текущий сигнал 15 июля проверен отдельно на обновленном cache. Это replay по дневным OHLC, а не гарантия фактического intraday fill.
 
 ### Реалистичный grid и production-решение
 
-Финальный grid содержит 1366 вариантов с marked-equity sizing, обязательным close над support, `next_touch`, DAY-validity 1 бар, mental initial stop с исполнением подтвержденного close на следующем open, БУ `+1%/+2%` и partial `25%/1/3/1/2`. В production envelope `max_gross <= 2`, `max_open <= 4` попали 716 вариантов. Selector видел только train 2021–2023 и требовал минимум 50 сделок, annualized не ниже 20%, DD не хуже `-35%`, top-1 не выше 25%, top-5 не выше 60%, долю крупнейшего тикера не выше 65% и положительный P/L без пяти лучших сделок.
+Финальный grid содержит 1366 вариантов с signal-close quantity, marked-equity sizing, резервированием pending notional, обязательным close над support, `next_touch`, DAY-validity 1 бар, mental initial stop с исполнением подтвержденного close на следующем open, БУ `+1%/+2%` и partial `25%/1/3/1/2`. В production envelope `max_gross <= 2`, `max_open <= 4` попали 716 вариантов. Selector видел только train 2021–2023 и требовал минимум 50 сделок, annualized не ниже 20%, DD не хуже `-35%`, top-1 не выше 25%, top-5 не выше 60%, долю крупнейшего тикера не выше 65% и положительный P/L без пяти лучших сделок.
 
-Итог: `eligible=0`. Ни один из 716 вариантов не прошел top-5 gate: минимальная train-концентрация пяти лучших сделок составила `72.0440%`. Ни у одного кандидата train P/L без top-5 не был положительным. Максимальная train annualized return `+22.2449%` сопровождалась DD `-38.7484%`, top-5 `78.2209%` и P/L без top-5 `-$7,619.69`. Следовательно, post-2024 рост не может задним числом сделать профиль production-valid.
+Итог: `eligible=0`. Максимальная train annualized return внутри envelope была отрицательной: `-2.4281%`, при DD `-51.0544%`, top-5 `91.7384%` и P/L без top-5 `-$19,815.66`. Даже минимальная train-концентрация пяти лучших сделок составила `64.3890%` при gate `60%`; ни у одного кандидата train P/L без top-5 не был положительным. Следовательно, post-2024 рост не может задним числом сделать профиль production-valid.
 
 ### Только exploratory: лучший полный период
 
-Лучший по полному периоду вариант — `gross=2`, `open=4`, `family=1.20`, `cooldown=5`, same-strength `45`, `BE +2%`, partial `50%`:
+Лучший по полному периоду вариант — `gross=1.75`, `open=4`, `family=1.20`, `cooldown=5`, same-strength `30`, `BE +2%`, partial `50%`:
 
-- полный период: total `+766.8078%`, annualized `+47.8579%`, DD `-29.5167%`, 194 сделки;
-- train: annualized `+16.5356%`, DD `-29.5167%`, top-1 `26.9259%`, top-5 `92.4341%`, P/L без top-5 `-$10,768.40`;
-- frozen replay 2024+: annualized `+95.5091%`, DD `-16.4758%`, 111 сделок.
+- полный период: total `+604.3570%`, annualized `+42.4043%`, DD `-48.6522%`, 190 сделок;
+- train: total `-10.9508%`, annualized `-3.8153%`, DD `-48.6522%`, top-5 `82.1527%`, P/L без top-5 `-$18,253.86`, 81 сделка;
+- frozen replay 2024+: total `+690.9754%`, annualized `+125.6870%`, DD `-25.6624%`, 109 сделок.
 
-Он не является production-кандидатом: выбран с использованием полного периода и провалил train return/concentration/without-leaders gates. В `var/reports/param_experiment_production_next_open_20260715/best_score_cost_stress.json` приближенный cost stress меняет annualized/DD с `+47.86%/-29.52%` при 0 bps до `+47.34%/-31.30%` при 5 bps, `+46.80%/-33.08%` при 10 bps, `+45.72%/-36.71%` при 20 bps и `+42.21%/-48.58%` при 50 bps. Издержки дополнительно ухудшают риск, но основной train concentration defect существует уже при 0 bps.
+Он не является production-кандидатом: выбран с использованием полного периода и провалил train return/concentration/without-leaders gates. В `var/reports/param_experiment_production_planned_qty_20260715/best_score_cost_stress.json` приближенный cost stress меняет annualized/DD с `+42.40%/-48.65%` при 0 bps до `+41.97%/-49.78%` при 5 bps, `+41.54%/-50.91%` при 10 bps, `+40.65%/-53.21%` при 20 bps и `+37.80%/-60.70%` при 50 bps. Издержки дополнительно ухудшают риск, но отрицательный train и concentration defect существуют уже при 0 bps.
 
 ### Observation-профиль `tuned-daily`
 
-Для продолжения сигналов без новых entry-заявок оставлен более консервативный, авторски согласованный вариант `gross=1.75`, `open=4`, `family=1.20`, `cooldown=5`, same-strength `45`, `BE +1%`, partial `50%`:
+Для продолжения сигналов без новых entry-заявок оставлен авторски согласованный вариант `gross=1.75`, `open=4`, `family=1.20`, `cooldown=5`, same-strength `45`, `BE +1%`, partial `50%`:
 
-- полный период: total `+494.0041%`, annualized `+38.0773%`, DD `-24.9787%`, 209 сделок, PF `6.0236`, Sharpe `1.1579`;
-- train: total `+52.9651%`, annualized `+15.3220%`, DD `-24.9787%`, 84 сделки; top-1 `25.1356%`, top-5 `88.0866%`, P/L без top-5 `-$7,461.21`;
-- frozen replay 2024+: total `+288.3267%`, annualized `+70.5694%`, DD `-14.6503%`, 125 сделок; top-1 `11.8213%`, top-5 `48.0041%`, P/L без top-5 `+$66,515.54`.
+- полный период: total `+395.7899%`, annualized `+33.6314%`, DD `-49.1552%`, 177 сделок, PF `3.1788`, Sharpe `0.9619`;
+- train: total `-20.7892%`, annualized `-7.5190%`, DD `-49.1552%`, 75 сделок; top-1 `38.3122%`, top-5 `89.1044%`, P/L без top-5 `-$16,564.89`;
+- frozen replay 2024+: total `+525.9121%`, annualized `+105.8251%`, DD `-22.1039%`, 102 сделки; top-5 `66.4437%`, P/L без top-5 `+$17,840.71`.
 
-Меньшая полная просадка и совпадение BE/partial с автором делают его удобным для observation, но train concentration и отрицательный P/L без лидеров запрещают называть его устойчивым production-профилем. Период 2024+ уже просматривался в предыдущих исследованиях, поэтому это `frozen replay`, а не полностью нетронутый OOS. Старые `same_day_touch` результаты использовали недоступное paper-исполнение в день уже закрывшегося сигнала и теперь считаются только exploratory/look-ahead. Multiple-comparison риск дополнительно требует нового paper-forward периода; будущая доходность не гарантирована.
+Совпадение BE/partial с автором делает профиль удобным для observation, но отрицательный train, глубокая полная просадка и концентрация запрещают называть его устойчивым production-профилем. Период 2024+ уже просматривался в предыдущих исследованиях, поэтому это `frozen replay`, а не полностью нетронутый OOS. Старые `same_day_touch` и fill-day-sizing результаты считаются только exploratory/look-ahead. Multiple-comparison риск дополнительно требует нового paper-forward периода; будущая доходность не гарантирована.
 
-Проверка воспроизводимости выявила еще одно расхождение: grid всегда требовал `support_regularity.require_close_above_support=true`, а прежний daily default был `false`. Config и daily report синхронизированы на `true`; теперь offline daily report точно воспроизводит observation `+494.00%`, annualized `+38.08%`, DD `-24.98%`. При старом `false` фактически тестировалась другая стратегия: total `+210.06%`, annualized `+22.74%`, DD `-48.02%`.
+Offline daily report на том же cache точно воспроизводит исправленный observation: total `+395.79%`, annualized `+33.63%`, DD `-49.16%`. Config, grid и daily report одинаково требуют `support_regularity.require_close_above_support=true` и используют signal-close quantity; это предотвращает повторное незаметное тестирование другой стратегии.
 
 ## Paper-проверка
 
@@ -204,7 +204,7 @@ php tools/run_param_experiment.php \
   --partial-take-profit-pct=0.5 \
   --partial-take-profit-pct-values=0.25,0.333333,0.5 \
   --min-pre-split-annualized-return-pct=0.20 \
-  --output-dir=var/reports/param_experiment_production_next_open_20260715
+  --output-dir=var/reports/param_experiment_production_planned_qty_20260715
 
 php tests/robustness_analyzer.php
 php tests/walk_forward_selector.php

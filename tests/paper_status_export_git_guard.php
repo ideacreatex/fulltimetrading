@@ -154,6 +154,11 @@ try {
         'output files must be exactly',
     );
     gitGuardExpect(trim(gitGuardRun(['diff', '--cached', '--name-only'], $workDir)) === '', 'Custom outputs were staged.');
+    gitGuardExpectRefusal(
+        static fn () => $publisher->commitFiles($otherJson, $otherMd, false, 'origin', 'main'),
+        'output files must be exactly',
+    );
+    gitGuardExpect(trim(gitGuardRun(['diff', '--cached', '--name-only'], $workDir)) === '', 'Custom local-only outputs were staged.');
 
     // Fetch and push URLs may differ. An exact lease must not recreate a deleted push target branch.
     $pushRemoteDir = $baseDir . '/push-remote.git';

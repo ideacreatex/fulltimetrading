@@ -8,6 +8,7 @@ use FulltimeTrading\Notifications\TelegramNotifier;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\ProcessLock;
+use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
 use FulltimeTrading\Trading\PaperMonitorDecisionGuard;
@@ -84,6 +85,9 @@ $submittedOrders = [];
 
 try {
     $account = $client->account();
+    if ($submitAllowed) {
+        AlpacaPaperAccountGuard::validateConfigured($account);
+    }
     $clock = $client->clock();
     $positions = $client->positions();
     $openOrders = $client->openOrders();

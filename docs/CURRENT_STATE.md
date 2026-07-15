@@ -6,15 +6,15 @@
 
 - Торговый endpoint жестко ограничен `https://paper-api.alpaca.markets/v2`; redirects для Alpaca trading API запрещены.
 - `FTT_PAPER_ONLY=true` и общий submit-контур использует `FTT_ORDERS_ENABLED=true` только для Alpaca paper.
-- Новые entry-заявки отдельно заблокированы: `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина `no_next_touch_walk_forward_candidate_2026-07-15`.
+- Новые entry-заявки отдельно заблокированы: `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина `no_planned_quantity_walk_forward_candidate_2026-07-15`.
 - Сигналы продолжают формироваться; мониторинг и защитные partial/stop/full exits уже открытых paper-позиций остаются активными.
 - Observation-профиль `tuned-daily`: universe `UPRO,TQQQ,SOXL,USD,TECL`, `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, cooldown `5`, same-strength `45`, обязательный close выше support, mental stop, БУ `+1%`, partial `50%`, `next_touch`, DAY-validity `1` бар.
 
 ## Основание для блокировки входов
 
 - Финальный Alpaca IEX daily replay: 2021-01-01 — 2026-07-14, `1366` вариантов; в production envelope вошли `716`, eligible — `0`.
-- Ни один вариант не сохранил положительный train P/L без пяти лучших сделок; минимальная train top-5 concentration — `72.0440%` при gate `60%`.
-- Observation-профиль воспроизведен daily-report на том же cache: total `+494.0041%`, annualized `+38.0773%`, DD `-24.9787%`, `209` сделок. Но train top-5 `88.0866%` и P/L без top-5 `-$7,461.21`, поэтому это не production-valid результат.
+- Максимальная train annualized внутри envelope отрицательная (`-2.4281%`); ни один вариант не сохранил положительный train P/L без пяти лучших сделок, а минимальная train top-5 concentration — `64.3890%` при gate `60%`.
+- Observation-профиль воспроизведен daily-report на том же cache: total `+395.7899%`, annualized `+33.6314%`, DD `-49.1552%`, `177` сделок. Train total `-20.7892%`, top-5 `89.1044%` и P/L без top-5 `-$16,564.89`, поэтому это не production-valid результат.
 - Полный разбор Telegram, PDF, видео, расхождений с автором и тестов: `docs/AUTHOR_REFRESH_2026-07-15.md`.
 
 ## Защита исполнения
@@ -22,7 +22,7 @@
 - Entry planner требует одновременно config-gate и gate внутри свежего отчета; crafted/stale report не может сам включить покупки.
 - Daily report создается во временном файле, проверяется как закрытый актуальный бар текущего цикла и только затем атомарно публикуется.
 - Partial и full exits используют persistent события, стабильные `client_order_id`, reconciliation после crash/неоднозначного HTTP-ответа и retry только оставшегося количества.
-- Gross/family limits считают текущую рыночную стоимость позиций, remaining notional активных buy-заявок и новые заявки текущего цикла.
+- Backtest и planner фиксируют quantity после signal-close; fill-день не пересчитывает размер по будущему close/regime. Gross/family limits считают текущую рыночную стоимость позиций, remaining notional активных buy-заявок и новые заявки текущего цикла.
 
 ## Состояние миграции
 

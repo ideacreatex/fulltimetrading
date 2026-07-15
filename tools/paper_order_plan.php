@@ -7,6 +7,7 @@ use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Notifications\TelegramNotifier;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
+use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
 use FulltimeTrading\Trading\PaperFamilyExposureGuard;
@@ -598,7 +599,7 @@ function loadPaperContext(Config $config, SqliteRepository $repo, HttpClient $ht
         'db_states' => $repo->loadPaperPositionStates(),
         'sync_error' => null,
     ];
-    if (!boolOption((string) ($options['paper-open-counts'] ?? 'false'))) {
+    if (!$submitRequested && !boolOption((string) ($options['paper-open-counts'] ?? 'false'))) {
         return $context;
     }
 
@@ -608,6 +609,9 @@ function loadPaperContext(Config $config, SqliteRepository $repo, HttpClient $ht
             getenv('APCA_PAPER_BASE_URL') ?: (string) $config->get('trading.alpaca.paper_base_url', 'https://paper-api.alpaca.markets/v2'),
         );
         $context['account'] = $client->account();
+        if ($submitRequested) {
+            AlpacaPaperAccountGuard::validateConfigured($context['account']);
+        }
         $context['clock'] = $client->clock();
         $context['positions'] = $client->positions();
         $context['open_orders'] = $client->openOrders();

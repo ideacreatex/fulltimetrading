@@ -459,7 +459,7 @@ function monitorSummary(string $path): array
 function referenceSummary(string $profile): array
 {
     if (strtolower($profile) === 'tuned-daily') {
-        $path = __DIR__ . '/../var/reports/param_experiment_production_next_open_20260715/summary.json';
+        $path = __DIR__ . '/../var/reports/param_experiment_production_planned_qty_20260715/summary.json';
         $payload = readJsonIfExists($path);
         $walkForward = is_array($payload['walk_forward_production_envelope'] ?? null)
             ? $payload['walk_forward_production_envelope']

@@ -7,6 +7,8 @@ use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\StatusExportGitPublisher;
+use FulltimeTrading\Support\StatusSnapshotSafety;
+use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 
 require __DIR__ . '/../bootstrap.php';
@@ -44,14 +46,23 @@ $positions = [];
 $openOrders = [];
 $clock = null;
 $errors = [];
+$accountGuard = [
+    'account_reference_match' => false,
+    'multiplier_match' => false,
+    'shorting_match' => false,
+    'active' => false,
+    'unblocked' => false,
+];
 
 try {
-    $account = $client->account();
+    $candidateAccount = $client->account();
+    $accountGuard = AlpacaPaperAccountGuard::validateConfigured($candidateAccount);
+    $account = $candidateAccount;
     $clock = $client->clock();
     $positions = $client->positions();
     $openOrders = $client->openOrders();
 } catch (Throwable $e) {
-    $errors[] = $e->getMessage();
+    $errors[] = StatusSnapshotSafety::errorCode($e);
 }
 
 $latestCycle = statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/latest_paper_cycle.json');
@@ -72,6 +83,7 @@ $payload = [
         'paper_base_host_ok' => parse_url(getenv('APCA_PAPER_BASE_URL') ?: (string) $config->get('trading.alpaca.paper_base_url', ''), PHP_URL_HOST) === 'paper-api.alpaca.markets',
         'data_key_set' => statusExportPresent('APCA_DATA_API_KEY_ID') || statusExportPresent('APCA_API_KEY_ID'),
         'paper_key_set' => statusExportPresent('APCA_PAPER_API_KEY_ID'),
+        'paper_account_guard' => $accountGuard,
     ],
     'alpaca' => [
         'clock' => statusExportSanitizeClock($clock),
@@ -95,7 +107,7 @@ statusExportEnsureDir($outputDir);
 $jsonPath = $outputDir . '/latest_paper_status.json';
 $mdPath = $outputDir . '/latest_paper_status.md';
 statusExportWriteJson($jsonPath, $payload);
-file_put_contents($mdPath, statusExportMarkdown($payload) . "\n");
+StatusSnapshotSafety::writeAtomic($mdPath, statusExportMarkdown($payload) . "\n");
 
 echo "Paper status exported:\n";
 echo "- {$jsonPath}\n";
@@ -134,7 +146,7 @@ function statusExportReadOptionalJson(string $path): ?array
 /** @param array<string, mixed> $payload */
 function statusExportWriteJson(string $path, array $payload): void
 {
-    file_put_contents($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
+    StatusSnapshotSafety::writeAtomic($path, StatusSnapshotSafety::encodeJson($payload));
 }
 
 function statusExportEnsureDir(string $dir): void
@@ -170,13 +182,19 @@ function statusExportSanitizeAccount(?array $account): ?array
         'equity' => statusExportNumericOrNull($account['equity'] ?? null),
         'buying_power' => statusExportNumericOrNull($account['buying_power'] ?? null),
         'multiplier' => $account['multiplier'] ?? null,
-        'pattern_day_trader' => (bool) ($account['pattern_day_trader'] ?? false),
+        'pattern_day_trader' => statusExportStrictBoolOrNull($account, 'pattern_day_trader'),
         'daytrade_count' => isset($account['daytrade_count']) ? (int) $account['daytrade_count'] : null,
-        'trading_blocked' => (bool) ($account['trading_blocked'] ?? false),
-        'transfers_blocked' => (bool) ($account['transfers_blocked'] ?? false),
-        'account_blocked' => (bool) ($account['account_blocked'] ?? false),
-        'shorting_enabled' => (bool) ($account['shorting_enabled'] ?? false),
+        'trading_blocked' => statusExportStrictBoolOrNull($account, 'trading_blocked'),
+        'transfers_blocked' => statusExportStrictBoolOrNull($account, 'transfers_blocked'),
+        'account_blocked' => statusExportStrictBoolOrNull($account, 'account_blocked'),
+        'shorting_enabled' => statusExportStrictBoolOrNull($account, 'shorting_enabled'),
     ];
+}
+
+/** @param array<string, mixed> $payload */
+function statusExportStrictBoolOrNull(array $payload, string $key): ?bool
+{
+    return array_key_exists($key, $payload) && is_bool($payload[$key]) ? $payload[$key] : null;
 }
 
 /** @param ?array<string, mixed> $clock @return array<string, mixed>|null */
@@ -295,7 +313,7 @@ function statusExportSanitizeAction(array $action): array
         'submitted' => (bool) ($action['submitted'] ?? false),
         'order_id_last4' => statusExportLast4((string) ($action['order_id'] ?? '')),
         'client_order_id' => $action['client_order_id'] ?? null,
-        'reason' => $action['reason'] ?? null,
+        'reason' => StatusSnapshotSafety::redactedDetail($action['reason'] ?? null),
     ];
 }
 
@@ -331,8 +349,31 @@ function statusExportSummarizeMonitor(?array $monitor): ?array
         'market_open' => $monitor['market_open'] ?? null,
         'positions_count' => $monitor['positions_count'] ?? null,
         'open_orders_count' => $monitor['open_orders_count'] ?? null,
-        'actions' => $monitor['actions'] ?? [],
+        'actions' => array_map(
+            'statusExportSanitizeMonitorAction',
+            is_array($monitor['actions'] ?? null) ? $monitor['actions'] : [],
+        ),
         'suppressed_actions_count' => is_array($monitor['suppressed_actions'] ?? null) ? count($monitor['suppressed_actions']) : 0,
+    ];
+}
+
+/** @return array<string, mixed> */
+function statusExportSanitizeMonitorAction(mixed $action): array
+{
+    if (!is_array($action)) {
+        return [
+            'symbol' => null,
+            'action' => 'invalid_action_redacted',
+            'reason' => StatusSnapshotSafety::REDACTED_DETAIL,
+            'submitted' => false,
+        ];
+    }
+
+    return [
+        'symbol' => isset($action['symbol']) ? strtoupper((string) $action['symbol']) : null,
+        'action' => isset($action['action']) ? (string) $action['action'] : null,
+        'reason' => StatusSnapshotSafety::redactedDetail($action['reason'] ?? null),
+        'submitted' => ($action['submitted'] ?? null) === true,
     ];
 }
 
@@ -368,6 +409,16 @@ function statusExportMarkdown(array $payload): string
     $lines[] = '- Generated: `' . (string) $payload['generated_at'] . '`';
     $lines[] = '- Market open: `' . (!empty($clock['is_open']) ? 'yes' : 'no') . '`';
     $lines[] = '- Orders enabled: `' . (!empty($payload['runtime']['orders_enabled']) ? 'yes' : 'no') . '`';
+    $guard = is_array($payload['runtime']['paper_account_guard'] ?? null) ? $payload['runtime']['paper_account_guard'] : [];
+    $lines[] = '- Paper account guard: `' . (
+        ($guard['account_reference_match'] ?? false) === true
+        && ($guard['multiplier_match'] ?? false) === true
+        && ($guard['shorting_match'] ?? false) === true
+        && ($guard['active'] ?? false) === true
+        && ($guard['unblocked'] ?? false) === true
+            ? 'verified'
+            : 'failed'
+    ) . '`';
     $lines[] = '- New production entries: `' . (!empty($payload['runtime']['production_entry_enabled']) ? 'enabled' : 'blocked') . '`';
     if (empty($payload['runtime']['production_entry_enabled'])) {
         $lines[] = '- Entry block reason: `' . (string) ($payload['runtime']['production_entry_block_reason'] ?? 'unknown') . '`';

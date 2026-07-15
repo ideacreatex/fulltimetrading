@@ -16,6 +16,7 @@ use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Strategy\MarketRegimeAnalyzer;
 use FulltimeTrading\Strategy\PoosScanner;
 use FulltimeTrading\Support\Config;
+use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 
 require __DIR__ . '/../bootstrap.php';
@@ -720,33 +721,15 @@ try {
             ?: (string) $config->get('trading.alpaca.paper_base_url', 'https://paper-api.alpaca.markets/v2');
         $client = new AlpacaPaperClient(new HttpClient(), $paperBaseUrl);
         $account = $client->account();
-        $expectedAccountRef = getenv('APCA_PAPER_ACCOUNT_ID') ?: '';
-        if (!alpaca_account_reference_matches($expectedAccountRef, $account)) {
-            throw new RuntimeException(
-                'Alpaca paper account mismatch. Expected account ref last4=' . last4(trim($expectedAccountRef))
-                . ', actual id last4=' . last4((string) ($account['id'] ?? ''))
-                . ', actual account_number last4=' . last4((string) ($account['account_number'] ?? ''))
-            );
-        }
-        $expectedMultiplier = trim((string) (getenv('APCA_PAPER_EXPECTED_MULTIPLIER') ?: ''));
-        $actualMultiplier = trim((string) ($account['multiplier'] ?? ''));
-        if ($expectedMultiplier !== '' && $actualMultiplier !== '' && !hash_equals($expectedMultiplier, $actualMultiplier)) {
-            throw new RuntimeException('Alpaca paper multiplier mismatch. Expected ' . $expectedMultiplier . 'x, actual ' . $actualMultiplier . 'x.');
-        }
-        $expectedShortingRaw = getenv('APCA_PAPER_EXPECTED_SHORTING_ENABLED');
-        $expectedShorting = is_string($expectedShortingRaw) && trim($expectedShortingRaw) !== ''
-            ? bool_option($expectedShortingRaw)
-            : null;
-        $actualShorting = (bool) ($account['shorting_enabled'] ?? false);
-        if ($expectedShorting !== null && $expectedShorting !== $actualShorting) {
-            throw new RuntimeException('Alpaca paper shorting mismatch. Expected ' . ($expectedShorting ? 'enabled' : 'disabled') . ', actual ' . ($actualShorting ? 'enabled' : 'disabled') . '.');
-        }
+        $guard = AlpacaPaperAccountGuard::validateConfigured($account);
 
         echo json_encode([
             'paper_base_url' => $paperBaseUrl,
-            'account_reference_match' => trim($expectedAccountRef) === '' ? null : true,
-            'expected_multiplier_match' => $expectedMultiplier === '' ? null : true,
-            'expected_shorting_match' => $expectedShorting === null ? null : true,
+            'account_reference_match' => $guard['account_reference_match'],
+            'expected_multiplier_match' => $guard['multiplier_match'],
+            'expected_shorting_match' => $guard['shorting_match'],
+            'active_match' => $guard['active'],
+            'unblocked_match' => $guard['unblocked'],
             'account' => alpaca_account_summary($account),
             'orders_enabled' => (bool) $config->get('trading.alpaca.orders_enabled', false),
             'paper_only' => (bool) $config->get('trading.alpaca.paper_only', true),

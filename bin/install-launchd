@@ -281,6 +281,10 @@ command -v launchctl >/dev/null 2>&1 || die "launchctl is required"
 command -v install >/dev/null 2>&1 || die "install is required"
 configure_launchd_paths
 
+if ! "$PHP_BIN" "$PROJECT_DIR/bin/trade" alpaca-account >/dev/null; then
+    die "strict Alpaca paper account identity/multiplier/shorting validation failed before LaunchAgent changes"
+fi
+
 verify_status_git_target() {
     STATUS_CURRENT_BRANCH=$(git -C "$PROJECT_DIR" symbolic-ref --quiet --short HEAD 2>/dev/null || true)
     [ "$STATUS_CURRENT_BRANCH" = "$STATUS_GIT_BRANCH" ] \
@@ -383,7 +387,9 @@ daemon_is_verified() {
             && $monitorAt !== false
             && $monitorAt >= ((int) $argv[4] - 5)
             && $monitorAt <= time() + 5;
-        exit($age >= -5 && $age <= (int) $argv[3] && $monitorOk ? 0 : 1);
+        $accountGuardOk = ($payload["submit"] ?? null) === true
+            && ($payload["account_guard_verified"] ?? null) === true;
+        exit($age >= -5 && $age <= (int) $argv[3] && $monitorOk && $accountGuardOk ? 0 : 1);
     ' "$HEARTBEAT_PATH" "$VERIFY_LAUNCHD_PID" "$DAEMON_HEARTBEAT_MAX_AGE_SECONDS" "$DAEMON_VERIFY_STARTED_AT"
 }
 
@@ -417,6 +423,9 @@ status_export_is_verified() {
         $generatedAt = is_array($payload) ? ($payload["generated_at"] ?? null) : null;
         $timestamp = is_string($generatedAt) ? strtotime($generatedAt) : false;
         $runtime = is_array($payload["runtime"] ?? null) ? $payload["runtime"] : [];
+        $accountGuard = is_array($runtime["paper_account_guard"] ?? null)
+            ? $runtime["paper_account_guard"]
+            : [];
         $account = is_array($payload["alpaca"]["account"] ?? null) ? $payload["alpaca"]["account"] : null;
         $errors = is_array($payload["errors"] ?? null) ? $payload["errors"] : ["invalid"];
         $healthy = $timestamp !== false
@@ -430,6 +439,11 @@ status_export_is_verified() {
             && ($runtime["paper_base_host_ok"] ?? false) === true
             && ($runtime["data_key_set"] ?? false) === true
             && ($runtime["paper_key_set"] ?? false) === true
+            && ($accountGuard["account_reference_match"] ?? false) === true
+            && ($accountGuard["multiplier_match"] ?? false) === true
+            && ($accountGuard["shorting_match"] ?? false) === true
+            && ($accountGuard["active"] ?? false) === true
+            && ($accountGuard["unblocked"] ?? false) === true
             && ($account["trading_blocked"] ?? true) === false
             && ($account["account_blocked"] ?? true) === false;
         exit($healthy ? 0 : 1);
