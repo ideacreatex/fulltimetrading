@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use FulltimeTrading\Backtest\PerformanceReport;
 use FulltimeTrading\Backtest\PoosBacktester;
+use FulltimeTrading\Backtest\RobustnessAnalyzer;
 use FulltimeTrading\Data\AlpacaBarsProvider;
 use FulltimeTrading\Data\CacheDirectoryMarketDataProvider;
 use FulltimeTrading\Data\CachedMarketDataProvider;
@@ -22,6 +23,7 @@ use FulltimeTrading\Strategy\MarketRegimeAnalyzer;
 use FulltimeTrading\Strategy\PoosScanner;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Trading\AlpacaPaperClient;
+use FulltimeTrading\Trading\PositionSizingPolicy;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -44,8 +46,8 @@ $options = [
     'cache-namespace' => '',
     'initial-cash' => '30000',
     'max-open-positions' => '4',
-    'max-gross-exposure-pct' => '2.0',
-    'family-cap' => '1.00',
+    'max-gross-exposure-pct' => '1.75',
+    'family-cap' => '1.20',
     'support-min-touches' => '4',
     'support-min-success-rate' => '0.70',
     'support-require-close-above' => 'true',
@@ -53,22 +55,23 @@ $options = [
     'support-near-atr-multiple' => '0.60',
     'support-stop-atr-multiple' => '1.50',
     'support-target-atr-multiple' => '3.00',
-    'order-valid-bars' => '10',
-    'order-fill-mode' => 'same_day_touch',
-    'partial-take-profit-pct' => '0.25',
+    'order-valid-bars' => '1',
+    'order-fill-mode' => 'next_touch',
+    'partial-take-profit-pct' => '0.50',
     'swing-stop-mode' => 'mental',
     'hard-stop-fill-mode' => 'gap_open',
-    'break-even-profit-pct' => '0.02',
+    'break-even-profit-pct' => '0.01',
     'break-even-trigger-mode' => 'high',
     'break-even-stop-mode' => 'hard',
     'break-even-stop-offset-pct' => '0',
-    'reentry-cooldown-days' => '0',
+    'reentry-cooldown-days' => '5',
     'allow-same-strength-after-days' => '45',
     'layers' => '3',
     'require-green-garden' => 'true',
     'break-even-add-on-fraction' => '0',
     'unstable-market-position-pct' => '0.05',
     'stable-market-score-threshold' => '2.50',
+    'robust-split-date' => '2024-01-01',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -117,6 +120,14 @@ $recentSignals = recentSignals($signals, $asOf, (int) $options['lookback-days'])
 $backtester = new PoosBacktester($indicatorCalculator, $marketAnalyzer, $scanner, $strategy, $risk);
 $result = $backtester->run($barsBySymbol, $marketBars);
 $report = (new PerformanceReport())->build($result, $marketBars[$benchmark] ?? [], $benchmark);
+$robustnessAnalyzer = new RobustnessAnalyzer();
+$robustness = $robustnessAnalyzer->analyze(
+    $result->trades,
+    $result->equityCurve,
+    (string) $options['robust-split-date'],
+);
+$robustness['selection'] = $robustnessAnalyzer->validate($robustness, dailyRobustnessPolicy());
+$robustness['holdout_validation'] = $robustnessAnalyzer->validateHoldout($robustness, dailyRobustnessPolicy());
 $currentPositions = currentPositionStates($result->positionStates, $result->openPositions, $asOf);
 $account = boolOption((string) $options['include-account']) ? safePaperAccount($config, $http) : null;
 
@@ -132,22 +143,42 @@ $payload = [
         'market_symbols' => $marketSymbols,
         'benchmark' => $benchmark,
         'data_age_days' => dataAgeDays($asOf),
+        'latest_closed_bars' => latestClosedBarSnapshots($barsBySymbol, $asOf),
     ],
     'market' => serializeRegime($regime),
     'risk' => [
+        'entry_submission_enabled' => (bool) ($strategy['entry_submission_enabled'] ?? false),
+        'entry_submission_block_reason' => (string) ($strategy['entry_submission_block_reason'] ?? 'production_validation_unavailable'),
         'initial_cash' => (float) $risk['initial_cash'],
         'max_open_positions' => (int) $risk['max_open_positions'],
+        'max_position_pct' => (float) ($risk['max_position_pct'] ?? 1.0),
         'max_gross_exposure_pct' => (float) ($strategy['club_rules']['max_gross_exposure_pct'] ?? 1.0),
+        'family_exposure_cap_pct' => (float) ($strategy['family_exposure_caps']['default_max_gross_exposure_pct'] ?? 1.0),
+        'exposure_basis' => 'marked_equity_and_current_market_value',
+        'partial_take_profit_pct' => (float) ($strategy['partial_take_profit_pct'] ?? 0.5),
+        'reentry_cooldown_days' => (int) ($strategy['reentry_after_stop']['cooldown_days'] ?? 0),
+        'allow_same_strength_after_days' => (int) ($strategy['reentry_after_stop']['allow_same_strength_after_days'] ?? 45),
         'swing_stop_mode' => (string) ($strategy['club_rules']['default_swing_stop_mode'] ?? 'mental'),
         'break_even_profit_pct' => (float) ($strategy['club_rules']['break_even_profit_pct'] ?? 0.01),
+        'break_even_stop_mode' => (string) ($strategy['club_rules']['break_even_stop_mode'] ?? 'hard'),
+        'mental_stop_exit_on_close' => (bool) ($strategy['club_rules']['mental_stop_exit_on_close'] ?? true),
+        'hybrid_hard_stop_symbols' => array_values((array) ($strategy['club_rules']['hybrid_hard_stop_symbols'] ?? [])),
+        'hard_stop_fill_mode' => (string) ($strategy['club_rules']['hard_stop_fill_mode'] ?? 'gap_open'),
     ],
     'model' => [
         'summary' => $report['summary'] ?? [],
         'benchmark' => $report['benchmark'] ?? [],
+        'robustness' => $robustness,
         'open_positions' => $currentPositions,
     ],
-    'signals_today' => array_map(static fn (Signal $signal): array => serializeSignal($signal, $strategy), $todaySignals),
-    'recent_signals' => array_map(static fn (Signal $signal): array => serializeSignal($signal, $strategy), array_slice($recentSignals, 0, 20)),
+    'signals_today' => array_map(
+        static fn (Signal $signal): array => serializeSignal($signal, $strategy, $risk, $regime),
+        $todaySignals,
+    ),
+    'recent_signals' => array_map(
+        static fn (Signal $signal): array => serializeSignal($signal, $strategy, $risk, $regime),
+        array_slice($recentSignals, 0, 20),
+    ),
     'paper_account' => $account,
     'health' => healthRows($asOf, $missingSymbols, $regime, $account, boolOption((string) $options['offline'])),
 ];
@@ -255,7 +286,7 @@ function strategyFromOptions(Config $config, SqliteRepository $repo, array $opti
     $strategy['support_regularity']['stop_atr_multiple'] = (float) $options['support-stop-atr-multiple'];
     $strategy['support_regularity']['target_atr_multiple'] = (float) $options['support-target-atr-multiple'];
     $strategy['order_valid_bars'] = (int) $options['order-valid-bars'];
-    $strategy['order_fill_mode'] = enumOption((string) $options['order-fill-mode'], ['same_day_touch', 'next_touch'], 'same_day_touch');
+    $strategy['order_fill_mode'] = enumOption((string) $options['order-fill-mode'], ['same_day_touch', 'next_touch'], 'next_touch');
     $strategy['partial_take_profit_pct'] = (float) $options['partial-take-profit-pct'];
     $strategy['club_rules']['default_swing_stop_mode'] = enumOption((string) $options['swing-stop-mode'], ['hard', 'mental', 'hybrid'], 'mental');
     $strategy['club_rules']['hard_stop_fill_mode'] = enumOption((string) $options['hard-stop-fill-mode'], ['stop_price', 'gap_open'], 'gap_open');
@@ -323,6 +354,19 @@ function enumOption(string $value, array $allowed, string $default): string
 function boolOption(string $value): bool
 {
     return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'y', 'on'], true);
+}
+
+/** @return array<string, float|int> */
+function dailyRobustnessPolicy(): array
+{
+    return [
+        'min_trades' => 50,
+        'min_post_split_trades' => 10,
+        'max_best_trade_gross_profit_share_pct' => 0.25,
+        'max_top_5_trades_gross_profit_share_pct' => 0.60,
+        'max_top_symbol_gross_profit_share_pct' => 0.65,
+        'max_post_split_drawdown_pct' => 0.35,
+    ];
 }
 
 /** @param list<string> $symbols @return array<string, list<Bar>> */
@@ -464,8 +508,40 @@ function currentPositionStates(array $positionStates, array $openPositionKeys, s
     return array_values($latest);
 }
 
+/**
+ * Preserve the exact closed-bar observations consumed by the model so the paper
+ * monitor can enforce mental stops even when its live position is not present in
+ * the backtest's current open-position set.
+ *
+ * @param array<string, list<Bar>> $barsBySymbol
+ * @return array<string, array{date:string,close:float}>
+ */
+function latestClosedBarSnapshots(array $barsBySymbol, string $asOf): array
+{
+    $snapshots = [];
+    foreach ($barsBySymbol as $symbol => $bars) {
+        $latest = null;
+        foreach ($bars as $bar) {
+            $date = $bar->time->format('Y-m-d');
+            if ($date > $asOf) {
+                continue;
+            }
+            if ($latest === null || $date >= $latest['date']) {
+                $latest = ['date' => $date, 'close' => round($bar->close, 6)];
+            }
+        }
+        if ($latest !== null) {
+            $snapshots[strtoupper((string) $symbol)] = $latest;
+        }
+    }
+
+    ksort($snapshots);
+
+    return $snapshots;
+}
+
 /** @return array<string, mixed> */
-function serializeSignal(Signal $signal, array $strategy): array
+function serializeSignal(Signal $signal, array $strategy, array $risk, ?MarketRegime $regime): array
 {
     $directionMultiplier = $signal->direction === 'short' ? -1.0 : 1.0;
     $riskPct = $signal->entry > 0.0 ? abs($signal->entry - $signal->stop) / $signal->entry : 0.0;
@@ -486,6 +562,7 @@ function serializeSignal(Signal $signal, array $strategy): array
         'target_pct' => $targetPct,
         'reward_r' => $signal->riskPerShare > 0.0 ? abs($signal->target - $signal->entry) / $signal->riskPerShare : 0.0,
         'score' => $signal->score,
+        'recommended_position_pct' => PositionSizingPolicy::positionPct($strategy, $risk, $regime, $signal),
         'setup_success_rate' => isset($signal->metadata['setup_success_rate']) ? (float) $signal->metadata['setup_success_rate'] : null,
         'setup_touches' => isset($signal->metadata['setup_touches']) ? (int) $signal->metadata['setup_touches'] : null,
         'setup_avg_forward_return' => isset($signal->metadata['setup_avg_forward_return']) ? (float) $signal->metadata['setup_avg_forward_return'] : null,

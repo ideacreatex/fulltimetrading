@@ -6,6 +6,8 @@ declare(strict_types=1);
 use FulltimeTrading\Backtest\BacktestResult;
 use FulltimeTrading\Backtest\PerformanceReport;
 use FulltimeTrading\Backtest\PoosBacktester;
+use FulltimeTrading\Backtest\RobustnessAnalyzer;
+use FulltimeTrading\Backtest\WalkForwardSelector;
 use FulltimeTrading\Data\AlpacaBarsProvider;
 use FulltimeTrading\Data\CacheDirectoryMarketDataProvider;
 use FulltimeTrading\Data\CachedMarketDataProvider;
@@ -32,8 +34,21 @@ $options = [
     'db' => __DIR__ . '/../var/db/trading.sqlite',
     'provider' => 'yahoo',
     'feed' => null,
-    'cache-namespace' => null,
+    'cache-namespace' => 'alpaca-param-experiment-iex',
     'initial-cash' => null,
+    'symbols' => 'USD,SOXL,TECL,TQQQ,UPRO',
+    'robust-split-date' => '2024-01-01',
+    'min-trades' => '50',
+    'min-post-split-trades' => '10',
+    'max-best-trade-share-pct' => '0.25',
+    'max-top-5-trades-share-pct' => '0.60',
+    'max-top-symbol-share-pct' => '0.65',
+    'max-post-split-drawdown-pct' => '0.35',
+    'min-pre-split-trades' => '50',
+    'min-pre-split-annualized-return-pct' => '0.40',
+    'max-pre-split-drawdown-pct' => '0.35',
+    'production-max-gross' => '2.0',
+    'production-max-open' => '4',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -54,10 +69,7 @@ $provider = providerFromOptions($config, $options);
 $repo = new SqliteRepository((string) $options['db']);
 $repo->migrate();
 
-$symbols = array_values(array_intersect(
-    symbolsFromFile(__DIR__ . '/../var/reports/universe_leveraged_long_symbols.txt'),
-    ['USD', 'SOXL', 'TECL', 'TQQQ', 'UPRO'],
-));
+$symbols = symbolsFromOption((string) $options['symbols']);
 $benchmark = 'SPY';
 
 $baseStrategy = $config->get('strategy', []);
@@ -70,11 +82,22 @@ $baseStrategy['external_indicator_snapshots'] = $repo->loadExternalIndicatorSnap
 $marketSymbols = array_values(array_unique(array_merge($baseStrategy['market']['symbols'] ?? ['SPY', 'QQQ', 'SMH'], [$benchmark])));
 $barsBySymbol = loadBarsSafely($provider, $symbols, (string) $options['start'], (string) $options['end'], (string) $config->get('cache_path'));
 $marketBars = loadBarsSafely($provider, $marketSymbols, (string) $options['start'], (string) $options['end'], (string) $config->get('cache_path'));
-$symbols = array_values(array_intersect($symbols, array_keys($barsBySymbol)));
+assertBarsAvailable($symbols, $barsBySymbol, 'experiment symbols');
+assertBarsAvailable($marketSymbols, $marketBars, 'market symbols');
 
 $indicatorCalculator = new IndicatorCalculator();
+$robustnessAnalyzer = new RobustnessAnalyzer();
+$walkForwardSelector = new WalkForwardSelector();
+$robustnessPolicy = robustnessPolicy($options);
+$walkForwardPolicy = walkForwardPolicy($options, $robustnessPolicy);
+$productionEnvelope = [
+    'max_gross' => (float) $options['production-max-gross'],
+    'max_open' => (int) $options['production-max-open'],
+];
 $variants = experimentVariants($symbols, $options);
 $summaries = [];
+$rowsByVariant = [];
+$trainCandidates = [];
 $savedResults = [];
 $bestScore = -INF;
 $bestScoreName = null;
@@ -82,6 +105,10 @@ $bestTargetScore = -INF;
 $bestTargetName = null;
 $bestRobustScore = -INF;
 $bestRobustName = null;
+$bestTrainScore = -INF;
+$bestTrainName = null;
+$bestProductionTrainScore = -INF;
+$bestProductionTrainName = null;
 
 foreach ($variants as $name => $variant) {
     [$strategy, $risk] = configureExperimentVariant($baseStrategy, $baseRisk, $variant);
@@ -91,14 +118,22 @@ foreach ($variants as $name => $variant) {
     $result = $backtester->run(array_intersect_key($barsBySymbol, array_fill_keys($symbols, true)), $marketBars);
     $report = (new PerformanceReport())->build($result, $marketBars[$benchmark] ?? [], $benchmark);
     $diagnostics = diagnostics($result->positionStates, $result->equityCurve);
+    $robustness = $robustnessAnalyzer->analyze(
+        $result->trades,
+        $result->equityCurve,
+        (string) $options['robust-split-date'],
+    );
+    $robustValidation = $robustnessAnalyzer->validate($robustness, $robustnessPolicy);
+    $holdoutValidation = $robustnessAnalyzer->validateHoldout($robustness, $robustnessPolicy);
     $report['diagnostics'] = $diagnostics;
+    $report['robustness'] = array_merge($robustness, ['selection' => $robustValidation]);
 
     $summary = $report['summary'];
     $ann = (float) $summary['annualized_return_pct'];
     $dd = (float) $summary['max_drawdown_pct'];
     $score = $ann / max(0.01, abs($dd));
     $consistency = consistencyMetrics($report['years'] ?? []);
-    $robustScore = robustScore($ann, $dd, $score, $consistency);
+    $robustScore = robustScore($ann, $dd, $score, $consistency, $robustness);
 
     $row = [
         'variant' => $name,
@@ -119,6 +154,37 @@ foreach ($variants as $name => $variant) {
         'median_year_return_pct' => $consistency['median_year_return_pct'],
         'negative_years' => $consistency['negative_years'],
         'best_year_contribution_pct' => $consistency['best_year_contribution_pct'],
+        'min_trades_required' => $robustnessPolicy['min_trades'],
+        'meets_min_trades' => (int) $summary['trades'] >= $robustnessPolicy['min_trades'],
+        'best_trade_gross_profit_share_pct' => $robustness['best_trade_gross_profit_share_pct'],
+        'top_5_trades_gross_profit_share_pct' => $robustness['top_5_trades_gross_profit_share_pct'],
+        'pnl_without_best_trade' => $robustness['pnl_without_best_trade'],
+        'pnl_without_top_5_trades' => $robustness['pnl_without_top_5_trades'],
+        'top_symbol' => $robustness['top_symbol'],
+        'top_symbol_pnl' => $robustness['top_symbol_pnl'],
+        'top_symbol_gross_profit_share_pct' => $robustness['top_symbol_gross_profit_share_pct'],
+        'pre_split_return_pct' => $robustness['pre_split']['return_pct'],
+        'pre_split_annualized_return_pct' => $robustness['pre_split']['annualized_return_pct'],
+        'pre_split_max_drawdown_pct' => $robustness['pre_split']['max_drawdown_pct'],
+        'pre_split_trades' => $robustness['pre_split_closed_trades'],
+        'pre_split_best_trade_gross_profit_share_pct' => $robustness['pre_split_trade_metrics']['best_trade_gross_profit_share_pct'],
+        'pre_split_top_5_trades_gross_profit_share_pct' => $robustness['pre_split_trade_metrics']['top_5_trades_gross_profit_share_pct'],
+        'pre_split_pnl_without_top_5_trades' => $robustness['pre_split_trade_metrics']['pnl_without_top_5_trades'],
+        'pre_split_top_symbol' => $robustness['pre_split_trade_metrics']['top_symbol'],
+        'pre_split_top_symbol_gross_profit_share_pct' => $robustness['pre_split_trade_metrics']['top_symbol_gross_profit_share_pct'],
+        'post_split_return_pct' => $robustness['post_split']['return_pct'],
+        'post_split_annualized_return_pct' => $robustness['post_split']['annualized_return_pct'],
+        'post_split_max_drawdown_pct' => $robustness['post_split']['max_drawdown_pct'],
+        'post_split_trades' => $robustness['post_split_closed_trades'],
+        'post_split_best_trade_gross_profit_share_pct' => $robustness['post_split_trade_metrics']['best_trade_gross_profit_share_pct'],
+        'post_split_top_5_trades_gross_profit_share_pct' => $robustness['post_split_trade_metrics']['top_5_trades_gross_profit_share_pct'],
+        'post_split_pnl_without_top_5_trades' => $robustness['post_split_trade_metrics']['pnl_without_top_5_trades'],
+        'post_split_top_symbol' => $robustness['post_split_trade_metrics']['top_symbol'],
+        'post_split_top_symbol_gross_profit_share_pct' => $robustness['post_split_trade_metrics']['top_symbol_gross_profit_share_pct'],
+        'meets_robust_validation' => $robustValidation['passes'],
+        'robust_validation_failures' => $robustValidation['failures'],
+        'meets_holdout_validation' => $holdoutValidation['passes'],
+        'holdout_validation_failures' => $holdoutValidation['failures'],
         'meets_40_35' => $ann >= 0.40 && $dd >= -0.35,
         'meets_consistent_40_35' => $ann >= 0.40
             && $dd >= -0.35
@@ -127,38 +193,79 @@ foreach ($variants as $name => $variant) {
             && $consistency['median_year_return_pct'] >= 0.10,
     ];
     $summaries[] = $row;
+    $rowsByVariant[$name] = $row;
 
-    if ((int) $summary['trades'] >= 50 && $score > $bestScore) {
+    $trainCandidate = [
+        'variant' => $name,
+        'params' => $variant,
+        'training' => [
+            'points' => $robustness['pre_split']['points'],
+            'trades' => $robustness['pre_split_closed_trades'],
+            'return_pct' => $robustness['pre_split']['return_pct'],
+            'annualized_return_pct' => $robustness['pre_split']['annualized_return_pct'],
+            'max_drawdown_pct' => $robustness['pre_split']['max_drawdown_pct'],
+            'trade_metrics' => $robustness['pre_split_trade_metrics'],
+        ],
+    ];
+    $trainCandidates[] = $trainCandidate;
+    $trainEvaluation = $walkForwardSelector->evaluate($trainCandidate, $walkForwardPolicy);
+    if ($trainEvaluation['passes'] && trainScoreWins((float) $trainEvaluation['score'], $name, $bestTrainScore, $bestTrainName)) {
+        $bestTrainScore = (float) $trainEvaluation['score'];
+        $bestTrainName = $name;
+        $savedResults['walk_forward_train_selected_unconstrained'] = [$name, $variant, $report, $result];
+    }
+    $productionTrainEvaluation = $walkForwardSelector->evaluate($trainCandidate, $walkForwardPolicy, $productionEnvelope);
+    if ($productionTrainEvaluation['passes'] && trainScoreWins((float) $productionTrainEvaluation['score'], $name, $bestProductionTrainScore, $bestProductionTrainName)) {
+        $bestProductionTrainScore = (float) $productionTrainEvaluation['score'];
+        $bestProductionTrainName = $name;
+        $savedResults['walk_forward_train_selected_production'] = [$name, $variant, $report, $result];
+    }
+
+    if ($row['meets_min_trades'] && $score > $bestScore) {
         $bestScore = $score;
         $bestScoreName = $name;
         $savedResults['best_score'] = [$name, $variant, $report, $result];
     }
 
-    if ($row['meets_40_35'] && $score > $bestTargetScore) {
+    if ($row['meets_40_35'] && $row['meets_min_trades'] && $score > $bestTargetScore) {
         $bestTargetScore = $score;
         $bestTargetName = $name;
         $savedResults['best_40_35'] = [$name, $variant, $report, $result];
     }
 
-    if ($row['meets_consistent_40_35'] && $robustScore > $bestRobustScore) {
+    if ($row['meets_consistent_40_35'] && $row['meets_robust_validation'] && $robustScore > $bestRobustScore) {
         $bestRobustScore = $robustScore;
         $bestRobustName = $name;
         $savedResults['best_consistent_40_35'] = [$name, $variant, $report, $result];
     }
 
     printf(
-        "%s ann=%+.2f%% dd=%.2f%% worstY=%.2f%% medY=%.2f%% negY=%d bestYShare=%.1f%% score=%.3f robust=%.3f\n",
+        "%s ann=%+.2f%% dd=%.2f%% trades=%d postAnn=%+.2f%% postDD=%.2f%% top1=%.1f%% top5=%.1f%% topSymbol=%s/%.1f%% robust=%s score=%.3f\n",
         $name,
         $ann * 100,
         $dd * 100,
-        $consistency['worst_year_return_pct'] * 100,
-        $consistency['median_year_return_pct'] * 100,
-        $consistency['negative_years'],
-        $consistency['best_year_contribution_pct'] * 100,
-        $score,
+        (int) $summary['trades'],
+        (float) $robustness['post_split']['annualized_return_pct'] * 100,
+        (float) $robustness['post_split']['max_drawdown_pct'] * 100,
+        (float) $robustness['best_trade_gross_profit_share_pct'] * 100,
+        (float) $robustness['top_5_trades_gross_profit_share_pct'] * 100,
+        (string) ($robustness['top_symbol'] ?? '-'),
+        (float) $robustness['top_symbol_gross_profit_share_pct'] * 100,
+        $robustValidation['passes'] ? 'yes' : 'no',
         $robustScore,
     );
 }
+
+$walkForwardUnconstrained = addFrozenHoldoutEvaluation(
+    $walkForwardSelector->select($trainCandidates, $walkForwardPolicy),
+    $rowsByVariant,
+    (string) $options['robust-split-date'],
+);
+$walkForwardProduction = addFrozenHoldoutEvaluation(
+    $walkForwardSelector->select($trainCandidates, $walkForwardPolicy, $productionEnvelope),
+    $rowsByVariant,
+    (string) $options['robust-split-date'],
+);
 
 usort($summaries, static fn (array $a, array $b): int => $b['robust_score'] <=> $a['robust_score']);
 $summaryPath = $outputDir . '/summary.json';
@@ -168,11 +275,18 @@ file_put_contents($summaryPath, json_encode([
     'end' => $options['end'],
     'provider' => $options['provider'],
     'feed' => $options['feed'],
+    'cache_namespace' => $options['cache-namespace'],
     'symbols' => $symbols,
+    'portfolio_sizing_basis' => 'marked_equity_and_current_market_value',
+    'robust_split_date' => $options['robust-split-date'],
+    'robustness_policy' => $robustnessPolicy,
     'variants' => count($variants),
     'best_score_variant' => $bestScoreName,
     'best_40_35_variant' => $bestTargetName,
     'best_consistent_40_35_variant' => $bestRobustName,
+    'exploratory_rankings_use_full_period_and_holdout' => true,
+    'walk_forward_unconstrained' => $walkForwardUnconstrained,
+    'walk_forward_production_envelope' => $walkForwardProduction,
     'summaries' => $summaries,
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
 
@@ -183,16 +297,25 @@ foreach ($savedResults as $label => [$name, $variant, $report, $result]) {
 echo "Summary: {$summaryPath}\n";
 
 /** @return list<string> */
-function symbolsFromFile(string $file): array
+function symbolsFromOption(string $value): array
 {
-    if (!is_file($file)) {
-        return [];
+    $symbols = [];
+    foreach (preg_split('/[\s,;]+/', $value) ?: [] as $rawSymbol) {
+        $symbol = strtoupper(trim($rawSymbol));
+        if ($symbol === '') {
+            continue;
+        }
+        if (!preg_match('/^[A-Z][A-Z0-9.-]{0,9}$/', $symbol)) {
+            throw new InvalidArgumentException('Invalid symbol in --symbols: ' . $rawSymbol);
+        }
+        $symbols[$symbol] = true;
     }
 
-    return array_values(array_filter(array_map(
-        static fn (string $symbol): string => strtoupper(trim($symbol)),
-        preg_split('/[\s,;]+/', (string) file_get_contents($file)) ?: [],
-    )));
+    if ($symbols === []) {
+        throw new InvalidArgumentException('--symbols must contain at least one valid ticker.');
+    }
+
+    return array_keys($symbols);
 }
 
 /** @param array<string, string|null> $options */
@@ -238,6 +361,22 @@ function loadBarsSafely(MarketDataProvider $provider, array $symbols, string $st
     }
 }
 
+/** @param list<string> $symbols @param array<string, list<Bar>> $barsBySymbol */
+function assertBarsAvailable(array $symbols, array $barsBySymbol, string $label): void
+{
+    $missing = array_values(array_filter(
+        $symbols,
+        static fn (string $symbol): bool => ($barsBySymbol[$symbol] ?? []) === [],
+    ));
+    if ($missing !== []) {
+        throw new RuntimeException(sprintf(
+            'Missing daily bars for %s: %s. Refusing a partial-universe experiment.',
+            $label,
+            implode(', ', $missing),
+        ));
+    }
+}
+
 /** @param list<string> $symbols @param array<string, string> $options @return array<string, array<string, mixed>> */
 function experimentVariants(array $symbols, array $options = []): array
 {
@@ -251,6 +390,8 @@ function experimentVariants(array $symbols, array $options = []): array
         'allow_same_strength_after_days' => 30,
         'min_touches' => 4,
         'min_success_rate' => 0.70,
+        'require_close_above_support' => !isset($options['support-require-close-above'])
+            || boolOption($options, 'support-require-close-above'),
         'touch_tolerance_pct' => 0.015,
         'near_atr_multiple' => 0.60,
         'stop_atr_multiple' => 1.5,
@@ -263,8 +404,8 @@ function experimentVariants(array $symbols, array $options = []): array
         'break_even_stop_mode' => enumOption($options, 'break-even-stop-mode', ['hard', 'close'], 'hard'),
         'break_even_stop_offset_pct' => (float) ($options['break-even-stop-offset-pct'] ?? 0.0),
         'partial_take_profit_pct' => (float) ($options['partial-take-profit-pct'] ?? 0.5),
-        'order_valid_bars' => (int) ($options['order-valid-bars'] ?? 10),
-        'order_fill_mode' => enumOption($options, 'order-fill-mode', ['same_day_touch', 'next_touch'], 'same_day_touch'),
+        'order_valid_bars' => (int) ($options['order-valid-bars'] ?? 1),
+        'order_fill_mode' => enumOption($options, 'order-fill-mode', ['same_day_touch', 'next_touch'], 'next_touch'),
         'unstable_market_position_pct' => 0.05,
         'stable_market_score_threshold' => 2.5,
         'swing_stop_mode' => enumOption($options, 'swing-stop-mode', ['hard', 'mental', 'hybrid'], 'hard'),
@@ -295,7 +436,7 @@ function experimentVariants(array $symbols, array $options = []): array
         (float) ($options['partial-take-profit-pct'] ?? 0.5),
     ]);
     $orderValidBarsValues = intListOption($options, 'order-valid-bars-values', [
-        (int) ($options['order-valid-bars'] ?? 10),
+        (int) ($options['order-valid-bars'] ?? 1),
     ]);
     $orderFillModes = stringListOption($options, 'order-fill-modes', [(string) $base['order_fill_mode']], ['same_day_touch', 'next_touch']);
     $maxOpenOverride = isset($options['max-open']) ? (int) $options['max-open'] : null;
@@ -501,7 +642,7 @@ function configureExperimentVariant(array $baseStrategy, array $baseRisk, array 
 
     $strategy['support_regularity']['min_touches'] = (int) $variant['min_touches'];
     $strategy['support_regularity']['min_success_rate'] = (float) $variant['min_success_rate'];
-    $strategy['support_regularity']['require_close_above_support'] = true;
+    $strategy['support_regularity']['require_close_above_support'] = (bool) ($variant['require_close_above_support'] ?? true);
     $strategy['support_regularity']['weekly_enabled'] = true;
     $strategy['support_regularity']['touch_tolerance_pct'] = (float) $variant['touch_tolerance_pct'];
     $strategy['support_regularity']['near_atr_multiple'] = (float) $variant['near_atr_multiple'];
@@ -511,7 +652,7 @@ function configureExperimentVariant(array $baseStrategy, array $baseRisk, array 
     $strategy['short_symbols'] = [];
     $strategy['inverse_long_symbols'] = [];
     $strategy['order_valid_bars'] = (int) ($variant['order_valid_bars'] ?? $strategy['order_valid_bars'] ?? 10);
-    $strategy['order_fill_mode'] = (string) ($variant['order_fill_mode'] ?? 'same_day_touch');
+    $strategy['order_fill_mode'] = (string) ($variant['order_fill_mode'] ?? 'next_touch');
     $strategy['partial_take_profit_pct'] = (float) ($variant['partial_take_profit_pct'] ?? $strategy['partial_take_profit_pct'] ?? 0.5);
     $strategy['club_rules']['max_gross_exposure_pct'] = (float) $variant['max_gross'];
     $strategy['club_rules']['break_even_profit_pct'] = (float) $variant['break_even_profit_pct'];
@@ -600,6 +741,95 @@ function diagnostics(array $positionStates, array $curve): array
     ];
 }
 
+/** @param array<string, string|null> $options @return array<string, float|int> */
+function robustnessPolicy(array $options): array
+{
+    return [
+        'min_trades' => max(1, (int) ($options['min-trades'] ?? 50)),
+        'min_post_split_trades' => max(1, (int) ($options['min-post-split-trades'] ?? 10)),
+        'max_best_trade_gross_profit_share_pct' => boundedShare(
+            (float) ($options['max-best-trade-share-pct'] ?? 0.25),
+        ),
+        'max_top_5_trades_gross_profit_share_pct' => boundedShare(
+            (float) ($options['max-top-5-trades-share-pct'] ?? 0.60),
+        ),
+        'max_top_symbol_gross_profit_share_pct' => boundedShare(
+            (float) ($options['max-top-symbol-share-pct'] ?? 0.65),
+        ),
+        'max_post_split_drawdown_pct' => abs((float) ($options['max-post-split-drawdown-pct'] ?? 0.35)),
+    ];
+}
+
+/**
+ * @param array<string, string|null> $options
+ * @param array<string, float|int> $robustnessPolicy
+ * @return array<string, float|int>
+ */
+function walkForwardPolicy(array $options, array $robustnessPolicy): array
+{
+    return [
+        'min_train_trades' => max(1, (int) ($options['min-pre-split-trades'] ?? 50)),
+        'min_train_annualized_return_pct' => (float) ($options['min-pre-split-annualized-return-pct'] ?? 0.40),
+        'max_train_drawdown_pct' => abs((float) ($options['max-pre-split-drawdown-pct'] ?? 0.35)),
+        'max_best_trade_gross_profit_share_pct' => (float) $robustnessPolicy['max_best_trade_gross_profit_share_pct'],
+        'max_top_5_trades_gross_profit_share_pct' => (float) $robustnessPolicy['max_top_5_trades_gross_profit_share_pct'],
+        'max_top_symbol_gross_profit_share_pct' => (float) $robustnessPolicy['max_top_symbol_gross_profit_share_pct'],
+    ];
+}
+
+function boundedShare(float $value): float
+{
+    return min(1.0, max(0.0, $value));
+}
+
+/**
+ * Training decisions use score and variant name only. Post/full-period data is
+ * deliberately not accepted by this helper.
+ */
+function trainScoreWins(float $score, string $name, float $bestScore, ?string $bestName): bool
+{
+    if ($score > $bestScore) {
+        return true;
+    }
+
+    return $score === $bestScore && ($bestName === null || strcmp($name, $bestName) < 0);
+}
+
+/**
+ * Attach post-split facts only after the train-only choice has been frozen.
+ *
+ * @param array<string, mixed> $selection
+ * @param array<string, array<string, mixed>> $rowsByVariant
+ * @return array<string, mixed>
+ */
+function addFrozenHoldoutEvaluation(array $selection, array $rowsByVariant, string $splitDate): array
+{
+    $name = is_string($selection['selected_variant'] ?? null) ? $selection['selected_variant'] : '';
+    $row = $name !== '' ? ($rowsByVariant[$name] ?? null) : null;
+    if (!is_array($row)) {
+        $selection['frozen_oos_evaluation'] = null;
+
+        return $selection;
+    }
+
+    $selection['frozen_oos_evaluation'] = [
+        'split_date' => $splitDate,
+        'return_pct' => $row['post_split_return_pct'],
+        'annualized_return_pct' => $row['post_split_annualized_return_pct'],
+        'max_drawdown_pct' => $row['post_split_max_drawdown_pct'],
+        'trades' => $row['post_split_trades'],
+        'best_trade_gross_profit_share_pct' => $row['post_split_best_trade_gross_profit_share_pct'],
+        'top_5_trades_gross_profit_share_pct' => $row['post_split_top_5_trades_gross_profit_share_pct'],
+        'pnl_without_top_5_trades' => $row['post_split_pnl_without_top_5_trades'],
+        'top_symbol' => $row['post_split_top_symbol'],
+        'top_symbol_gross_profit_share_pct' => $row['post_split_top_symbol_gross_profit_share_pct'],
+        'passes' => $row['meets_holdout_validation'],
+        'failures' => $row['holdout_validation_failures'],
+    ];
+
+    return $selection;
+}
+
 /** @param array<string, array<string, mixed>> $years @return array<string, float|int> */
 function consistencyMetrics(array $years): array
 {
@@ -649,15 +879,31 @@ function median(array $values): float
     return ($values[$mid - 1] + $values[$mid]) / 2.0;
 }
 
-/** @param array<string, float|int> $consistency */
-function robustScore(float $ann, float $dd, float $score, array $consistency): float
+/** @param array<string, float|int> $consistency @param array<string, mixed> $robustness */
+function robustScore(float $ann, float $dd, float $score, array $consistency, array $robustness): float
 {
     $penalty = 0.0;
     $penalty += ((int) $consistency['negative_years']) * 0.25;
     $penalty += max(0.0, ((float) $consistency['best_year_contribution_pct']) - 0.55) * 1.5;
     $penalty += max(0.0, -0.05 - ((float) $consistency['worst_year_return_pct'])) * 2.0;
     $penalty += $dd < -0.35 ? abs($dd + 0.35) * 2.0 : 0.0;
+    $penalty += (float) $robustness['best_trade_gross_profit_share_pct'] * 0.50;
+    $penalty += (float) $robustness['top_5_trades_gross_profit_share_pct'] * 0.35;
+    $penalty += (float) $robustness['top_symbol_gross_profit_share_pct'] * 0.50;
+    if ((float) $robustness['pnl_without_top_5_trades'] <= 0.0) {
+        $penalty += 2.0;
+    }
+
+    $postSplit = $robustness['post_split'];
+    $postSplitAnnualized = (float) $postSplit['annualized_return_pct'];
+    $postSplitDrawdown = abs((float) $postSplit['max_drawdown_pct']);
+    if ((int) $postSplit['points'] < 2 || (float) $postSplit['return_pct'] <= 0.0) {
+        $penalty += 2.0;
+    }
+    $postSplitQuality = $postSplitAnnualized / max(0.10, $postSplitDrawdown);
+    $postSplitQuality = min(2.0, max(-2.0, $postSplitQuality));
     $bonus = max(0.0, ((float) $consistency['median_year_return_pct']) - 0.10);
+    $bonus += $postSplitQuality * 0.15;
 
     return $score + $bonus + $ann * 0.10 - $penalty;
 }

@@ -1,13 +1,13 @@
 # Fulltime Trading Bot
 
-PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `FTT_ORDERS_ENABLED=true`.
+PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `FTT_ORDERS_ENABLED=true`. Новые entry-заявки дополнительно требуют `FTT_PRODUCTION_ENTRY_ENABLED=true`; после реалистичной проверки 2026-07-15 этот флаг по умолчанию выключен, поскольку ни один кандидат не прошел production gates.
 
 ## Что уже есть
 
 - Market-regime слой: SPY как "король", QQQ/SMH/RSP/IWM/DIA, секторные ETF и крупные весовые акции.
 - POOS scanner: поиск кандидатов на первый pullback к EMA20 после сильного роста на объеме.
 - Support regularity scanner: поиск акций, которые повторяемо реагируют на EMA/SMA поддержки, с проверкой прошлых касаний и forward-реакции.
-- Backtester: общий календарь портфеля, стартовый капитал из конфига, дробные акции, размер позиции от доли капитала и правила клуба #1, лимит открытых позиций, лимитный вход у поддержки, стоп, частичная фиксация, перенос стопа в безубыток, trailing по EMA10.
+- Backtester: общий календарь портфеля, стартовый капитал из конфига, дробные акции, размер новой позиции от marked equity, занятая нагрузка по текущей рыночной стоимости остатка позиции, правила клуба #1, лимит открытых позиций, лимитный вход у поддержки, стоп, частичная фиксация, перенос стопа в безубыток, trailing по EMA10.
 - Club rules: `+1%` переводит стоп в БУ отдельным событием, swing-stop по умолчанию mental, hard-stop включается только явным режимом/после БУ.
 - Performance report: кварталы, SPY benchmark, разрез по стратегиям/символам, win rate, profit factor, max drawdown, Sharpe, Sortino, recovery days, closed/unrealized/total PnL.
 - SQLite-хранилище баров, сигналов, сделок, dashboard-метрик, paper-позиций, paper-ордеров и журнала действий бота.
@@ -216,7 +216,7 @@ php tools/analyze_drawdown_causes.php \
 
 Grid пишет отчеты, сигналы, trades, equity curve и daily active-position journal в `var/reports/author_grid/`. В grid есть варианты `hard_stop`, `family_caps` и `reentry_after_stop`. Исторические `FBMA/fstock/seasonality` можно сделать обязательными только после импорта истории через `php bin/trade import-history ...`; для hard-filter включается `--require-external-indicators=true`.
 
-Focused risk grid для подбора нагрузки, family caps и reentry на high-beta leveraged ETF:
+Архивный focused risk grid для подбора нагрузки, family caps и reentry на high-beta leveraged ETF:
 
 ```bash
 php tools/run_risk_grid.php
@@ -240,9 +240,9 @@ php tools/compare_telegram_positions.php \
   --class-match=primary
 ```
 
-Текущий лучший risk-adjusted вариант из `var/reports/risk_grid/summary.json`: `risk_grid_g2.0_cap1.10_cd0_same30`. Параметры: `max_gross=2.0`, family cap `1.10`, reentry cooldown `0` дней, same-strength reentry только после `30` дней. Результат с 2021 года: total `+1410.51%`, annualized `+64.80%`, max drawdown `-28.43%`, profit factor `4.17`, Sharpe `1.39`, `322` сделки. Это лучше по риску, чем `high_beta_leverage_3x_hard_stop_caps_reentry` из author-grid: total `+1294.36%`, annualized `+62.39%`, max drawdown `-46.21%`.
+Исторический лидер этого pre-execution-parity grid — `risk_grid_g2.0_cap1.10_cd0_same30`: total `+1410.51%`, annualized `+64.80%`, max drawdown `-28.43%`, profit factor `4.17`, Sharpe `1.39`, `322` сделки. Эти цифры сохранены для воспроизводимости старого исследования, но не являются текущим paper benchmark и не сопоставимы с финальным `next_touch` grid.
 
-Почему total из старых `6000%+` уменьшился: старый прогон был оптимистичнее по исполнению стопов и нагрузке. После `hard_stop_fill_mode=gap_open` стоп, пробитый гэпом, исполняется по open, а `family_exposure_caps` режут одновременную нагрузку в связанных ETF (`UPRO/TQQQ/SOXL/USD/TECL`). Поэтому итоговая доходность ниже, но просадка и риск разорения стали ближе к реальной торговле.
+Почему total из старых `6000%+` последовательно уменьшался: ранние прогоны были оптимистичнее по исполнению стопов, нагрузке и доступности входа. `hard_stop_fill_mode=gap_open`, marked-equity sizing и family caps исправили часть расхождений; финальный `next_touch`/valid-1 replay дополнительно исключил fill в день уже закрывшегося сигнала. Только последний grid используется для решения об entry gate.
 
 Param experiment вокруг лучших настроек:
 
@@ -259,19 +259,36 @@ php tools/stress_trade_costs.php \
   --output=var/reports/param_experiment/best_consistent_40_35_cost_stress.json
 ```
 
-Лучший устойчивый вариант из `286` проверенных: `risk_maxgross1.75_maxopen4_familycap1.2_reentrycooldowndays2_allowsamestrengthafterdays45`. Результат: total `+1898.68%`, annualized `+73.52%`, max drawdown `-25.62%`, profit factor `7.16`, Sharpe `1.62`, `265` сделок. По полным годам нет отрицательных лет: `2021 +0.11%`, `2022 +90.37%`, `2023 +48.78%`, `2024 +50.10%`, `2025 +249.34%`; `2026` partial `+31.26%`.
+`run_param_experiment.php` теперь разделяет два разных результата. Старые `best_*` — exploratory ranking по полному периоду, в котором post-2024 метрики влияют на score. Для production используется `walk_forward_production_envelope`: selector получает только 2021–2023 metrics и заранее заданный envelope, после чего ровно один замороженный вариант оценивается на 2024–2026 без fallback. Одновременно считаются доля top-1/top-5, концентрация по тикеру и P/L без лучших сделок — отдельно для train, holdout и полного периода.
 
-Author-style stop mode (`mental` до +1%, затем hard breakeven stop) проверяется явно:
+Финальная проверка 2026-07-15 в `var/reports/param_experiment_production_next_open_20260715/summary.json` использует только доступное paper-исполнение: closed-bar сигнал создает `next_touch` заявку на следующий бар с DAY-validity 1, mental-stop close исполняется на следующем open с учетом gap. Из 1366 вариантов 716 попали в envelope `gross <= 2`, `max_open <= 4`, но production selector не выбрал ни одного. Минимальная train top-5 концентрация была `72.0440%` при gate `60%`; ни один кандидат не сохранил положительный train P/L без пяти лучших сделок. Старые `same_day_touch` цифры использовали уже закрывшийся бар для недоступного в тот же день fill и остаются только exploratory.
+
+Точный realistic grid воспроизводится так:
 
 ```bash
 php tools/run_param_experiment.php \
-  --output-dir=var/reports/param_experiment_mental_latest \
-  --swing-stop-mode=mental
+  --provider=offline-cache \
+  --cache-namespace=alpaca-param-experiment-iex \
+  --symbols=USD,SOXL,TECL,TQQQ,UPRO \
+  --start=2021-01-01 \
+  --end=2026-07-14 \
+  --initial-cash=30000 \
+  --swing-stop-mode=mental \
+  --hard-stop-fill-mode=gap_open \
+  --support-require-close-above=true \
+  --order-fill-mode=next_touch \
+  --order-fill-modes=next_touch \
+  --order-valid-bars=1 \
+  --order-valid-bars-values=1 \
+  --break-even-profit-pct-values=0.01,0.02 \
+  --partial-take-profit-pct-values=0.25,0.333333,0.5 \
+  --min-pre-split-annualized-return-pct=0.20 \
+  --output-dir=var/reports/param_experiment_production_next_open_20260715
 ```
 
-Лучший consistent-вариант текущего `mental` grid: `risk_maxgross2.5_maxopen5_familycap0.85_reentrycooldowndays0_allowsamestrengthafterdays45_breakevenaddonfraction0`. Результат: total `+1994.28%`, annualized `+75.02%`, max drawdown `-27.76%`, profit factor `7.86`, Sharpe `1.52`, `297` сделок. Годовые строки: `2021 -0.69%`, `2022 +90.77%`, `2023 +98.77%`, `2024 +38.17%`, `2025 +207.25%`, `2026 partial +28.12%`. Периоды лежат в `var/reports/param_experiment_mental_latest/best_consistent_40_35_periods.md`.
+Лучший по полному периоду exploratory-вариант дал total `+766.8078%`, annualized `+47.8579%`, DD `-29.5167%`, но на train имел annualized `+16.5356%`, top-5 `92.4341%` и P/L без top-5 `-$10,768.40`. Поэтому post-2024 результат не используется для ретроспективного разрешения входов. Для observation оставлен более консервативный авторски согласованный профиль `gross=1.75`, `open=4`, `family=1.20`, cooldown `5`, same-strength `45`, обязательный close над support, mental stop, BE `+1%`, partial `50%`: полный период `+494.0041%`, annualized `+38.0773%`, DD `-24.9787%`, 209 сделок; его train top-5 `88.0866%` и P/L без top-5 `-$7,461.21` также не проходят production gates. Полная сверка правил, Telegram/PDF/видео и ограничений replay: [`docs/AUTHOR_REFRESH_2026-07-15.md`](docs/AUTHOR_REFRESH_2026-07-15.md).
 
-Minute replay для проверки hard breakeven stop на Alpaca 1Min:
+Архивный minute replay прежней выборки для диагностики hard breakeven stop на Alpaca 1Min:
 
 ```bash
 php tools/replay_trades_intraday.php \
@@ -284,9 +301,9 @@ php tools/replay_trades_intraday.php \
   --skip-fetch-errors=true
 ```
 
-Последний full replay: `289` matched trades, `2` fetch errors, daily PnL `+19579.87`, minute PnL `+9194.87`. Worst-80 replay улучшил хвостовые убытки (`-2871.77` daily vs `-1021.97` minute), но full replay показывает, что жесткий minute-БУ часто режет будущие победители. Поэтому paper trading должен стартовать как наблюдаемый dry-run/paper этап, не как live.
+В этом архивном replay было `289` matched trades и `2` fetch errors: daily PnL `+19579.87`, minute PnL `+9194.87`. Он показывает, что жесткий minute-БУ часто режет будущие победители, но не валидирует текущий `next_touch` observation-профиль и не разрешает новые entries.
 
-Leverage-only grid для проверки `3x/4x` без смешивания с другими гипотезами:
+Архивный leverage-only grid для проверки `3x/4x` без смешивания с другими гипотезами:
 
 ```bash
 php tools/run_param_experiment.php \
@@ -299,34 +316,32 @@ php tools/run_param_experiment.php \
   --max-open=5
 ```
 
-Лучший full-period вариант в этом grid: `risk_maxgross3.5_maxopen5_familycap1.5_reentrycooldowndays0_allowsamestrengthafterdays30`, total `+3080.93%`, annualized `+89.01%`, max drawdown `-33.02%`, `367` сделок. Лучшие `4x` варианты дают выше gross-return, но просадка уходит примерно в `-35%...-47%`, поэтому их нельзя делать базовым paper без отдельного intraday/minute replay.
+Этот pre-execution-parity full-period grid оставлен только как исторический exploratory-артефакт. Его прежний лидер `risk_maxgross3.5_maxopen5_familycap1.5_reentrycooldowndays0_allowsamestrengthafterdays30` показывал total `+3080.93%`, annualized `+89.01%`, max drawdown `-33.02%`, `367` сделок, но эти цифры нельзя сравнивать с реалистичным `next_touch` grid и нельзя делать базовым paper.
 
-Stress-test издержек для лучшего варианта: при `20 bps` на сторону annualized `+71.67%`, max drawdown `-30.69%`; при `50 bps` на сторону annualized `+68.73%`, max drawdown `-43.03%`. Это приближенный post-trade stress test, не полноценный engine-level commission/slippage backtest.
+Cost stress реалистичного full-period exploratory-лидера: 0 bps `+47.86%/-29.52%` annualized/DD; 5 bps `+47.34%/-31.30%`; 10 bps `+46.80%/-33.08%`; 20 bps `+45.72%/-36.71%`; 50 bps `+42.21%/-48.58%`. Это приближенный post-trade stress, не полноценный engine-level commission/slippage backtest; он не исправляет train concentration и не делает вариант production-eligible.
 
-Для `mental` best consistent cost stress: при `20 bps` на сторону annualized `+72.97%`, max drawdown `-31.70%`; при `50 bps` на сторону annualized `+69.68%`, max drawdown `-39.29%`.
+Daily observation/status report без новых entry-заявок:
 
-Daily dry-run/status report без заявок:
+Для обычного paper-запуска используй единый цикл. По умолчанию он применяет observation-профиль `tuned-daily`: locked universe `UPRO,TQQQ,SOXL,USD,TECL`, Alpaca IEX cache namespace `alpaca-param-experiment-iex`, `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, обязательный close над support, BE `+1%`, partial take profit `50%`, order validity `1` бар и `next_touch` entries. `FTT_PRODUCTION_ENTRY_ENABLED=false` блокирует новые входы с причиной `production_validation_blocks_entries`; сигналы, мониторинг уже открытых позиций и защитные exits продолжают работать.
 
-Для обычного paper-запуска используй единый цикл. По умолчанию он применяет профиль `tuned-daily`: locked universe `UPRO,TQQQ,SOXL,USD,TECL`, Alpaca IEX cache namespace `alpaca-param-experiment-iex`, `max_gross=2.0`, `max_open=4`, `family_cap=1.00`, BE `+2%`, partial take profit `25%`, order validity `10` bars, same-day-touch entries.
-
-Reference backtest этого профиля: total `+6163.98%`, annualized `+114.11%`, max drawdown `-33.56%`, profit factor `5.48`. Свежий offline status на том же cache namespace: total `+6642.19%`, annualized `+116.69%`, max drawdown `-33.56%`.
+Реалистичный closed-bar replay observation-профиля на Alpaca IEX cache до 2026-07-14: total `+494.0041%`, annualized `+38.0773%`, max drawdown `-24.9787%`, profit factor `6.0236`, Sharpe `1.1579`. `run_param_experiment`, config и daily report теперь одинаково требуют `support_regularity.require_close_above_support=true`; прежний daily default `false` воспроизводил другую стратегию с total `+210.06%`, annualized `+22.74%`, DD `-48.02%`. Train 2021–2023 не прошел concentration/without-leaders gates, поэтому эта доходность не является основанием включать автоматические входы. В daily JSON записывается полный блок `model.robustness` с train/holdout concentration и validation failures.
 
 Entry orders are limit orders, so paper-plan rounds entry quantity down to whole shares by default (`--integer-qty-for-limit=true`). Fractional trading is still useful for future market partial exits, but fractional limit entries should not be assumed to work at Alpaca.
 
-When Alpaca paper sync is enabled, order sizing uses actual paper account equity (`--paper-sizing-cash=true`) instead of blindly trusting the historical report's `initial_cash`. This keeps the same profile usable on another demo account with a different balance.
+When Alpaca paper sync is enabled, order sizing uses actual marked paper account equity (`--paper-sizing-cash=true`) instead of blindly trusting the historical report's `initial_cash`. Backtest and daily report share `PositionSizingPolicy`, while current positions are valued at market rather than entry notional. This keeps the same economic sizing basis on a demo account with a different balance.
 
-Paper-plan also applies an estimated overnight maintenance guard by default (`--maintenance-guard=true`, `--maintenance-buffer-pct=0.70`). This is intentionally more conservative than the raw backtest gross exposure: leveraged ETFs can have much higher maintenance requirements than ordinary stocks. With `$30,000` paper equity the guarded dry-run plan is `USD`, `SOXL`, `TQQQ`, with estimated maintenance about `69.81%` of equity. This leaves room for gaps/slippage, but no software rule can fully guarantee that a leveraged ETF portfolio will never hit margin pressure.
+Paper-plan also applies an estimated overnight maintenance guard by default (`--maintenance-guard=true`, `--maintenance-buffer-pct=0.70`). In addition, it enforces both global gross exposure and `family_exposure_cap_pct` against current Alpaca positions, remaining notional in active buy orders and orders already planned in the same cycle. This keeps paper sizing aligned with the gross/family assumptions used in backtest. The guards limit new orders; gaps and subsequent price changes can still move observed exposure above a pre-trade cap, and no software rule can guarantee that leveraged ETFs will never create margin pressure.
 
 Production folder on the target laptop:
 
 ```bash
-/Users/admin/Desktop/fulltimetrading
+/Users/admin/Documents/fulltimetrading/fulltimetrading
 ```
 
 Always-on paper daemon:
 
 ```bash
-cd /Users/admin/Desktop/fulltimetrading
+cd /Users/admin/Documents/fulltimetrading/fulltimetrading
 php bin/trade paper-daemon \
   --submit=false \
   --telegram=true \
@@ -336,26 +351,32 @@ php bin/trade paper-daemon \
 For paper trading after `FTT_ORDERS_ENABLED=true` in `.env`:
 
 ```bash
-cd /Users/admin/Desktop/fulltimetrading
+cd /Users/admin/Documents/fulltimetrading/fulltimetrading
 php bin/trade paper-daemon \
   --submit=true \
   --telegram=true \
   --monitor-interval-seconds=60
 ```
 
-Cron restart pattern:
+На macOS daemon и sanitized status export устанавливаются как два user LaunchAgent. Скрипт сам подставляет абсолютные пути текущего репозитория и `php`; перед установкой можно посмотреть и провалидировать оба plist без изменения `~/Library` или состояния `launchd`:
 
-```cron
-* * * * /Users/admin/Desktop/fulltimetrading/bin/paper-daemon-cron >> /Users/admin/Desktop/fulltimetrading/var/log/paper_daemon_cron.log 2>&1
+```bash
+bin/install-launchd --dry-run
+bin/install-launchd
+bin/install-launchd --status
 ```
 
-The daemon uses `var/run/paper_daemon.lock`, so cron can call it every minute without starting duplicates. If the daemon crashes, the lock is released and the next cron run starts it again. Heartbeat: `var/run/paper_daemon_heartbeat.json`; state: `var/run/paper_daemon_state.json`; log: `var/log/paper_daemon.log`.
+Обычный запуск `bin/install-launchd` сразу загружает jobs. `com.fulltimetrading.paper-daemon` запускается с `--submit=true`, `RunAtLoad` и `KeepAlive`, поэтому сначала должны быть осознанно настроены `.env` и `FTT_ORDERS_ENABLED=true`. Старый ручной/cron daemon нужно остановить: installer откажется продолжать, если живой процесс вне LaunchAgent уже держит `var/run/paper_daemon.lock`. После bootstrap installer по умолчанию до `45` секунд (`DAEMON_VERIFY_TIMEOUT_SECONDS`) ждёт совпадения launchd PID, PID владельца lock и PID свежего heartbeat, а также свежего успешного monitor-run, завершившегося уже после старта текущего daemon. При ошибке или сигнале предыдущий daemon plist восстанавливается. Успешно проверенный daemon остаётся запущенным, даже если последующая установка status-export завершится ошибкой. Одновременно держать cron и LaunchAgent для одной задачи нельзя.
 
-Sanitized status export to GitHub:
+`com.fulltimetrading.paper-status-export` запускается при загрузке и каждые `900` секунд. Он напрямую выполняет `php bin/trade paper-status-export --git=true --push=true`, без `git pull`, `--rebase` или `--autostash`. Installer фиксирует текущую ветку в plist; ее можно явно задать через `STATUS_GIT_BRANCH`, remote — через `STATUS_GIT_REMOTE`. После переключения рабочей ветки LaunchAgent нужно переустановить. До изменения launchd installer требует чистое рабочее дерево и точное совпадение локального `HEAD` с уже опубликованной remote-веткой. После bootstrap он по умолчанию до `45` секунд (`STATUS_VERIFY_TIMEOUT_SECONDS`) проверяет первый свежий snapshot и `last exit code = 0`: Alpaca sync без errors, доступный и не заблокированный account, `orders_enabled=true`, `paper_only=true`, корректный paper host, установленные data/paper keys и ожидаемый safety-state `production_entry_enabled=false`. Затем повторно проверяется совпадение local/remote; иначе status LaunchAgent откатывается, а уже проверенный daemon остается запущенным. Safe-push preflight проверяет ancestry и разрешает во всех исходящих коммитах только `var/status/latest_paper_status.json` и `.md`. Push отправляет точный проверенный commit с exact `--force-with-lease`, поэтому удалённая или перемотанная ветка не будет перезаписана. При code commit, diverged history или другом output path экспорт завершается с ошибкой до `git add/commit`; накопившиеся status-only коммиты можно безопасно отправить повторным запуском. Прежнюю cron-запись status export нужно удалить в рамках миграции, сохранив все остальные cron jobs и не оставляя параллельных commit/push.
 
-```cron
-*/15 * * * * /Users/admin/Desktop/fulltimetrading/bin/paper-status-export-cron >> /Users/admin/Desktop/fulltimetrading/var/log/paper_status_export_cron.log 2>&1
+Удаление обоих LaunchAgent (логи, heartbeat и state остаются в проекте):
+
+```bash
+bin/install-launchd --uninstall
 ```
+
+Launchd stdout/stderr пишутся в `var/log/launchd_paper_daemon.*.log` и `var/log/launchd_paper_status_export.*.log`. Сам daemon использует lock `var/run/paper_daemon.lock`, heartbeat `var/run/paper_daemon_heartbeat.json`, state `var/run/paper_daemon_state.json` и log `var/log/paper_daemon.log`.
 
 It commits and pushes only:
 
@@ -513,6 +534,16 @@ php tools/build_universe_from_materials.php
 
 ```bash
 php tests/smoke.php
+php tests/paper_monitor_dedupe.php
+php tests/paper_status_export_git_guard.php
+php tests/paper_family_exposure_guard.php
+php tests/robustness_analyzer.php
+php tests/walk_forward_selector.php
+php tests/position_sizing_policy.php
+php tests/alpaca_paper_client_guard.php
+php tests/paper_daily_report_freshness.php
+php tests/backtester_execution_semantics.php
+php tests/paper_entry_validation_guard.php
 ```
 
 Синтаксис всех PHP-файлов:
@@ -525,11 +556,11 @@ find . -path ./materials -prune -o -name '*.php' -print -o -path ./bin/trade -pr
 
 ## Важные ограничения
 
-- Авторазмещение заявок по умолчанию заблокировано: `FTT_ORDERS_ENABLED=false`, `FTT_PAPER_ONLY=true`. Текущий слой безопасен для daily dry-run/status и paper preflight.
+- Live endpoint кодом не используется, `FTT_PAPER_ONLY=true`. Общий submit-контур требует `FTT_ORDERS_ENABLED=true`, но новые входы отдельно заблокированы `FTT_PRODUCTION_ENTRY_ENABLED=false`, потому что realistic grid не дал production-eligible варианта. Мониторинг и защитные exits существующих paper-позиций остаются активными; фактическое состояние фиксируется в `docs/CURRENT_STATE.md`.
 - Real-time dashboard `fstock` сохраняется в `dashboard_metrics`, но без исторического API эти значения не используются как hard-rule в backtest.
 - FBMA/fstock/seasonality используются в backtest только после импорта исторических значений или формализации Pine-логики.
-- MP4/YouTube стримы пока не расшифровываются автоматически в этой среде; нужен текстовый transcript или установка инструментов транскрибации.
+- Последние публичные YouTube-стримы проверены вручную и отражены в `docs/AUTHOR_REFRESH_2026-07-15.md`; полный автоматический transcript для каждого MP4/стрима в репозитории не архивируется.
 - Stooq может блокировать автоматические CSV-запросы JS verification/Access denied.
 - Yahoo может отдавать rate limit.
-- До реальной торговли нужно пройти paper trading с minute-БУ стопами, daily Telegram status и ручной сверкой фактических заявок/исполнений.
+- Entry gate нельзя включать по красивому full-period результату: сначала нужны новая заранее сформулированная гипотеза, train-only отбор и еще не просмотренная paper-forward статистика с ручной сверкой фактических сигналов/исполнений.
 # fulltimetrading

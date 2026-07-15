@@ -682,7 +682,7 @@ Support regularity tuning:
   Add --inverse-symbols-file=var/reports/universe_inverse_hedge_symbols.txt to allow inverse ETF long signals only in weak market regimes.
   Add --market-dip-enabled=true --market-dip-min-drawdown-pct=0.08 to allow support entries during strong SPY drawdowns.
   Add --market-dip-only=true to disable ordinary long entries outside the drawdown window.
-  Add --support-weekly-enabled=true --order-fill-mode=same_day_touch to include weekly EMA/SMA touches and fill author-style touch entries.
+  Add --support-weekly-enabled=true for weekly EMA/SMA touches. next_touch is the live-safe default; same_day_touch is exploratory because it can use the signal bar before a closed-bar report exists.
   Add --layered-positions-enabled=true --same-symbol-max-layers=3 --require-green-garden=true for add-on layers after breakeven/green garden.
   Add --max-open-positions=3 --max-gross-exposure-pct=2 --unstable-position-pct=0.5 to test loading rules.
   Add --require-external-indicators=true only after importing historical FBMA/fstock/seasonality snapshots.

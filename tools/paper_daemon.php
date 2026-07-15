@@ -51,6 +51,7 @@ $monitorInterval = max(15, (int) $options['monitor-interval-seconds']);
 $statePath = (string) $options['state'];
 $heartbeatPath = (string) $options['heartbeat'];
 $logPath = (string) $options['log'];
+$cycleFingerprint = cycleFingerprint($options);
 ensureDir(dirname($statePath));
 ensureDir(dirname($heartbeatPath));
 ensureDir(dirname($logPath));
@@ -66,10 +67,29 @@ do {
         'heartbeat_at' => $now->format(DateTimeInterface::ATOM),
         'submit' => boolOption((string) $options['submit']),
         'profile' => (string) $options['profile'],
+        'cycle_fingerprint' => $cycleFingerprint,
     ]);
 
     $state = readJson($statePath);
-    if (shouldRunCycle($state, $options)) {
+    // Exit/risk protection is the first external operation after every start.
+    $monitor = runCommand(monitorCommand($options), dirname(__DIR__));
+    logLine($logPath, ['event' => 'paper_monitor', 'result' => $monitor]);
+    echo shortResult('paper-monitor', $monitor) . "\n";
+    writeJson($heartbeatPath, [
+        'pid' => getmypid(),
+        'started_at' => $startedAt->format(DateTimeInterface::ATOM),
+        'heartbeat_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+        'submit' => boolOption((string) $options['submit']),
+        'profile' => (string) $options['profile'],
+        'cycle_fingerprint' => $cycleFingerprint,
+        'last_monitor_started_at' => $monitor['started_at'] ?? null,
+        'last_monitor_finished_at' => $monitor['finished_at'] ?? null,
+        'last_monitor_exit_code' => (int) ($monitor['exit_code'] ?? -1),
+    ]);
+
+    // A skipped/failed protection pass is not a valid prerequisite for opening
+    // new risk. Retry the monitor on the next loop before running the daily cycle.
+    if ((int) ($monitor['exit_code'] ?? -1) === 0 && shouldRunCycle($state, $options, $cycleFingerprint)) {
         $cycle = runCommand(cycleCommand($options), dirname(__DIR__));
         logLine($logPath, ['event' => 'paper_cycle', 'result' => $cycle]);
         echo shortResult('paper-cycle', $cycle) . "\n";
@@ -77,13 +97,11 @@ do {
             $key = boolOption((string) $options['submit']) ? 'last_submit_cycle_date' : 'last_dry_run_cycle_date';
             $state[$key] = usNow($options)->format('Y-m-d');
             $state[$key . '_at'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+            $state[$key . '_fingerprint'] = $cycleFingerprint;
+            $state[$key . '_report_hash'] = currentDailyReportHash();
             writeJson($statePath, $state);
         }
     }
-
-    $monitor = runCommand(monitorCommand($options), dirname(__DIR__));
-    logLine($logPath, ['event' => 'paper_monitor', 'result' => $monitor]);
-    echo shortResult('paper-monitor', $monitor) . "\n";
 
     if (boolOption((string) $options['once'])) {
         break;
@@ -124,7 +142,7 @@ function monitorCommand(array $options): array
 }
 
 /** @param array<string, mixed> $state @param array<string, string> $options */
-function shouldRunCycle(array $state, array $options): bool
+function shouldRunCycle(array $state, array $options, string $cycleFingerprint): bool
 {
     $now = usNow($options);
     $day = (int) $now->format('N');
@@ -133,12 +151,84 @@ function shouldRunCycle(array $state, array $options): bool
     }
     $today = $now->format('Y-m-d');
     $key = boolOption((string) $options['submit']) ? 'last_submit_cycle_date' : 'last_dry_run_cycle_date';
-    if (($state[$key] ?? '') === $today) {
+    if (
+        ($state[$key] ?? '') === $today
+        && hash_equals((string) ($state[$key . '_fingerprint'] ?? ''), $cycleFingerprint)
+        && ($state[$key . '_report_hash'] ?? '') !== ''
+        && hash_equals((string) $state[$key . '_report_hash'], currentDailyReportHash())
+    ) {
         return false;
     }
     $hhmm = $now->format('H:i');
 
     return $hhmm >= (string) $options['cycle-after'] && $hhmm <= (string) $options['cycle-before'];
+}
+
+/** @param array<string, string> $options */
+function cycleFingerprint(array $options): string
+{
+    $root = dirname(__DIR__);
+    $paths = [];
+    foreach (['bin', 'config', 'src', 'tools'] as $directory) {
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($root . '/' . $directory, FilesystemIterator::SKIP_DOTS),
+        );
+        foreach ($iterator as $file) {
+            if ($file->isFile()) {
+                $paths[] = $file->getPathname();
+            }
+        }
+    }
+    sort($paths, SORT_STRING);
+    $context = hash_init('sha256');
+    hash_update($context, (string) ($options['profile'] ?? '') . "\0" . (string) ($options['submit'] ?? '') . "\0");
+    foreach (cycleRuntimeSettings() as $name => $value) {
+        hash_update($context, $name . '=' . $value . "\0");
+    }
+    foreach ($paths as $path) {
+        hash_update($context, substr($path, strlen($root)) . "\0");
+        hash_update_file($context, $path);
+    }
+
+    return hash_final($context);
+}
+
+/** @return array<string, string> */
+function cycleRuntimeSettings(): array
+{
+    $settings = [];
+    foreach ([
+        'FTT_ORDERS_ENABLED',
+        'FTT_PAPER_ONLY',
+        'FTT_PRODUCTION_ENTRY_ENABLED',
+        'APCA_PAPER_BASE_URL',
+        'APCA_PAPER_EXPECTED_MULTIPLIER',
+        'APCA_PAPER_EXPECTED_SHORTING_ENABLED',
+    ] as $name) {
+        $value = getenv($name);
+        $settings[$name] = $value === false ? '<unset>' : trim((string) $value);
+    }
+    foreach ([
+        'APCA_DATA_API_KEY_ID',
+        'APCA_DATA_API_SECRET_KEY',
+        'APCA_PAPER_API_KEY_ID',
+        'APCA_PAPER_API_SECRET_KEY',
+        'APCA_PAPER_ACCOUNT_ID',
+    ] as $secretName) {
+        // Presence affects whether a cycle can run, but secret material must
+        // never be embedded in a heartbeat-derived fingerprint input.
+        $value = getenv($secretName);
+        $settings[$secretName . '_PRESENT'] = $value !== false && trim((string) $value) !== '' ? '1' : '0';
+    }
+
+    return $settings;
+}
+
+function currentDailyReportHash(): string
+{
+    $path = __DIR__ . '/../var/reports/daily/alpaca_selected_best_partial_live_signal_report.json';
+
+    return is_file($path) ? (string) hash_file('sha256', $path) : '';
 }
 
 /** @param array<string, string> $options */

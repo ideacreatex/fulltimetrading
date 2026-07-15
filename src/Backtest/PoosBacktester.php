@@ -11,6 +11,7 @@ use FulltimeTrading\Indicators\IndicatorCalculator;
 use FulltimeTrading\Strategy\MarketRegime;
 use FulltimeTrading\Strategy\MarketRegimeAnalyzer;
 use FulltimeTrading\Strategy\PoosScanner;
+use FulltimeTrading\Trading\PositionSizingPolicy;
 
 final class PoosBacktester
 {
@@ -87,6 +88,7 @@ final class PoosBacktester
         $stoppedBySymbol = [];
 
         foreach ($dates as $date) {
+            $openedToday = [];
             foreach ($calendar[$date] as $symbol => $day) {
                 $lastBarsBySymbol[$symbol] = $day['bar'];
             }
@@ -120,6 +122,7 @@ final class PoosBacktester
                         $maxPositionPct,
                         $maxOpenPositions,
                         $marketRegimes[$date] ?? null,
+                        $lastBarsBySymbol,
                     );
                 }
             }
@@ -181,7 +184,9 @@ final class PoosBacktester
                     $maxPositionPct,
                     $maxOpenPositions,
                     $marketRegimes[$date] ?? null,
+                    $lastBarsBySymbol,
                 )) {
+                    $openedToday[$pendingKey] = true;
                     unset($pendingBySymbol[$pendingKey]);
                 }
             }
@@ -229,10 +234,29 @@ final class PoosBacktester
                         $maxPositionPct,
                         $maxOpenPositions,
                         $marketRegimes[$date] ?? null,
+                        $lastBarsBySymbol,
                     )) {
+                        $openedToday[$pendingKey] = true;
                         unset($pendingBySymbol[$pendingKey]);
                     }
                 }
+            }
+
+            // A next-session limit fill is known to occur before that session's
+            // close. A close below the mental initial stop therefore queues the
+            // same next-open exit that the paper monitor can actually execute.
+            foreach (array_keys($openedToday) as $positionKey) {
+                if (!isset($positionsBySymbol[$positionKey])) {
+                    continue;
+                }
+                $symbol = (string) ($positionsBySymbol[$positionKey]['symbol'] ?? '');
+                if ($symbol === '' || !isset($calendar[$date][$symbol]['bar'])) {
+                    continue;
+                }
+                $this->markNewlyFilledMentalExit(
+                    $positionsBySymbol[$positionKey],
+                    $calendar[$date][$symbol]['bar'],
+                );
             }
 
             foreach ($this->positionStateRows($date, $positionsBySymbol, $lastBarsBySymbol) as $positionState) {
@@ -288,6 +312,7 @@ final class PoosBacktester
         float $maxPositionPct,
         int $maxOpenPositions,
         ?MarketRegime $regime,
+        array $lastBarsBySymbol,
     ): bool {
         $signal = $pending['signal'];
         $positionKey = (string) ($pending['key'] ?? $this->setupKey($signal));
@@ -295,9 +320,10 @@ final class PoosBacktester
             return false;
         }
 
+        $equity = $this->markedEquity($cash, $positionsByKey, $lastBarsBySymbol);
         $shares = $this->positionSize(
-            $cash,
-            $this->reservedCapital($positionsByKey),
+            $equity,
+            $this->reservedCapital($positionsByKey, $lastBarsBySymbol),
             count($positionsByKey),
             $signal,
             $riskPct,
@@ -305,6 +331,7 @@ final class PoosBacktester
             $maxOpenPositions,
             $regime,
             $positionsByKey,
+            $lastBarsBySymbol,
         );
         if ($shares <= 0.0) {
             return false;
@@ -345,6 +372,7 @@ final class PoosBacktester
         float $maxPositionPct,
         int $maxOpenPositions,
         ?MarketRegime $regime,
+        array $lastBarsBySymbol,
     ): bool {
         $basePosition['break_even_add_on_requested'] = false;
         $layerConfig = $this->strategyConfig['layered_positions'] ?? [];
@@ -399,9 +427,10 @@ final class PoosBacktester
             return false;
         }
 
+        $equity = $this->markedEquity($cash, $positionsByKey, $lastBarsBySymbol);
         $shares = $this->positionSize(
-            $cash,
-            $this->reservedCapital($positionsByKey),
+            $equity,
+            $this->reservedCapital($positionsByKey, $lastBarsBySymbol),
             count($positionsByKey),
             $addOnSignal,
             $riskPct,
@@ -409,6 +438,7 @@ final class PoosBacktester
             $maxOpenPositions,
             $regime,
             $positionsByKey,
+            $lastBarsBySymbol,
         );
         $fraction = max(0.0, (float) ($addOn['position_fraction'] ?? 1.0));
         $shares *= $fraction;
@@ -490,7 +520,7 @@ final class PoosBacktester
     }
 
     private function positionSize(
-        float $cash,
+        float $equity,
         float $reservedCapital,
         int $openPositions,
         Signal $signal,
@@ -499,30 +529,37 @@ final class PoosBacktester
         int $maxOpenPositions,
         ?MarketRegime $regime,
         array $positionsByKey,
+        array $lastBarsBySymbol,
     ): float {
         if ($maxOpenPositions > 0 && $openPositions >= $maxOpenPositions) {
             return 0.0;
         }
 
-        $availableCapital = max(0.0, $this->maxGrossCapital($cash) - $reservedCapital);
+        $availableCapital = max(0.0, $this->maxGrossCapital($equity) - $reservedCapital);
         if ($availableCapital <= 0.0) {
             return 0.0;
         }
 
-        $positionPct = $this->positionPctWithSupportHierarchy(
-            $this->positionPctForRegime($regime, $maxPositionPct),
+        $positionPct = PositionSizingPolicy::positionPct(
+            $this->strategyConfig,
+            array_merge($this->riskConfig, ['max_position_pct' => $maxPositionPct]),
+            $regime,
             $signal,
-            $maxPositionPct,
         );
-        $familyAvailableCapital = $this->familyAvailableCapital($signal, $positionsByKey, $cash);
-        $maxRuleCapital = max(0.0, $cash * $positionPct);
+        $familyAvailableCapital = $this->familyAvailableCapital(
+            $signal,
+            $positionsByKey,
+            $equity,
+            $lastBarsBySymbol,
+        );
+        $maxRuleCapital = max(0.0, $equity * $positionPct);
         $fixedPositionUsd = (float) ($this->riskConfig['fixed_position_usd'] ?? 0.0);
         if ($fixedPositionUsd > 0.0) {
             return $this->sharesForCapital(min($fixedPositionUsd, $availableCapital, $maxRuleCapital, $familyAvailableCapital), $signal->entry);
         }
 
         $maxCapital = min(
-            $cash * $positionPct,
+            $equity * $positionPct,
             $availableCapital,
             $familyAvailableCapital,
         );
@@ -530,93 +567,30 @@ final class PoosBacktester
             return $this->sharesForCapital($maxCapital, $signal->entry);
         }
 
-        $riskBudget = $cash * $riskPct;
+        $riskBudget = $equity * $riskPct;
         $byRisk = $signal->riskPerShare > 0.0 ? $riskBudget / $signal->riskPerShare : 0.0;
         $byCapital = $this->sharesForCapital($maxCapital, $signal->entry);
 
         return max(0.0, min($byRisk, $byCapital));
     }
 
-    private function maxGrossCapital(float $cash): float
+    private function maxGrossCapital(float $equity): float
     {
         $clubRules = $this->strategyConfig['club_rules'] ?? [];
         $maxGrossExposurePct = (float) ($clubRules['max_gross_exposure_pct'] ?? 1.0);
 
-        return $cash * max(0.0, $maxGrossExposurePct);
-    }
-
-    private function positionPctForRegime(?MarketRegime $regime, float $maxPositionPct): float
-    {
-        $clubRules = $this->strategyConfig['club_rules'] ?? [];
-        if (!($clubRules['enabled'] ?? false)) {
-            return $maxPositionPct;
-        }
-
-        $stablePct = (float) ($clubRules['stable_market_position_pct'] ?? $maxPositionPct);
-        $unstablePct = (float) ($clubRules['unstable_market_position_pct'] ?? 0.05);
-        if ($regime === null) {
-            return min($maxPositionPct, $stablePct);
-        }
-
-        $stableScoreThreshold = (float) ($clubRules['stable_market_score_threshold'] ?? 2.5);
-        $unstableWarningCount = (int) ($clubRules['unstable_warning_count'] ?? 3);
-        $isUnstable = $regime->score < $stableScoreThreshold || count($regime->warnings) >= $unstableWarningCount;
-
-        return min($maxPositionPct, $isUnstable ? $unstablePct : $stablePct);
-    }
-
-    private function positionPctWithSupportHierarchy(float $basePositionPct, Signal $signal, float $maxPositionPct): float
-    {
-        $basePositionPct = max(0.0, $basePositionPct);
-        $layerConfig = $this->strategyConfig['layered_positions'] ?? [];
-        $sizing = is_array($layerConfig['support_hierarchy_sizing'] ?? null)
-            ? $layerConfig['support_hierarchy_sizing']
-            : [];
-        if (!($sizing['enabled'] ?? false)) {
-            return min($maxPositionPct, $basePositionPct);
-        }
-
-        $maxHierarchyPositionPct = max(
-            $maxPositionPct,
-            (float) ($sizing['max_position_pct'] ?? $maxPositionPct),
-        );
-        $multiplier = $this->supportHierarchyMultiplier($signal, $sizing);
-
-        return min($maxHierarchyPositionPct, $basePositionPct * $multiplier);
-    }
-
-    /** @param array<string, mixed> $sizing */
-    private function supportHierarchyMultiplier(Signal $signal, array $sizing): float
-    {
-        $timeframe = strtoupper((string) ($signal->metadata['timeframe'] ?? 'D'));
-        $period = (int) ($signal->metadata['ma_period'] ?? 0);
-        if ($period <= 0) {
-            return 1.0;
-        }
-
-        $multipliers = $sizing['multipliers'] ?? [];
-        if (isset($multipliers[$timeframe]) && is_array($multipliers[$timeframe])) {
-            $byPeriod = $multipliers[$timeframe];
-            if (isset($byPeriod[$period])) {
-                return max(0.0, (float) $byPeriod[$period]);
-            }
-            if (isset($byPeriod[(string) $period])) {
-                return max(0.0, (float) $byPeriod[(string) $period]);
-            }
-        }
-
-        $flatKey = $timeframe . ':' . $period;
-        if (isset($multipliers[$flatKey])) {
-            return max(0.0, (float) $multipliers[$flatKey]);
-        }
-
-        return 1.0;
+        return $equity * max(0.0, $maxGrossExposurePct);
     }
 
     /**
      * @param array<string, array<string, mixed>> $positionsByKey
      */
-    private function familyAvailableCapital(Signal $signal, array $positionsByKey, float $cash): float
+    private function familyAvailableCapital(
+        Signal $signal,
+        array $positionsByKey,
+        float $equity,
+        array $lastBarsBySymbol,
+    ): float
     {
         $config = $this->strategyConfig['family_exposure_caps'] ?? [];
         if (!($config['enabled'] ?? false)) {
@@ -642,10 +616,13 @@ final class PoosBacktester
             }
             /** @var Signal $openSignal */
             $openSignal = $position['signal'];
-            $reserved += $openSignal->entry * (float) ($position['shares'] ?? 0.0);
+            $markPrice = isset($lastBarsBySymbol[$symbol])
+                ? $lastBarsBySymbol[$symbol]->close
+                : $openSignal->entry;
+            $reserved += abs($markPrice * (float) ($position['remaining_shares'] ?? 0.0));
         }
 
-        return max(0.0, $cash * $capPct - $reserved);
+        return max(0.0, $equity * $capPct - $reserved);
     }
 
     /**
@@ -681,7 +658,7 @@ final class PoosBacktester
      */
     private function recordStoppedPosition(array &$stoppedBySymbol, array $position, Trade $trade): void
     {
-        if (!in_array($trade->exitReason, ['stop', 'mental_stop_close'], true)) {
+        if (!in_array($trade->exitReason, ['stop', 'mental_stop_next_open', 'break_even_close_next_open'], true)) {
             return;
         }
 
@@ -755,13 +732,17 @@ final class PoosBacktester
     }
 
     /** @param array<string, array<string, mixed>> $positions */
-    private function reservedCapital(array $positions): float
+    private function reservedCapital(array $positions, array $lastBarsBySymbol): float
     {
         $reserved = 0.0;
         foreach ($positions as $position) {
             /** @var Signal $signal */
             $signal = $position['signal'];
-            $reserved += $signal->entry * (float) $position['shares'];
+            $symbol = (string) ($position['symbol'] ?? $signal->symbol);
+            $markPrice = isset($lastBarsBySymbol[$symbol])
+                ? $lastBarsBySymbol[$symbol]->close
+                : $signal->entry;
+            $reserved += abs($markPrice * (float) ($position['remaining_shares'] ?? 0.0));
         }
 
         return $reserved;
@@ -836,6 +817,8 @@ final class PoosBacktester
                 'hard_stop_active' => (bool) ($position['hard_stop_active'] ?? true),
                 'break_even_armed' => (bool) ($position['break_even_armed'] ?? false),
                 'took_partial' => (bool) ($position['took_partial'] ?? false),
+                'mental_exit_pending' => (bool) ($position['mental_exit_pending'] ?? false),
+                'mental_exit_trigger_date' => $position['mental_exit_trigger_date'] ?? null,
                 'last_event' => is_array($events) && $events !== [] ? (string) $events[array_key_last($events)] : null,
                 'metadata' => $signal->metadata,
             ];
@@ -864,13 +847,32 @@ final class PoosBacktester
         $breakEvenStopOffsetPct = (float) ($clubRules['break_even_stop_offset_pct'] ?? 0.0);
         $mentalStopExitOnClose = (bool) ($clubRules['mental_stop_exit_on_close'] ?? true);
 
+        if ((bool) ($position['mental_exit_pending'] ?? false)) {
+            $exit = $bar->open;
+            $pnl = $realized + $this->pnlPerShare($signal, $exit) * $remainingShares;
+            $triggerType = (string) ($position['mental_exit_trigger_type'] ?? 'initial');
+            $events[] = $bar->time->format('Y-m-d') . ': close-confirmed stop exited at next open ' . round($exit, 4);
+
+            return $this->tradeFromPosition(
+                $position,
+                $bar,
+                $exit,
+                $pnl,
+                $triggerType === 'break_even' ? 'break_even_close_next_open' : 'mental_stop_next_open',
+                $events,
+            );
+        }
+
         if ($hardStopActive) {
             if (($position['break_even_armed'] ?? false) === true && $breakEvenStopMode === 'close') {
                 if ($this->mentalStopViolated($signal, $bar, $stop)) {
-                    $exit = $bar->close;
-                    $pnl = $realized + $this->pnlPerShare($signal, $exit) * $remainingShares;
-                    $events[] = $bar->time->format('Y-m-d') . ': break-even close stop at ' . round($exit, 4);
-                    return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'break_even_close_stop', $events);
+                    $events[] = $bar->time->format('Y-m-d') . ': break-even close stop confirmed; exit queued for next open';
+                    $position['mental_exit_pending'] = true;
+                    $position['mental_exit_trigger_type'] = 'break_even';
+                    $position['mental_exit_trigger_date'] = $bar->time->format('Y-m-d');
+                    $position['events'] = $events;
+
+                    return null;
                 }
             } elseif ($this->stopTouched($signal, $bar, $stop)) {
                 $exit = $this->hardStopExitPrice($signal, $bar, $stop);
@@ -890,13 +892,27 @@ final class PoosBacktester
             $position['break_even_add_on_requested'] = true;
             $position['events'] = $events;
             $hardStopActive = true;
+
+            // If the close finishes through a newly armed hard BE stop, the
+            // session necessarily crossed that stop after reaching the trigger.
+            // Exit now instead of carrying an impossible overnight position.
+            if ($breakEvenStopMode === 'hard' && $this->closeViolatesStop($signal, $bar, $stop)) {
+                $exit = $stop;
+                $pnl = $realized + $this->pnlPerShare($signal, $exit) * $remainingShares;
+                $events[] = $bar->time->format('Y-m-d') . ': newly armed break-even stop crossed before close at ' . round($exit, 4);
+
+                return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'break_even_stop', $events);
+            }
         }
 
         if (!$hardStopActive && $mentalStopExitOnClose && $this->mentalStopViolated($signal, $bar, (float) ($position['initial_stop'] ?? $stop))) {
-            $exit = $bar->close;
-            $pnl = $realized + $this->pnlPerShare($signal, $exit) * $remainingShares;
-            $events[] = $bar->time->format('Y-m-d') . ': club rule #3 mental swing stop, strategy violated on close at ' . round($exit, 4);
-            return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'mental_stop_close', $events);
+            $events[] = $bar->time->format('Y-m-d') . ': club rule #3 mental swing stop confirmed on close; exit queued for next open';
+            $position['mental_exit_pending'] = true;
+            $position['mental_exit_trigger_type'] = 'initial';
+            $position['mental_exit_trigger_date'] = $bar->time->format('Y-m-d');
+            $position['events'] = $events;
+
+            return null;
         }
 
         if (!$position['took_partial'] && $this->targetTouched($signal, $bar)) {
@@ -926,6 +942,34 @@ final class PoosBacktester
         }
 
         return null;
+    }
+
+    /** @param array<string, mixed> $position */
+    private function markNewlyFilledMentalExit(array &$position, Bar $bar): bool
+    {
+        if ((bool) ($position['hard_stop_active'] ?? true)) {
+            return false;
+        }
+        $clubRules = $this->strategyConfig['club_rules'] ?? [];
+        if (!(bool) ($clubRules['mental_stop_exit_on_close'] ?? true)) {
+            return false;
+        }
+
+        /** @var Signal $signal */
+        $signal = $position['signal'];
+        $initialStop = (float) ($position['initial_stop'] ?? $signal->stop);
+        if (!$this->mentalStopViolated($signal, $bar, $initialStop)) {
+            return false;
+        }
+
+        $events = is_array($position['events'] ?? null) ? $position['events'] : [];
+        $events[] = $bar->time->format('Y-m-d') . ': fill-day mental stop confirmed on close; exit queued for next open';
+        $position['mental_exit_pending'] = true;
+        $position['mental_exit_trigger_type'] = 'initial';
+        $position['mental_exit_trigger_date'] = $bar->time->format('Y-m-d');
+        $position['events'] = $events;
+
+        return true;
     }
 
     private function initialHardStopActive(Signal $signal): bool
@@ -1013,6 +1057,11 @@ final class PoosBacktester
     private function mentalStopViolated(Signal $signal, Bar $bar, float $initialStop): bool
     {
         return $signal->direction === 'short' ? $bar->close >= $initialStop : $bar->close <= $initialStop;
+    }
+
+    private function closeViolatesStop(Signal $signal, Bar $bar, float $stop): bool
+    {
+        return $signal->direction === 'short' ? $bar->close >= $stop : $bar->close <= $stop;
     }
 
     private function shouldTrailToEma10(Signal $signal, Bar $bar, float $ema10, float $stop): bool

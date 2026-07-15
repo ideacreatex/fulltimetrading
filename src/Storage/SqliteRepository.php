@@ -402,7 +402,7 @@ SQL);
                 partial_done = excluded.partial_done,
                 strategy = excluded.strategy,
                 setup_key = excluded.setup_key,
-                opened_at = COALESCE(paper_position_state.opened_at, excluded.opened_at),
+                opened_at = COALESCE(excluded.opened_at, paper_position_state.opened_at),
                 closed_at = excluded.closed_at,
                 last_event_at = excluded.last_event_at,
                 last_action = excluded.last_action,
@@ -449,6 +449,41 @@ SQL);
         }
 
         return $result;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function latestSubmittedBuyOrder(string $symbol, ?string $submittedAfter = null): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM paper_order_state
+             WHERE symbol = :symbol
+               AND side = :side
+               AND submitted = 1
+               AND submitted_at IS NOT NULL
+             ORDER BY submitted_at DESC, updated_at DESC, client_order_id DESC'
+        );
+        $stmt->execute([':symbol' => strtoupper(trim($symbol)), ':side' => 'buy']);
+        $afterTimestamp = $this->paperOrderTimestamp($submittedAfter);
+        $latest = null;
+        $latestTimestamp = 0;
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $order = $this->normalizePaperOrderRow($row);
+            $status = strtolower((string) ($order['status'] ?? ''));
+            if (in_array($status, ['rejected', 'canceled', 'cancelled', 'expired'], true)) {
+                continue;
+            }
+            $orderTimestamp = max(
+                $this->paperOrderTimestamp((string) ($order['submitted_at'] ?? '')),
+                $this->paperOrderTimestamp((string) ($order['payload']['alpaca_order']['filled_at'] ?? '')),
+            );
+            if ($orderTimestamp <= $afterTimestamp || $orderTimestamp <= $latestTimestamp) {
+                continue;
+            }
+            $latest = $order;
+            $latestTimestamp = $orderTimestamp;
+        }
+
+        return $latest;
     }
 
     /** @param array<string, mixed> $state */
@@ -564,5 +599,18 @@ SQL);
         }
 
         return $row;
+    }
+
+    private function paperOrderTimestamp(?string $value): int
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return 0;
+        }
+        try {
+            return (new \DateTimeImmutable($value))->getTimestamp();
+        } catch (\Throwable) {
+            return 0;
+        }
     }
 }

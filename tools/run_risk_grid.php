@@ -300,7 +300,7 @@ function configureRiskVariant(array $baseStrategy, array $baseRisk, array $varia
     $strategy['short_resistance']['enabled'] = false;
     $strategy['short_symbols'] = [];
     $strategy['inverse_long_symbols'] = [];
-    $strategy['order_fill_mode'] = 'same_day_touch';
+    $strategy['order_fill_mode'] = 'next_touch';
     $strategy['club_rules']['max_gross_exposure_pct'] = (float) $variant['max_gross'];
     $strategy['club_rules']['unstable_market_position_pct'] = 0.05;
     $strategy['club_rules']['default_swing_stop_mode'] = 'hard';

@@ -1,0 +1,542 @@
+#!/bin/sh
+
+set -eu
+
+DAEMON_LABEL="com.fulltimetrading.paper-daemon"
+STATUS_LABEL="com.fulltimetrading.paper-status-export"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  bin/install-launchd               Install and load both LaunchAgents
+  bin/install-launchd --dry-run     Validate and print both generated plists
+  bin/install-launchd --status      Print launchd status without changing it
+  bin/install-launchd --uninstall   Unload and remove both LaunchAgents
+
+Environment overrides:
+  PROJECT_DIR   Project working directory (defaults to this repository)
+  PHP_BIN       Absolute PHP executable path (defaults to command -v php)
+  STATUS_GIT_BRANCH  Branch for sanitized status commits (defaults to the current branch)
+  STATUS_GIT_REMOTE  Remote for sanitized status commits (default: origin)
+  DAEMON_VERIFY_TIMEOUT_SECONDS      Startup verification timeout (default: 45)
+  DAEMON_HEARTBEAT_MAX_AGE_SECONDS   Maximum heartbeat age (default: 15)
+  STATUS_VERIFY_TIMEOUT_SECONDS      First export/push verification timeout (default: 45)
+EOF
+}
+
+die() {
+    printf 'install-launchd: %s\n' "$*" >&2
+    exit 1
+}
+
+xml_escape() {
+    printf '%s' "$1" | sed \
+        -e 's/&/\&amp;/g' \
+        -e 's/</\&lt;/g' \
+        -e 's/>/\&gt;/g' \
+        -e 's/"/\&quot;/g' \
+        -e "s/'/\&apos;/g"
+}
+
+ACTION="install"
+if [ "$#" -gt 1 ]; then
+    usage >&2
+    exit 2
+fi
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        --dry-run)
+            ACTION="dry-run"
+            ;;
+        --status)
+            ACTION="status"
+            ;;
+        --uninstall)
+            ACTION="uninstall"
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            exit 2
+            ;;
+    esac
+fi
+
+USER_ID=$(id -u)
+DOMAIN="gui/$USER_ID"
+
+configure_launchd_paths() {
+    [ -n "${HOME:-}" ] || die "HOME is not set"
+    LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+    DAEMON_PLIST="$LAUNCH_AGENTS_DIR/$DAEMON_LABEL.plist"
+    STATUS_PLIST="$LAUNCH_AGENTS_DIR/$STATUS_LABEL.plist"
+}
+
+print_status() {
+    status_result=0
+    for label in "$DAEMON_LABEL" "$STATUS_LABEL"; do
+        printf '%s\n' "=== $label ==="
+        if ! launchctl print "$DOMAIN/$label"; then
+            printf '%s\n' "not loaded"
+            status_result=1
+        fi
+    done
+    return "$status_result"
+}
+
+unload_if_loaded() {
+    label=$1
+    if launchctl print "$DOMAIN/$label" >/dev/null 2>&1; then
+        launchctl bootout "$DOMAIN/$label"
+    fi
+}
+
+if [ "$ACTION" = "status" ]; then
+    command -v launchctl >/dev/null 2>&1 || die "launchctl is required"
+    configure_launchd_paths
+    print_status
+    exit $?
+fi
+
+if [ "$ACTION" = "uninstall" ]; then
+    command -v launchctl >/dev/null 2>&1 || die "launchctl is required"
+    configure_launchd_paths
+    unload_if_loaded "$DAEMON_LABEL"
+    unload_if_loaded "$STATUS_LABEL"
+    rm -f "$DAEMON_PLIST" "$STATUS_PLIST"
+    printf 'Removed %s and %s\n' "$DAEMON_LABEL" "$STATUS_LABEL"
+    exit 0
+fi
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DEFAULT_PROJECT_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+PROJECT_DIR=${PROJECT_DIR:-$DEFAULT_PROJECT_DIR}
+PROJECT_DIR=$(CDPATH= cd -- "$PROJECT_DIR" && pwd) || die "PROJECT_DIR does not exist: $PROJECT_DIR"
+
+STATUS_GIT_REMOTE=${STATUS_GIT_REMOTE:-origin}
+if [ -z "${STATUS_GIT_BRANCH:-}" ]; then
+    STATUS_GIT_BRANCH=$(git -C "$PROJECT_DIR" symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+fi
+[ -n "$STATUS_GIT_BRANCH" ] || die "unable to determine STATUS_GIT_BRANCH from a detached HEAD"
+git -C "$PROJECT_DIR" check-ref-format "refs/heads/$STATUS_GIT_BRANCH" >/dev/null 2>&1 \
+    || die "invalid STATUS_GIT_BRANCH: $STATUS_GIT_BRANCH"
+case "$STATUS_GIT_REMOTE" in
+    ''|*[!A-Za-z0-9._-]*) die "invalid STATUS_GIT_REMOTE: $STATUS_GIT_REMOTE" ;;
+esac
+git -C "$PROJECT_DIR" remote get-url "$STATUS_GIT_REMOTE" >/dev/null 2>&1 \
+    || die "STATUS_GIT_REMOTE is not configured: $STATUS_GIT_REMOTE"
+
+if [ -z "${PHP_BIN:-}" ]; then
+    PHP_BIN=$(command -v php || true)
+fi
+[ -n "$PHP_BIN" ] || die "PHP executable not found; set PHP_BIN"
+case "$PHP_BIN" in
+    /*) ;;
+    *) die "PHP_BIN must be an absolute path: $PHP_BIN" ;;
+esac
+[ -x "$PHP_BIN" ] || die "PHP_BIN is not executable: $PHP_BIN"
+
+EXPECTED_PRODUCTION_ENTRY_ENABLED=$("$PHP_BIN" -r '
+    require $argv[1] . "/bootstrap.php";
+    $config = FulltimeTrading\Support\Config::fromFile($argv[1] . "/config/config.php");
+    echo (bool) $config->get("strategy.entry_submission_enabled", false) ? "1" : "0";
+' "$PROJECT_DIR") || die "unable to read the configured production entry gate"
+
+DAEMON_VERIFY_TIMEOUT_SECONDS=${DAEMON_VERIFY_TIMEOUT_SECONDS:-45}
+DAEMON_HEARTBEAT_MAX_AGE_SECONDS=${DAEMON_HEARTBEAT_MAX_AGE_SECONDS:-15}
+STATUS_VERIFY_TIMEOUT_SECONDS=${STATUS_VERIFY_TIMEOUT_SECONDS:-45}
+case "$DAEMON_VERIFY_TIMEOUT_SECONDS" in
+    ''|*[!0-9]*) die "DAEMON_VERIFY_TIMEOUT_SECONDS must be a positive integer" ;;
+esac
+case "$DAEMON_HEARTBEAT_MAX_AGE_SECONDS" in
+    ''|*[!0-9]*) die "DAEMON_HEARTBEAT_MAX_AGE_SECONDS must be a positive integer" ;;
+esac
+case "$STATUS_VERIFY_TIMEOUT_SECONDS" in
+    ''|*[!0-9]*) die "STATUS_VERIFY_TIMEOUT_SECONDS must be a positive integer" ;;
+esac
+[ "$DAEMON_VERIFY_TIMEOUT_SECONDS" -gt 0 ] || die "DAEMON_VERIFY_TIMEOUT_SECONDS must be greater than zero"
+[ "$DAEMON_HEARTBEAT_MAX_AGE_SECONDS" -gt 0 ] || die "DAEMON_HEARTBEAT_MAX_AGE_SECONDS must be greater than zero"
+[ "$STATUS_VERIFY_TIMEOUT_SECONDS" -gt 0 ] || die "STATUS_VERIFY_TIMEOUT_SECONDS must be greater than zero"
+
+command -v plutil >/dev/null 2>&1 || die "plutil is required"
+
+TMP_ROOT=${TMPDIR:-/tmp}
+TMP_DIR=$(mktemp -d "$TMP_ROOT/fulltimetrading-launchd.XXXXXX") || die "unable to create temporary directory"
+DAEMON_TRANSACTION_ACTIVE=0
+STATUS_TRANSACTION_ACTIVE=0
+DAEMON_WAS_LOADED=0
+STATUS_WAS_LOADED=0
+DAEMON_BACKUP=""
+STATUS_BACKUP=""
+
+cleanup() {
+    cleanup_status=$?
+    trap - EXIT HUP INT TERM
+    set +e
+    if [ "$STATUS_TRANSACTION_ACTIVE" -eq 1 ]; then
+        rollback_status
+    fi
+    if [ "$DAEMON_TRANSACTION_ACTIVE" -eq 1 ]; then
+        rollback_daemon
+    fi
+    rm -rf "$TMP_DIR"
+    exit "$cleanup_status"
+}
+handle_signal() {
+    trap - HUP INT TERM
+    exit 1
+}
+trap cleanup EXIT
+trap handle_signal HUP INT TERM
+
+GENERATED_DAEMON_PLIST="$TMP_DIR/$DAEMON_LABEL.plist"
+GENERATED_STATUS_PLIST="$TMP_DIR/$STATUS_LABEL.plist"
+
+PROJECT_XML=$(xml_escape "$PROJECT_DIR")
+PHP_XML=$(xml_escape "$PHP_BIN")
+DAEMON_STDOUT_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_paper_daemon.out.log")
+DAEMON_STDERR_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_paper_daemon.err.log")
+STATUS_STDOUT_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_paper_status_export.out.log")
+STATUS_STDERR_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_paper_status_export.err.log")
+STATUS_BRANCH_XML=$(xml_escape "$STATUS_GIT_BRANCH")
+STATUS_REMOTE_XML=$(xml_escape "$STATUS_GIT_REMOTE")
+
+cat >"$GENERATED_DAEMON_PLIST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>$DAEMON_LABEL</string>
+  <key>WorkingDirectory</key>
+  <string>$PROJECT_XML</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$PHP_XML</string>
+    <string>bin/trade</string>
+    <string>paper-daemon</string>
+    <string>--submit=true</string>
+    <string>--telegram=true</string>
+    <string>--monitor-interval-seconds=60</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>$DAEMON_STDOUT_XML</string>
+  <key>StandardErrorPath</key>
+  <string>$DAEMON_STDERR_XML</string>
+</dict>
+</plist>
+EOF
+
+cat >"$GENERATED_STATUS_PLIST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>$STATUS_LABEL</string>
+  <key>WorkingDirectory</key>
+  <string>$PROJECT_XML</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$PHP_XML</string>
+    <string>bin/trade</string>
+    <string>paper-status-export</string>
+    <string>--git=true</string>
+    <string>--push=true</string>
+    <string>--remote=$STATUS_REMOTE_XML</string>
+    <string>--branch=$STATUS_BRANCH_XML</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>StartInterval</key>
+  <integer>900</integer>
+  <key>StandardOutPath</key>
+  <string>$STATUS_STDOUT_XML</string>
+  <key>StandardErrorPath</key>
+  <string>$STATUS_STDERR_XML</string>
+</dict>
+</plist>
+EOF
+
+plutil -lint "$GENERATED_DAEMON_PLIST" >/dev/null
+plutil -lint "$GENERATED_STATUS_PLIST" >/dev/null
+
+if [ "$ACTION" = "dry-run" ]; then
+    printf '%s\n' "=== $DAEMON_LABEL.plist ==="
+    cat "$GENERATED_DAEMON_PLIST"
+    printf '%s\n' "=== $STATUS_LABEL.plist ==="
+    cat "$GENERATED_STATUS_PLIST"
+    printf '%s\n' "Both generated plists passed plutil validation." >&2
+    exit 0
+fi
+
+command -v launchctl >/dev/null 2>&1 || die "launchctl is required"
+command -v install >/dev/null 2>&1 || die "install is required"
+configure_launchd_paths
+
+verify_status_git_target() {
+    STATUS_CURRENT_BRANCH=$(git -C "$PROJECT_DIR" symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+    [ "$STATUS_CURRENT_BRANCH" = "$STATUS_GIT_BRANCH" ] \
+        || die "current branch must match STATUS_GIT_BRANCH before installation: ${STATUS_CURRENT_BRANCH:-detached HEAD} != $STATUS_GIT_BRANCH"
+
+    STATUS_DIRTY=$(git -C "$PROJECT_DIR" status --porcelain --untracked-files=all)
+    [ -z "$STATUS_DIRTY" ] \
+        || die "working tree must be clean before installing the Git-pushing status LaunchAgent"
+
+    STATUS_REMOTE_REF="refs/remotes/$STATUS_GIT_REMOTE/$STATUS_GIT_BRANCH"
+    STATUS_REFSPEC="+refs/heads/$STATUS_GIT_BRANCH:$STATUS_REMOTE_REF"
+    git -C "$PROJECT_DIR" fetch --quiet --no-tags -- "$STATUS_GIT_REMOTE" "$STATUS_REFSPEC" \
+        || die "unable to fetch $STATUS_GIT_REMOTE/$STATUS_GIT_BRANCH before installation"
+    STATUS_LOCAL_COMMIT=$(git -C "$PROJECT_DIR" rev-parse --verify HEAD 2>/dev/null || true)
+    STATUS_REMOTE_COMMIT=$(git -C "$PROJECT_DIR" rev-parse --verify "$STATUS_REMOTE_REF^{commit}" 2>/dev/null || true)
+    [ -n "$STATUS_LOCAL_COMMIT" ] && [ "$STATUS_LOCAL_COMMIT" = "$STATUS_REMOTE_COMMIT" ] \
+        || die "push the clean target branch before installation; local HEAD must equal $STATUS_GIT_REMOTE/$STATUS_GIT_BRANCH"
+}
+
+verify_status_git_target
+
+rollback_daemon() {
+    printf '%s\n' "Rolling back daemon LaunchAgent." >&2
+    if launchctl print "$DOMAIN/$DAEMON_LABEL" >/dev/null 2>&1; then
+        launchctl bootout "$DOMAIN/$DAEMON_LABEL" >/dev/null 2>&1
+    fi
+    rm -f "$DAEMON_PLIST"
+    if [ -n "$DAEMON_BACKUP" ] && [ -f "$DAEMON_BACKUP" ]; then
+        install -m 0644 "$DAEMON_BACKUP" "$DAEMON_PLIST"
+        if [ "$DAEMON_WAS_LOADED" -eq 1 ] && ! launchctl bootstrap "$DOMAIN" "$DAEMON_PLIST"; then
+            printf '%s\n' "WARNING: the previous daemon plist was restored but could not be loaded." >&2
+        fi
+    fi
+    DAEMON_TRANSACTION_ACTIVE=0
+}
+
+rollback_status() {
+    printf '%s\n' "Rolling back status-export LaunchAgent; the verified daemon remains loaded." >&2
+    if launchctl print "$DOMAIN/$STATUS_LABEL" >/dev/null 2>&1; then
+        launchctl bootout "$DOMAIN/$STATUS_LABEL" >/dev/null 2>&1
+    fi
+    rm -f "$STATUS_PLIST"
+    if [ -n "$STATUS_BACKUP" ] && [ -f "$STATUS_BACKUP" ]; then
+        install -m 0644 "$STATUS_BACKUP" "$STATUS_PLIST"
+        if [ "$STATUS_WAS_LOADED" -eq 1 ] && ! launchctl bootstrap "$DOMAIN" "$STATUS_PLIST"; then
+            printf '%s\n' "WARNING: the previous status-export plist was restored but could not be loaded." >&2
+        fi
+    fi
+    STATUS_TRANSACTION_ACTIVE=0
+}
+
+probe_lock() {
+    "$PHP_BIN" -r '
+        $lock = @fopen($argv[1], "c+");
+        if ($lock === false) {
+            exit(2);
+        }
+        if (flock($lock, LOCK_EX | LOCK_NB)) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            exit(0);
+        }
+        fclose($lock);
+        exit(1);
+    ' "$1"
+}
+
+daemon_is_verified() {
+    VERIFY_LAUNCHD_PID=$(launchctl print "$DOMAIN/$DAEMON_LABEL" 2>/dev/null | awk '$1 == "pid" && $2 == "=" { print $3; exit }')
+    case "$VERIFY_LAUNCHD_PID" in
+        ''|*[!0-9]*) return 1 ;;
+    esac
+    [ -s "$LOCK_PATH" ] || return 1
+    VERIFY_LOCK_PID=$(tr -cd '0-9' <"$LOCK_PATH") || return 1
+    [ "$VERIFY_LOCK_PID" = "$VERIFY_LAUNCHD_PID" ] || return 1
+
+    if probe_lock "$LOCK_PATH"; then
+        return 1
+    else
+        VERIFY_LOCK_RC=$?
+        [ "$VERIFY_LOCK_RC" -eq 1 ] || return 1
+    fi
+
+    [ -s "$HEARTBEAT_PATH" ] || return 1
+    "$PHP_BIN" -r '
+        $payload = json_decode((string) @file_get_contents($argv[1]), true);
+        if (!is_array($payload) || (string) ($payload["pid"] ?? "") !== $argv[2]) {
+            exit(1);
+        }
+        $heartbeatAt = $payload["heartbeat_at"] ?? null;
+        $timestamp = is_string($heartbeatAt) ? strtotime($heartbeatAt) : false;
+        if ($timestamp === false) {
+            exit(1);
+        }
+        $age = time() - $timestamp;
+        $monitorAt = is_string($payload["last_monitor_finished_at"] ?? null)
+            ? strtotime($payload["last_monitor_finished_at"])
+            : false;
+        $monitorOk = (int) ($payload["last_monitor_exit_code"] ?? -1) === 0
+            && $monitorAt !== false
+            && $monitorAt >= ((int) $argv[4] - 5)
+            && $monitorAt <= time() + 5;
+        exit($age >= -5 && $age <= (int) $argv[3] && $monitorOk ? 0 : 1);
+    ' "$HEARTBEAT_PATH" "$VERIFY_LAUNCHD_PID" "$DAEMON_HEARTBEAT_MAX_AGE_SECONDS" "$DAEMON_VERIFY_STARTED_AT"
+}
+
+verify_daemon_start() {
+    VERIFY_ELAPSED=0
+    while :; do
+        if daemon_is_verified; then
+            return 0
+        fi
+        if [ "$VERIFY_ELAPSED" -ge "$DAEMON_VERIFY_TIMEOUT_SECONDS" ]; then
+            return 1
+        fi
+        sleep 1
+        VERIFY_ELAPSED=$((VERIFY_ELAPSED + 1))
+    done
+}
+
+status_export_is_verified() {
+    STATUS_PRINT=$(launchctl print "$DOMAIN/$STATUS_LABEL" 2>/dev/null) || return 1
+    STATUS_RUNS=$(printf '%s\n' "$STATUS_PRINT" | awk '$1 == "runs" && $2 == "=" { print $3; exit }')
+    STATUS_LAST_EXIT=$(printf '%s\n' "$STATUS_PRINT" | awk '$1 == "last" && $2 == "exit" && $3 == "code" && $4 == "=" { print $5; exit }')
+    case "$STATUS_RUNS" in
+        ''|*[!0-9]*) return 1 ;;
+    esac
+    [ "$STATUS_RUNS" -ge 1 ] || return 1
+    [ "$STATUS_LAST_EXIT" = "0" ] || return 1
+
+    [ -s "$STATUS_OUTPUT_PATH" ] || return 1
+    "$PHP_BIN" -r '
+        $payload = json_decode((string) @file_get_contents($argv[1]), true);
+        $generatedAt = is_array($payload) ? ($payload["generated_at"] ?? null) : null;
+        $timestamp = is_string($generatedAt) ? strtotime($generatedAt) : false;
+        $runtime = is_array($payload["runtime"] ?? null) ? $payload["runtime"] : [];
+        $account = is_array($payload["alpaca"]["account"] ?? null) ? $payload["alpaca"]["account"] : null;
+        $errors = is_array($payload["errors"] ?? null) ? $payload["errors"] : ["invalid"];
+        $healthy = $timestamp !== false
+            && $timestamp >= ((int) $argv[2] - 5)
+            && $errors === []
+            && $account !== null
+            && ($runtime["orders_enabled"] ?? false) === true
+            && ($runtime["production_entry_enabled"] ?? null) === ($argv[3] === "1")
+            && (($argv[3] === "1") || trim((string) ($runtime["production_entry_block_reason"] ?? "")) !== "")
+            && ($runtime["paper_only"] ?? false) === true
+            && ($runtime["paper_base_host_ok"] ?? false) === true
+            && ($runtime["data_key_set"] ?? false) === true
+            && ($runtime["paper_key_set"] ?? false) === true
+            && ($account["trading_blocked"] ?? true) === false
+            && ($account["account_blocked"] ?? true) === false;
+        exit($healthy ? 0 : 1);
+    ' "$STATUS_OUTPUT_PATH" "$STATUS_VERIFY_STARTED_AT" "$EXPECTED_PRODUCTION_ENTRY_ENABLED" || return 1
+
+    STATUS_REMOTE_REF="refs/remotes/$STATUS_GIT_REMOTE/$STATUS_GIT_BRANCH"
+    STATUS_REFSPEC="+refs/heads/$STATUS_GIT_BRANCH:$STATUS_REMOTE_REF"
+    git -C "$PROJECT_DIR" fetch --quiet --no-tags -- "$STATUS_GIT_REMOTE" "$STATUS_REFSPEC" || return 1
+    STATUS_LOCAL_COMMIT=$(git -C "$PROJECT_DIR" rev-parse --verify HEAD 2>/dev/null || true)
+    STATUS_REMOTE_COMMIT=$(git -C "$PROJECT_DIR" rev-parse --verify "$STATUS_REMOTE_REF^{commit}" 2>/dev/null || true)
+    [ -n "$STATUS_LOCAL_COMMIT" ] && [ "$STATUS_LOCAL_COMMIT" = "$STATUS_REMOTE_COMMIT" ]
+}
+
+verify_status_export() {
+    STATUS_VERIFY_ELAPSED=0
+    while :; do
+        if status_export_is_verified; then
+            return 0
+        fi
+        if [ "$STATUS_VERIFY_ELAPSED" -ge "$STATUS_VERIFY_TIMEOUT_SECONDS" ]; then
+            return 1
+        fi
+        sleep 1
+        STATUS_VERIFY_ELAPSED=$((STATUS_VERIFY_ELAPSED + 1))
+    done
+}
+
+LOCK_PATH="$PROJECT_DIR/var/run/paper_daemon.lock"
+HEARTBEAT_PATH="$PROJECT_DIR/var/run/paper_daemon_heartbeat.json"
+LOCK_BUSY=0
+if [ -e "$LOCK_PATH" ]; then
+    if probe_lock "$LOCK_PATH"; then
+        :
+    else
+        LOCK_CHECK_RC=$?
+        case "$LOCK_CHECK_RC" in
+            1) LOCK_BUSY=1 ;;
+            *) die "unable to inspect daemon lock: $LOCK_PATH" ;;
+        esac
+    fi
+fi
+
+if [ "$LOCK_BUSY" -eq 1 ]; then
+    LOCK_PID=$(tr -cd '0-9' <"$LOCK_PATH")
+    LAUNCHD_PID=$(launchctl print "$DOMAIN/$DAEMON_LABEL" 2>/dev/null | awk '$1 == "pid" && $2 == "=" { print $3; exit }')
+    if [ -z "$LOCK_PID" ] || [ "$LOCK_PID" != "$LAUNCHD_PID" ]; then
+        die "paper daemon lock is held outside the active LaunchAgent (lock PID: ${LOCK_PID:-unknown}, launchd PID: ${LAUNCHD_PID:-none}); stop the old manual/cron daemon first"
+    fi
+fi
+
+mkdir -p \
+    "$PROJECT_DIR/var/log" \
+    "$PROJECT_DIR/var/run" \
+    "$PROJECT_DIR/var/status" \
+    "$LAUNCH_AGENTS_DIR"
+
+DAEMON_WAS_LOADED=0
+if launchctl print "$DOMAIN/$DAEMON_LABEL" >/dev/null 2>&1; then
+    DAEMON_WAS_LOADED=1
+fi
+DAEMON_BACKUP=""
+if [ -f "$DAEMON_PLIST" ]; then
+    DAEMON_BACKUP="$TMP_DIR/previous-$DAEMON_LABEL.plist"
+    cp "$DAEMON_PLIST" "$DAEMON_BACKUP"
+fi
+
+DAEMON_TRANSACTION_ACTIVE=1
+unload_if_loaded "$DAEMON_LABEL"
+install -m 0644 "$GENERATED_DAEMON_PLIST" "$DAEMON_PLIST"
+plutil -lint "$DAEMON_PLIST" >/dev/null
+
+printf '%s\n' "Loading $DAEMON_LABEL with --submit=true."
+DAEMON_VERIFY_STARTED_AT=$(date +%s)
+if ! launchctl bootstrap "$DOMAIN" "$DAEMON_PLIST"; then
+    die "unable to load the new daemon LaunchAgent"
+fi
+if ! verify_daemon_start; then
+    die "daemon startup verification failed: launchd PID, held lock PID, and fresh heartbeat PID did not converge within ${DAEMON_VERIFY_TIMEOUT_SECONDS}s"
+fi
+DAEMON_TRANSACTION_ACTIVE=0
+printf '%s\n' "Verified $DAEMON_LABEL (launchd PID, lock PID, and heartbeat PID match)."
+
+STATUS_WAS_LOADED=0
+if launchctl print "$DOMAIN/$STATUS_LABEL" >/dev/null 2>&1; then
+    STATUS_WAS_LOADED=1
+fi
+STATUS_BACKUP=""
+if [ -f "$STATUS_PLIST" ]; then
+    STATUS_BACKUP="$TMP_DIR/previous-$STATUS_LABEL.plist"
+    cp "$STATUS_PLIST" "$STATUS_BACKUP"
+fi
+
+STATUS_TRANSACTION_ACTIVE=1
+unload_if_loaded "$STATUS_LABEL"
+install -m 0644 "$GENERATED_STATUS_PLIST" "$STATUS_PLIST"
+plutil -lint "$STATUS_PLIST" >/dev/null
+
+printf '%s\n' "Loading $STATUS_LABEL (it runs immediately, then every 900 seconds)."
+STATUS_OUTPUT_PATH="$PROJECT_DIR/var/status/latest_paper_status.json"
+STATUS_VERIFY_STARTED_AT=$(date +%s)
+if ! launchctl bootstrap "$DOMAIN" "$STATUS_PLIST"; then
+    die "daemon is loaded, but status-export could not be loaded"
+fi
+if ! verify_status_export; then
+    die "daemon is loaded, but first status export/push was not verified within ${STATUS_VERIFY_TIMEOUT_SECONDS}s; inspect $STATUS_STDERR_XML"
+fi
+STATUS_TRANSACTION_ACTIVE=0
+printf '%s\n' "Verified $STATUS_LABEL (fresh snapshot, exit code 0, and remote branch match)."
+
+printf 'Installed %s and %s\n' "$DAEMON_LABEL" "$STATUS_LABEL"

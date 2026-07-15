@@ -8,6 +8,8 @@ use FulltimeTrading\Notifications\TelegramNotifier;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Trading\AlpacaPaperClient;
+use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
+use FulltimeTrading\Trading\PaperFamilyExposureGuard;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -31,6 +33,7 @@ $options = [
     'dedupe' => 'true',
     'force' => 'false',
     'telegram' => 'false',
+    'verified-report-cycle-started-at' => '',
 ];
 
 foreach (array_slice($argv, 1) as $arg) {
@@ -51,6 +54,16 @@ $report = json_decode((string) file_get_contents((string) $options['report']), t
 if (!is_array($report)) {
     throw new RuntimeException('Invalid daily report JSON.');
 }
+$reportRisk = is_array($report['risk'] ?? null) ? $report['risk'] : [];
+$configEntryEnabled = (bool) $config->get('strategy.entry_submission_enabled', false);
+$reportEntryEnabled = ($reportRisk['entry_submission_enabled'] ?? false) === true;
+$reportRisk['entry_submission_enabled'] = $configEntryEnabled && $reportEntryEnabled;
+if (!$reportRisk['entry_submission_enabled']) {
+    $reportRisk['entry_submission_block_reason'] = !$configEntryEnabled
+        ? (string) $config->get('strategy.entry_submission_block_reason', 'production_validation_unavailable')
+        : (string) ($reportRisk['entry_submission_block_reason'] ?? 'report_did_not_enable_production_entries');
+}
+$report['risk'] = $reportRisk;
 
 if (!$dryRun) {
     if (!(bool) $config->get('trading.alpaca.paper_only', true)) {
@@ -58,6 +71,27 @@ if (!$dryRun) {
     }
     if (!(bool) $config->get('trading.alpaca.orders_enabled', false)) {
         throw new RuntimeException('Refusing to submit orders while trading.alpaca.orders_enabled is false.');
+    }
+    $cycleStartedAtRaw = trim((string) $options['verified-report-cycle-started-at']);
+    if ($cycleStartedAtRaw === '') {
+        throw new RuntimeException('Refusing direct submit without current-cycle daily report provenance. Use paper-cycle.');
+    }
+    try {
+        $cycleStartedAt = new DateTimeImmutable($cycleStartedAtRaw);
+    } catch (Throwable $e) {
+        throw new RuntimeException('Invalid verified-report-cycle-started-at.', 0, $e);
+    }
+    $freshness = PaperDailyReportFreshnessGuard::evaluate(
+        (string) $options['report'],
+        true,
+        ['ok' => true, 'exit_code' => 0],
+        $cycleStartedAt,
+        '',
+        true,
+        $now,
+    );
+    if (!PaperDailyReportFreshnessGuard::allowsDownstream($freshness)) {
+        throw new RuntimeException('Refusing submit: daily report freshness/provenance failed (' . (string) ($freshness['reason'] ?? 'unknown') . ').');
     }
 }
 
@@ -76,37 +110,64 @@ if (!$dryRun) {
         getenv('APCA_PAPER_BASE_URL') ?: (string) $config->get('trading.alpaca.paper_base_url', 'https://paper-api.alpaca.markets/v2'),
     );
     foreach ($plan['orders'] as $order) {
+        $clientOrderId = (string) ($order['client_order_id'] ?? '');
         try {
+            $existingOrder = $clientOrderId !== '' ? $client->orderByClientOrderId($clientOrderId) : null;
+            if ($existingOrder !== null) {
+                $submitted[] = $existingOrder;
+                recordAcceptedEntry(
+                    $repo,
+                    $order,
+                    $existingOrder,
+                    (string) $options['report'],
+                    $now,
+                    true,
+                    'Existing Alpaca order reconciled before retrying submission.',
+                );
+                continue;
+            }
             $submittedOrder = $client->submitOrder($order);
             $submitted[] = $submittedOrder;
-            $repo->savePaperOrderState(orderStateFromPlan(
+            recordAcceptedEntry(
+                $repo,
                 $order,
-                (string) ($submittedOrder['status'] ?? 'submitted'),
-                false,
+                $submittedOrder,
                 (string) $options['report'],
                 $now,
-                true,
-                (string) ($submittedOrder['id'] ?? ''),
-                $now->format(DateTimeInterface::ATOM),
-                ['alpaca_order' => $submittedOrder],
-            ));
-            $repo->logPaperAction([
-                'created_at' => $now->format(DateTimeInterface::ATOM),
-                'symbol' => (string) $order['symbol'],
-                'action' => 'entry_order_submitted',
-                'severity' => 'info',
-                'dry_run' => false,
-                'submitted' => true,
-                'order_id' => (string) ($submittedOrder['id'] ?? ''),
-                'client_order_id' => (string) ($order['client_order_id'] ?? ''),
-                'reason' => 'Entry limit order sent to Alpaca paper.',
-                'payload' => ['order' => $order, 'alpaca_order' => $submittedOrder],
-            ]);
+                false,
+                'Entry limit order sent to Alpaca paper.',
+            );
         } catch (Throwable $e) {
+            $reconciledOrder = null;
+            $lookupError = null;
+            if ($clientOrderId !== '') {
+                try {
+                    $reconciledOrder = $client->orderByClientOrderId($clientOrderId);
+                } catch (Throwable $lookupException) {
+                    $lookupError = $lookupException->getMessage();
+                }
+            }
+            if ($reconciledOrder !== null) {
+                $submitted[] = $reconciledOrder;
+                recordAcceptedEntry(
+                    $repo,
+                    $order,
+                    $reconciledOrder,
+                    (string) $options['report'],
+                    $now,
+                    true,
+                    'Submission response was ambiguous; Alpaca order reconciled by client_order_id.',
+                );
+                continue;
+            }
+            $errorMessage = $e->getMessage();
+            if ($lookupError !== null) {
+                $errorMessage .= ' Reconciliation lookup also failed: ' . $lookupError;
+            }
             $submitErrors[] = [
-                'client_order_id' => (string) ($order['client_order_id'] ?? ''),
+                'client_order_id' => $clientOrderId,
                 'symbol' => (string) ($order['symbol'] ?? ''),
-                'error' => $e->getMessage(),
+                'error' => $errorMessage,
             ];
             $repo->savePaperOrderState(orderStateFromPlan(
                 $order,
@@ -117,7 +178,7 @@ if (!$dryRun) {
                 false,
                 null,
                 null,
-                ['error' => $e->getMessage()],
+                ['error' => $errorMessage],
             ));
             $repo->logPaperAction([
                 'created_at' => $now->format(DateTimeInterface::ATOM),
@@ -126,8 +187,8 @@ if (!$dryRun) {
                 'severity' => 'error',
                 'dry_run' => false,
                 'submitted' => false,
-                'client_order_id' => (string) ($order['client_order_id'] ?? ''),
-                'reason' => $e->getMessage(),
+                'client_order_id' => $clientOrderId,
+                'reason' => $errorMessage,
                 'payload' => ['order' => $order],
             ]);
         }
@@ -183,6 +244,56 @@ if (boolOption((string) $options['telegram'])) {
     }
 }
 
+if ($submitErrors !== []) {
+    fwrite(STDERR, 'One or more Alpaca entry orders could not be submitted or reconciled.' . "\n");
+    exit(1);
+}
+
+/**
+ * @param array<string, mixed> $order
+ * @param array<string, mixed> $alpacaOrder
+ */
+function recordAcceptedEntry(
+    SqliteRepository $repo,
+    array $order,
+    array $alpacaOrder,
+    string $sourceReport,
+    DateTimeImmutable $now,
+    bool $reconciled,
+    string $reason,
+): void {
+    $repo->savePaperOrderState(orderStateFromPlan(
+        $order,
+        (string) ($alpacaOrder['status'] ?? 'submitted'),
+        false,
+        $sourceReport,
+        $now,
+        true,
+        (string) ($alpacaOrder['id'] ?? ''),
+        $now->format(DateTimeInterface::ATOM),
+        [
+            'alpaca_order' => $alpacaOrder,
+            'reconciled' => $reconciled,
+        ],
+    ));
+    $repo->logPaperAction([
+        'created_at' => $now->format(DateTimeInterface::ATOM),
+        'symbol' => (string) ($order['symbol'] ?? ''),
+        'action' => $reconciled ? 'entry_order_reconciled' : 'entry_order_submitted',
+        'severity' => 'info',
+        'dry_run' => false,
+        'submitted' => true,
+        'order_id' => (string) ($alpacaOrder['id'] ?? ''),
+        'client_order_id' => (string) ($order['client_order_id'] ?? ''),
+        'reason' => $reason,
+        'payload' => [
+            'order' => $order,
+            'alpaca_order' => $alpacaOrder,
+            'reconciled' => $reconciled,
+        ],
+    ]);
+}
+
 /**
  * @param array<string, mixed> $report
  * @param array<string, string> $options
@@ -193,7 +304,13 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
 {
     $signals = is_array($report['signals_today'] ?? null) ? $report['signals_today'] : [];
     $risk = is_array($report['risk'] ?? null) ? $report['risk'] : [];
+    $entrySubmissionEnabled = ($risk['entry_submission_enabled'] ?? false) === true;
+    $entrySubmissionBlockReason = trim((string) ($risk['entry_submission_block_reason'] ?? 'production_validation_unavailable'));
     $model = is_array($report['model'] ?? null) ? $report['model'] : [];
+    $market = is_array($report['market'] ?? null) ? $report['market'] : [];
+    $marketAllowsLongRisk = array_key_exists('allows_long_risk', $market)
+        ? (bool) $market['allows_long_risk']
+        : null;
     $openPositions = is_array($model['open_positions'] ?? null) ? $model['open_positions'] : [];
 
     $maxOpen = max(1, (int) ($risk['max_open_positions'] ?? 1));
@@ -203,6 +320,18 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
         ? $paperEquity
         : $reportInitialCash;
     $maxGross = max(0.0, (float) ($risk['max_gross_exposure_pct'] ?? 1.0));
+    $familyCap = isset($risk['family_exposure_cap_pct'])
+        ? max(0.0, (float) $risk['family_exposure_cap_pct'])
+        : null;
+    $familyGuard = new PaperFamilyExposureGuard();
+    $familyExposure = $familyGuard->exposureByFamily(
+        is_array($paperContext['positions'] ?? null) ? $paperContext['positions'] : [],
+        is_array($paperContext['open_orders'] ?? null) ? $paperContext['open_orders'] : [],
+    );
+    $grossExposure = $familyGuard->grossExposure(
+        is_array($paperContext['positions'] ?? null) ? $paperContext['positions'] : [],
+        is_array($paperContext['open_orders'] ?? null) ? $paperContext['open_orders'] : [],
+    );
     $slotBudget = $initialCash > 0.0 ? ($initialCash * $maxGross / $maxOpen) : 0.0;
     $modelOpenCounts = boolOption((string) ($options['model-open-counts'] ?? 'true'));
     $ignoreModelOpen = boolOption((string) ($options['ignore-model-open'] ?? 'false'));
@@ -253,6 +382,17 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
             $skipped[] = skipRow($signal, 'score_below_minimum');
             continue;
         }
+        if (!$entrySubmissionEnabled) {
+            $skipped[] = skipRow($signal, 'production_validation_blocks_entries');
+            continue;
+        }
+        if ($marketAllowsLongRisk !== true) {
+            $skipped[] = skipRow(
+                $signal,
+                $marketAllowsLongRisk === false ? 'market_regime_blocks_long_risk' : 'market_regime_unavailable',
+            );
+            continue;
+        }
         if (isset($openSymbols[$symbol]) && (!$allowLayered || !$openSymbols[$symbol]['break_even_armed'])) {
             $skipped[] = skipRow($signal, 'symbol_already_open_without_green_garden');
             continue;
@@ -266,7 +406,31 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
             continue;
         }
 
-        $orderBudget = $slotBudget;
+        $recommendedPositionPct = isset($signal['recommended_position_pct'])
+            ? max(0.0, (float) $signal['recommended_position_pct'])
+            : null;
+        $orderBudget = $recommendedPositionPct === null
+            ? $slotBudget
+            : $initialCash * $recommendedPositionPct;
+        if ($orderBudget <= 0.0) {
+            $skipped[] = skipRow($signal, 'zero_recommended_position_budget');
+            continue;
+        }
+        $grossAvailable = max(0.0, ($initialCash * $maxGross) - $grossExposure);
+        if ($grossAvailable <= 0.0) {
+            $skipped[] = skipRow($signal, 'gross_exposure_cap_exhausted');
+            continue;
+        }
+        $orderBudget = min($orderBudget, $grossAvailable);
+        $family = $familyGuard->familyForSymbol($symbol);
+        $familyAvailable = $familyCap === null
+            ? INF
+            : $familyGuard->availableNotional($symbol, $initialCash, $familyCap, $familyExposure);
+        if ($familyAvailable <= 0.0) {
+            $skipped[] = skipRow($signal, 'family_exposure_cap_exhausted');
+            continue;
+        }
+        $orderBudget = min($orderBudget, $familyAvailable);
         $maintenanceRate = maintenanceRateForSymbol($symbol);
         $maintenanceRemaining = $maintenanceLimit - $maintenanceUsed;
         if ($maintenanceGuard && $maintenanceRate > 0.0) {
@@ -302,10 +466,17 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
                 'break_even_trigger' => (float) ($signal['break_even_trigger'] ?? 0.0),
                 'target' => (float) ($signal['target'] ?? 0.0),
                 'planned_notional' => round($plannedNotional, 2),
+                'recommended_position_pct' => $recommendedPositionPct,
+                'gross_available_before_order' => round($grossAvailable, 2),
+                'family' => $family,
+                'family_exposure_cap_pct' => $familyCap,
+                'family_available_before_order' => is_finite($familyAvailable) ? round($familyAvailable, 2) : null,
                 'estimated_maintenance_rate' => $maintenanceRate,
                 'estimated_maintenance_requirement' => round($plannedMaintenance, 2),
             ],
         ];
+        $familyGuard->reserve($symbol, $plannedNotional, $familyExposure);
+        $grossExposure += $plannedNotional;
         $maintenanceUsed += $plannedMaintenance;
         $plannedSymbols[$symbol] = true;
     }
@@ -332,6 +503,16 @@ function buildOrderPlan(array $report, array $options, array $paperContext): arr
         'available_slots' => $availableSlots,
         'open_slot_symbols' => array_keys($slotSymbols),
         'slot_budget' => round($slotBudget, 2),
+        'signal_sizing_mode' => 'recommended_position_pct_with_legacy_slot_fallback',
+        'market_allows_long_risk' => $marketAllowsLongRisk,
+        'entry_submission_enabled' => $entrySubmissionEnabled,
+        'entry_submission_block_reason' => $entrySubmissionEnabled ? null : $entrySubmissionBlockReason,
+        'estimated_gross_exposure' => round($grossExposure, 2),
+        'estimated_gross_exposure_pct_of_equity' => $initialCash > 0.0
+            ? round($grossExposure / $initialCash, 4)
+            : null,
+        'family_exposure_cap_pct' => $familyCap,
+        'estimated_family_exposure' => array_map(static fn (float $value): float => round($value, 2), $familyExposure),
         'orders' => $orders,
         'skipped' => $skipped,
     ];
@@ -362,15 +543,30 @@ function existingMaintenanceRequirement(array $paperContext): float
         if ($symbol === '' || $side !== 'buy' || in_array($status, ['filled', 'canceled', 'cancelled', 'expired', 'rejected'], true)) {
             continue;
         }
-        $qty = (float) ($order['qty'] ?? 0.0);
-        $price = (float) ($order['limit_price'] ?? $order['stop_price'] ?? 0.0);
-        if ($qty <= 0.0 || $price <= 0.0) {
+        $remainingNotional = remainingBuyOrderNotional($order);
+        if ($remainingNotional <= 0.0) {
             continue;
         }
-        $requirement += ($qty * $price) * maintenanceRateForSymbol($symbol);
+        $requirement += $remainingNotional * maintenanceRateForSymbol($symbol);
     }
 
     return $requirement;
+}
+
+/** @param array<string, mixed> $order */
+function remainingBuyOrderNotional(array $order): float
+{
+    $remainingQty = max(0.0, (float) ($order['qty'] ?? 0.0) - (float) ($order['filled_qty'] ?? 0.0));
+    $price = (float) ($order['limit_price'] ?? $order['stop_price'] ?? 0.0);
+    $remaining = $remainingQty > 0.0 && $price > 0.0 ? $remainingQty * $price : 0.0;
+    $notional = max(0.0, (float) ($order['notional'] ?? 0.0));
+    if ($notional > 0.0) {
+        $filled = max(0.0, (float) ($order['filled_qty'] ?? 0.0))
+            * max(0.0, (float) ($order['filled_avg_price'] ?? 0.0));
+        $remaining = max(0.0, $notional - $filled);
+    }
+
+    return $remaining;
 }
 
 function maintenanceRateForSymbol(string $symbol): float
@@ -546,7 +742,10 @@ function persistOrderPlan(SqliteRepository $repo, array $plan, array $options, D
 function paperOrderBlocksReplay(array $state): bool
 {
     $status = strtolower((string) ($state['status'] ?? ''));
-    if (in_array($status, ['dry_run_planned', 'skipped', 'submit_failed', 'canceled', 'cancelled', 'expired', 'rejected'], true)) {
+    // `planned` may mean the process crashed after Alpaca accepted the request
+    // but before local persistence. Let the stable client_order_id reconciliation
+    // run before deciding whether another HTTP submit is necessary.
+    if (in_array($status, ['planned', 'dry_run_planned', 'skipped', 'submit_failed', 'canceled', 'cancelled', 'expired', 'rejected'], true)) {
         return false;
     }
 

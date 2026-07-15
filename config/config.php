@@ -28,6 +28,15 @@ return [
         ],
     ],
     'strategy' => [
+        // The realistic next-session execution walk-forward had no production-
+        // eligible variant on 2026-07-15. Keep signal generation and position
+        // protection active, but fail closed on new entries unless a human
+        // deliberately overrides this after a new validation pass.
+        'entry_submission_enabled' => filter_var(
+            getenv('FTT_PRODUCTION_ENTRY_ENABLED') === false ? 'false' : getenv('FTT_PRODUCTION_ENTRY_ENABLED'),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
+        'entry_submission_block_reason' => 'no_next_touch_walk_forward_candidate_2026-07-15',
         'ema_periods' => [10, 20, 21, 50, 100, 200],
         'atr_period' => 14,
         'volume_avg_period' => 50,
@@ -37,9 +46,9 @@ return [
         'first_pullback_lookback' => 20,
         'ema_touch_tolerance_pct' => 0.01,
         'max_distance_to_ema_pct' => 0.18,
-        'order_valid_bars' => 10,
+        'order_valid_bars' => 1,
         'target_r_multiple' => 1.5,
-        'partial_take_profit_pct' => 0.25,
+        'partial_take_profit_pct' => 0.50,
         'support_regularity' => [
             'enabled' => true,
             'weekly_enabled' => true,
@@ -50,8 +59,8 @@ return [
             'weekly_lookback_bars' => 156,
             'forward_bars' => 20,
             'weekly_forward_bars' => 8,
-            'min_touches' => 3,
-            'min_success_rate' => 0.60,
+            'min_touches' => 4,
+            'min_success_rate' => 0.70,
             'success_min_return_pct' => 0.03,
             'touch_tolerance_pct' => 0.015,
             'violation_tolerance_pct' => 0.03,
@@ -60,7 +69,7 @@ return [
             'stop_atr_multiple' => 1.5,
             'target_atr_multiple' => 3.0,
             'cooldown_bars' => 10,
-            'require_close_above_support' => false,
+            'require_close_above_support' => true,
         ],
         'short_resistance' => [
             'enabled' => false,
@@ -94,7 +103,7 @@ return [
             'max_market_score' => 2.5,
             'max_spy_rsi14' => 45.0,
         ],
-        'order_fill_mode' => 'same_day_touch',
+        'order_fill_mode' => 'next_touch',
         'layered_positions' => [
             'enabled' => true,
             'require_green_garden' => true,
@@ -129,20 +138,20 @@ return [
         ],
         'family_exposure_caps' => [
             'enabled' => true,
-            'default_max_gross_exposure_pct' => 1.00,
+            'default_max_gross_exposure_pct' => 1.20,
             'caps' => [
-                'SP500' => 1.00,
-                'NASDAQ_100' => 1.00,
-                'SEMICONDUCTORS' => 1.00,
-                'TECH' => 1.00,
-                'MEGA_GROWTH' => 1.00,
+                'SP500' => 1.20,
+                'NASDAQ_100' => 1.20,
+                'SEMICONDUCTORS' => 1.20,
+                'TECH' => 1.20,
+                'MEGA_GROWTH' => 1.20,
             ],
         ],
         'reentry_after_stop' => [
             'enabled' => true,
-            'cooldown_days' => 3,
+            'cooldown_days' => 5,
             'require_stronger_support' => true,
-            'allow_same_strength_after_days' => 30,
+            'allow_same_strength_after_days' => 45,
         ],
         'external_filters' => [
             'enabled' => true,
@@ -153,7 +162,7 @@ return [
         ],
         'club_rules' => [
             'enabled' => true,
-            'break_even_profit_pct' => 0.02,
+            'break_even_profit_pct' => 0.01,
             'break_even_trigger_mode' => 'high',
             'break_even_stop_mode' => 'hard',
             'break_even_stop_offset_pct' => 0.0,
@@ -162,7 +171,7 @@ return [
             'hybrid_hard_stop_symbols' => ['UPRO', 'SPXL', 'SPUU', 'SSO', 'TQQQ', 'QLD', 'SOXL', 'USD', 'TECL', 'ROM', 'UDOW', 'TNA', 'FAS', 'FNGU', 'BULZ', 'MSFU', 'MSFX'],
             'hard_stop_label_required' => true,
             'mental_stop_exit_on_close' => true,
-            'max_gross_exposure_pct' => 2.0,
+            'max_gross_exposure_pct' => 1.75,
             'unstable_market_position_pct' => 0.05,
             'stable_market_position_pct' => 1.0,
             'stable_market_score_threshold' => 2.5,

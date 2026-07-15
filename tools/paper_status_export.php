@@ -6,6 +6,7 @@ declare(strict_types=1);
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Support\Config;
+use FulltimeTrading\Support\StatusExportGitPublisher;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 
 require __DIR__ . '/../bootstrap.php';
@@ -65,6 +66,8 @@ $payload = [
     'repo' => statusExportGitSummary(),
     'runtime' => [
         'orders_enabled' => (bool) $config->get('trading.alpaca.orders_enabled', false),
+        'production_entry_enabled' => (bool) $config->get('strategy.entry_submission_enabled', false),
+        'production_entry_block_reason' => (string) $config->get('strategy.entry_submission_block_reason', ''),
         'paper_only' => (bool) $config->get('trading.alpaca.paper_only', true),
         'paper_base_host_ok' => parse_url(getenv('APCA_PAPER_BASE_URL') ?: (string) $config->get('trading.alpaca.paper_base_url', ''), PHP_URL_HOST) === 'paper-api.alpaca.markets',
         'data_key_set' => statusExportPresent('APCA_DATA_API_KEY_ID') || statusExportPresent('APCA_API_KEY_ID'),
@@ -99,8 +102,18 @@ echo "- {$jsonPath}\n";
 echo "- {$mdPath}\n";
 
 if (statusExportBoolOption((string) $options['git'])) {
-    $gitResult = statusExportCommitFiles($jsonPath, $mdPath, statusExportBoolOption((string) $options['push']), (string) $options['remote'], (string) $options['branch']);
-    echo $gitResult . "\n";
+    try {
+        $gitResult = statusExportCommitFiles($jsonPath, $mdPath, statusExportBoolOption((string) $options['push']), (string) $options['remote'], (string) $options['branch']);
+        echo $gitResult . "\n";
+    } catch (RuntimeException $e) {
+        fwrite(STDERR, 'Paper status Git update failed: ' . $e->getMessage() . "\n");
+        exit(1);
+    }
+}
+
+if ($errors !== []) {
+    fwrite(STDERR, 'Paper status export failed Alpaca sync: ' . implode(' | ', $errors) . "\n");
+    exit(2);
 }
 
 /** @return array<string, mixed>|null */
@@ -208,7 +221,9 @@ function statusExportSanitizeOrder(array $order): array
         'side' => $order['side'] ?? null,
         'type' => $order['type'] ?? null,
         'qty' => statusExportNumericOrNull($order['qty'] ?? null),
+        'notional' => statusExportNumericOrNull($order['notional'] ?? null),
         'filled_qty' => statusExportNumericOrNull($order['filled_qty'] ?? null),
+        'filled_avg_price' => statusExportNumericOrNull($order['filled_avg_price'] ?? null),
         'limit_price' => statusExportNumericOrNull($order['limit_price'] ?? null),
         'stop_price' => statusExportNumericOrNull($order['stop_price'] ?? null),
         'status' => $order['status'] ?? null,
@@ -353,6 +368,10 @@ function statusExportMarkdown(array $payload): string
     $lines[] = '- Generated: `' . (string) $payload['generated_at'] . '`';
     $lines[] = '- Market open: `' . (!empty($clock['is_open']) ? 'yes' : 'no') . '`';
     $lines[] = '- Orders enabled: `' . (!empty($payload['runtime']['orders_enabled']) ? 'yes' : 'no') . '`';
+    $lines[] = '- New production entries: `' . (!empty($payload['runtime']['production_entry_enabled']) ? 'enabled' : 'blocked') . '`';
+    if (empty($payload['runtime']['production_entry_enabled'])) {
+        $lines[] = '- Entry block reason: `' . (string) ($payload['runtime']['production_entry_block_reason'] ?? 'unknown') . '`';
+    }
     $lines[] = '- Equity: `$' . number_format((float) ($account['equity'] ?? 0.0), 2) . '`';
     $lines[] = '- Cash: `$' . number_format((float) ($account['cash'] ?? 0.0), 2) . '`';
     $lines[] = '- Buying power: `$' . number_format((float) ($account['buying_power'] ?? 0.0), 2) . '`';
@@ -419,31 +438,9 @@ function statusExportMarkdown(array $payload): string
 
 function statusExportCommitFiles(string $jsonPath, string $mdPath, bool $push, string $remote, string $branch): string
 {
-    $add = statusExportRunCommand(['git', 'add', $jsonPath, $mdPath]);
-    if ($add['exit_code'] !== 0) {
-        return 'Git add failed: ' . trim($add['stderr']);
-    }
+    $publisher = new StatusExportGitPublisher(dirname(__DIR__));
 
-    $diff = statusExportRunCommand(['git', 'diff', '--cached', '--quiet', '--', $jsonPath, $mdPath]);
-    if ($diff['exit_code'] === 0) {
-        return 'Git status export unchanged.';
-    }
-
-    $commit = statusExportRunCommand(['git', 'commit', '-m', 'Update paper status snapshot', '--', $jsonPath, $mdPath]);
-    if ($commit['exit_code'] !== 0) {
-        return 'Git commit failed: ' . trim($commit['stderr']);
-    }
-
-    if (!$push) {
-        return 'Git status export committed locally.';
-    }
-
-    $pushResult = statusExportRunCommand(['git', 'push', $remote, 'HEAD:' . $branch]);
-    if ($pushResult['exit_code'] !== 0) {
-        return 'Git push failed: ' . trim($pushResult['stderr']);
-    }
-
-    return 'Git status export committed and pushed.';
+    return $publisher->commitFiles($jsonPath, $mdPath, $push, $remote, $branch);
 }
 
 /** @param list<string> $command @return array{exit_code:int, stdout:string, stderr:string} */

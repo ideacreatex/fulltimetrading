@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Notifications\TelegramNotifier;
+use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -58,17 +59,32 @@ foreach (array_slice($argv, 1) as $arg) {
 }
 
 $startedAt = new DateTimeImmutable();
+$cycleRunId = bin2hex(random_bytes(12));
+$refreshReport = boolOption((string) $options['refresh-report']);
+$submitRequested = boolOption((string) $options['submit']);
 $steps = [];
+$reportStep = null;
+$stagedReportPath = '';
+$stagedTextPath = '';
+$reportPathForGate = (string) $options['report-output'];
+$reportEnd = PaperDailyReportFreshnessGuard::closedBarReportEnd(
+    (string) $options['end'],
+    (string) $options['as-of'],
+    new DateTimeImmutable(),
+);
 
-if (boolOption((string) $options['refresh-report'])) {
+if ($refreshReport) {
+    $stagedReportPath = cycleStagingPath((string) $options['report-output'], $cycleRunId);
+    $stagedTextPath = cycleStagingPath((string) $options['text-output'], $cycleRunId);
+    $reportPathForGate = $stagedReportPath;
     $reportArgs = [
         PHP_BINARY,
         __DIR__ . '/daily_signal_report.php',
         '--provider=' . (string) $options['provider'],
         '--start=' . (string) $options['start'],
-        '--end=' . (string) $options['end'],
-        '--output=' . (string) $options['report-output'],
-        '--text-output=' . (string) $options['text-output'],
+        '--end=' . $reportEnd,
+        '--output=' . $stagedReportPath,
+        '--text-output=' . $stagedTextPath,
         '--telegram=false',
         '--include-account=true',
     ];
@@ -81,29 +97,64 @@ if (boolOption((string) $options['refresh-report'])) {
     foreach (strategyProfileArgs($options) as $arg) {
         $reportArgs[] = $arg;
     }
-    $steps[] = runStep('daily_signal_report', $reportArgs);
+    $reportStep = runStep('daily_signal_report', $reportArgs);
+    $steps[] = $reportStep;
 }
 
-$planArgs = [
-    PHP_BINARY,
-    __DIR__ . '/paper_order_plan.php',
-    '--report=' . (string) $options['report-output'],
-    '--output=' . (string) $options['plan-output'],
-    '--submit=' . (string) $options['submit'],
-    '--telegram=false',
-    '--min-score=' . (string) $options['min-score'],
-    '--model-open-counts=' . (string) $options['model-open-counts'],
-    '--ignore-model-open=' . (string) $options['ignore-model-open'],
-    '--paper-open-counts=' . (string) $options['paper-open-counts'],
-    '--paper-sync-required=' . (string) $options['paper-sync-required'],
-    '--allow-layered=' . (string) $options['allow-layered'],
-    '--dedupe=' . (string) $options['dedupe'],
-    '--force=' . (string) $options['force'],
-];
-if ((string) $options['max-orders'] !== '') {
-    $planArgs[] = '--max-orders=' . (string) $options['max-orders'];
+$reportGate = PaperDailyReportFreshnessGuard::evaluate(
+    $reportPathForGate,
+    $refreshReport,
+    $reportStep,
+    $startedAt,
+    (string) $options['as-of'],
+    $submitRequested,
+    new DateTimeImmutable(),
+);
+$steps[] = gateStep('daily_report_freshness_gate', $reportGate);
+
+$reportReady = PaperDailyReportFreshnessGuard::allowsDownstream($reportGate);
+if ($reportReady && $refreshReport) {
+    $promoteStep = promoteReportArtifacts(
+        $stagedReportPath,
+        (string) $options['report-output'],
+        $stagedTextPath,
+        (string) $options['text-output'],
+    );
+    $steps[] = $promoteStep;
+    $reportReady = (bool) ($promoteStep['ok'] ?? false);
 }
-$steps[] = runStep('paper_order_plan', $planArgs);
+if (!$reportReady && $refreshReport) {
+    cleanupStagedArtifacts($stagedReportPath, $stagedTextPath);
+}
+
+$planSucceeded = false;
+if ($reportReady) {
+    $planArgs = [
+        PHP_BINARY,
+        __DIR__ . '/paper_order_plan.php',
+        '--report=' . (string) $options['report-output'],
+        '--output=' . (string) $options['plan-output'],
+        '--submit=' . (string) $options['submit'],
+        '--telegram=false',
+        '--min-score=' . (string) $options['min-score'],
+        '--model-open-counts=' . (string) $options['model-open-counts'],
+        '--ignore-model-open=' . (string) $options['ignore-model-open'],
+        '--paper-open-counts=' . (string) $options['paper-open-counts'],
+        '--paper-sync-required=' . (string) $options['paper-sync-required'],
+        '--allow-layered=' . (string) $options['allow-layered'],
+        '--dedupe=' . (string) $options['dedupe'],
+        '--force=' . (string) $options['force'],
+        '--verified-report-cycle-started-at=' . $startedAt->format(DateTimeInterface::ATOM),
+    ];
+    if ((string) $options['max-orders'] !== '') {
+        $planArgs[] = '--max-orders=' . (string) $options['max-orders'];
+    }
+    $planStep = runStep('paper_order_plan', $planArgs);
+    $steps[] = $planStep;
+    $planSucceeded = (bool) ($planStep['ok'] ?? false);
+} else {
+    $steps[] = skippedStep('paper_order_plan', downstreamSkipReason($reportGate, $steps));
+}
 
 $monitorArgs = [
     PHP_BINARY,
@@ -113,20 +164,32 @@ $monitorArgs = [
     '--submit=' . (string) $options['submit'],
     '--telegram=false',
 ];
+$monitorSucceeded = false;
 if (boolOption((string) $options['monitor'])) {
-    $steps[] = runStep('paper_position_monitor', $monitorArgs);
+    if ($reportReady) {
+        $monitorStep = runStep('paper_position_monitor', $monitorArgs);
+        $steps[] = $monitorStep;
+        $monitorSucceeded = (bool) ($monitorStep['ok'] ?? false);
+    } else {
+        $steps[] = skippedStep('paper_position_monitor', downstreamSkipReason($reportGate, $steps));
+    }
 }
 
-$dailySummary = dailyReportSummary((string) $options['report-output']);
-$planSummary = orderPlanSummary((string) $options['plan-output']);
-$monitorSummary = monitorSummary((string) $options['monitor-output']);
+$dailySummary = $reportReady ? dailyReportSummary((string) $options['report-output']) : [];
+$planSummary = $planSucceeded ? orderPlanSummary((string) $options['plan-output']) : [];
+$monitorSummary = $monitorSucceeded ? monitorSummary((string) $options['monitor-output']) : [];
 $referenceSummary = referenceSummary((string) $options['profile']);
 
 $payload = [
     'generated_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+    'cycle_run_id' => $cycleRunId,
     'started_at' => $startedAt->format(DateTimeInterface::ATOM),
     'finished_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-    'submit_requested' => boolOption((string) $options['submit']),
+    'submit_requested' => $submitRequested,
+    'refresh_report_requested' => $refreshReport,
+    'report_end' => $reportEnd,
+    'report_ready' => $reportReady,
+    'report_freshness_gate' => $reportGate,
     'profile' => (string) $options['profile'],
     'report_output' => (string) $options['report-output'],
     'plan_output' => (string) $options['plan-output'],
@@ -198,6 +261,105 @@ function runStep(string $name, array $command): array
     ];
 }
 
+/** @param array<string, mixed> $gate @return array<string, mixed> */
+function gateStep(string $name, array $gate): array
+{
+    $now = new DateTimeImmutable();
+    $ok = (bool) ($gate['ok'] ?? false);
+
+    return [
+        'name' => $name,
+        'ok' => $ok,
+        'exit_code' => $ok ? 0 : 78,
+        'started_at' => $now->format(DateTimeInterface::ATOM),
+        'finished_at' => $now->format(DateTimeInterface::ATOM),
+        'stdout_tail' => '',
+        'stderr_tail' => $ok ? '' : (string) ($gate['reason'] ?? 'report_freshness_gate_failed'),
+        'reason' => (string) ($gate['reason'] ?? ''),
+        'details' => $gate,
+    ];
+}
+
+/** @return array<string, mixed> */
+function skippedStep(string $name, string $reason): array
+{
+    $now = new DateTimeImmutable();
+
+    return [
+        'name' => $name,
+        'ok' => false,
+        'skipped' => true,
+        'exit_code' => 78,
+        'started_at' => $now->format(DateTimeInterface::ATOM),
+        'finished_at' => $now->format(DateTimeInterface::ATOM),
+        'stdout_tail' => '',
+        'stderr_tail' => $reason,
+        'reason' => $reason,
+    ];
+}
+
+/** @param array<string, mixed> $gate @param list<array<string, mixed>> $steps */
+function downstreamSkipReason(array $gate, array $steps): string
+{
+    if (empty($gate['ok'])) {
+        return 'fresh report unavailable: ' . (string) ($gate['reason'] ?? 'freshness_gate_failed');
+    }
+    for ($index = count($steps) - 1; $index >= 0; $index--) {
+        $step = $steps[$index];
+        if (($step['name'] ?? '') === 'promote_daily_report' && empty($step['ok'])) {
+            return 'fresh report promotion failed: ' . (string) ($step['reason'] ?? 'unknown_error');
+        }
+    }
+
+    return 'fresh report unavailable';
+}
+
+function cycleStagingPath(string $path, string $cycleRunId): string
+{
+    return $path . '.cycle-' . $cycleRunId . '.tmp';
+}
+
+/** @return array<string, mixed> */
+function promoteReportArtifacts(
+    string $stagedReportPath,
+    string $reportPath,
+    string $stagedTextPath,
+    string $textPath,
+): array {
+    $startedAt = new DateTimeImmutable();
+    $reason = '';
+    if (!is_file($stagedReportPath)) {
+        $reason = 'staged_report_missing';
+    } elseif (!is_file($stagedTextPath)) {
+        $reason = 'staged_text_report_missing';
+    } elseif (!@rename($stagedTextPath, $textPath)) {
+        $reason = 'unable_to_promote_text_report';
+    } elseif (!@rename($stagedReportPath, $reportPath)) {
+        $reason = 'unable_to_promote_json_report';
+    }
+    $ok = $reason === '';
+
+    return [
+        'name' => 'promote_daily_report',
+        'ok' => $ok,
+        'exit_code' => $ok ? 0 : 74,
+        'started_at' => $startedAt->format(DateTimeInterface::ATOM),
+        'finished_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+        'stdout_tail' => '',
+        'stderr_tail' => $reason,
+        'reason' => $ok ? 'fresh_report_promoted' : $reason,
+    ];
+}
+
+function cleanupStagedArtifacts(string ...$paths): void
+{
+    foreach ($paths as $path) {
+        if ($path !== '' && is_file($path)) {
+            @unlink($path);
+        }
+    }
+}
+
 /** @param list<array<string, mixed>> $steps */
 function allStepsOk(array $steps): bool
 {
@@ -260,6 +422,10 @@ function orderPlanSummary(string $path): array
         'submitted' => (int) ($payload['submitted_count'] ?? 0),
         'available_slots' => (int) ($plan['available_slots'] ?? 0),
         'slot_budget' => (float) ($plan['slot_budget'] ?? 0.0),
+        'family_exposure_cap_pct' => $plan['family_exposure_cap_pct'] ?? null,
+        'estimated_family_exposure' => is_array($plan['estimated_family_exposure'] ?? null)
+            ? $plan['estimated_family_exposure']
+            : [],
         'paper_positions_count' => (int) ($plan['paper_positions_count'] ?? 0),
         'paper_open_orders_count' => (int) ($plan['paper_open_orders_count'] ?? 0),
         'maintenance_limit' => $plan['maintenance_limit'] ?? null,
@@ -292,8 +458,24 @@ function monitorSummary(string $path): array
 /** @return array<string, mixed> */
 function referenceSummary(string $profile): array
 {
+    if (strtolower($profile) === 'tuned-daily') {
+        $path = __DIR__ . '/../var/reports/param_experiment_production_next_open_20260715/summary.json';
+        $payload = readJsonIfExists($path);
+        $walkForward = is_array($payload['walk_forward_production_envelope'] ?? null)
+            ? $payload['walk_forward_production_envelope']
+            : [];
+
+        return [
+            'path' => $path,
+            'execution_model' => 'next_touch_day_order',
+            'candidate_count' => (int) ($walkForward['candidate_count'] ?? 0),
+            'eligible_count' => (int) ($walkForward['eligible_count'] ?? 0),
+            'selected_variant' => $walkForward['selected_variant'] ?? null,
+            'entry_submission_enabled' => (int) ($walkForward['eligible_count'] ?? 0) > 0,
+        ];
+    }
+
     $path = match (strtolower($profile)) {
-        'tuned-daily' => __DIR__ . '/../var/reports/alpaca_selected_30000_be_sweep_wide/best_score_report.json',
         'best-consistent' => __DIR__ . '/../var/reports/alpaca_selected_30000_be_sweep_wide/best_consistent_40_35_report.json',
         default => '',
     };
@@ -370,17 +552,17 @@ function strategyProfileArgs(array $options): array
     $profile = strtolower((string) ($options['profile'] ?? 'tuned-daily'));
     $profileValues = match ($profile) {
         'tuned-daily' => [
-            'max-gross-exposure-pct' => '2.0',
+            'max-gross-exposure-pct' => '1.75',
             'max-open-positions' => '4',
-            'family-cap' => '1.00',
-            'reentry-cooldown-days' => '0',
+            'family-cap' => '1.2',
+            'reentry-cooldown-days' => '5',
             'allow-same-strength-after-days' => '45',
             'break-even-add-on-fraction' => '0',
             'swing-stop-mode' => 'mental',
-            'partial-take-profit-pct' => '0.25',
-            'break-even-profit-pct' => '0.02',
-            'order-valid-bars' => '10',
-            'order-fill-mode' => 'same_day_touch',
+            'partial-take-profit-pct' => '0.50',
+            'break-even-profit-pct' => '0.01',
+            'order-valid-bars' => '1',
+            'order-fill-mode' => 'next_touch',
         ],
         'best-consistent' => [
             'max-gross-exposure-pct' => '2.5',
@@ -392,8 +574,8 @@ function strategyProfileArgs(array $options): array
             'swing-stop-mode' => 'mental',
             'partial-take-profit-pct' => '0.25',
             'break-even-profit-pct' => '0.02',
-            'order-valid-bars' => '10',
-            'order-fill-mode' => 'same_day_touch',
+            'order-valid-bars' => '1',
+            'order-fill-mode' => 'next_touch',
         ],
         'leverage-growth' => [
             'max-gross-exposure-pct' => '3.5',
@@ -405,8 +587,8 @@ function strategyProfileArgs(array $options): array
             'swing-stop-mode' => 'mental',
             'partial-take-profit-pct' => '0.25',
             'break-even-profit-pct' => '0.02',
-            'order-valid-bars' => '10',
-            'order-fill-mode' => 'same_day_touch',
+            'order-valid-bars' => '1',
+            'order-fill-mode' => 'next_touch',
         ],
         'default' => [],
         default => throw new RuntimeException('Unknown paper-cycle profile: ' . $profile),
@@ -486,6 +668,12 @@ function cycleText(array $payload): string
                 (float) ($plan['maintenance_limit'] ?? 0.0),
             );
         }
+        if (($plan['family_exposure_cap_pct'] ?? null) !== null) {
+            $lines[] = sprintf(
+                'Family exposure cap: %0.2f%% of equity per correlated family',
+                (float) $plan['family_exposure_cap_pct'] * 100,
+            );
+        }
         $symbols = is_array($plan['symbols'] ?? null) ? array_filter($plan['symbols']) : [];
         if ($symbols !== []) {
             $lines[] = 'Plan symbols: ' . implode(', ', $symbols);
@@ -514,6 +702,9 @@ function cycleText(array $payload): string
         $stderr = trim((string) ($step['stderr_tail'] ?? ''));
         if ($stderr !== '') {
             $lines[] = '  ' . preg_replace('/\s+/', ' ', substr($stderr, 0, 240));
+        }
+        if (!empty($step['skipped'])) {
+            $lines[] = '  skipped: ' . (string) ($step['reason'] ?? 'fresh report unavailable');
         }
     }
 
