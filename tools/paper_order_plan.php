@@ -97,10 +97,15 @@ if (!$dryRun) {
 }
 
 $paperContext = loadPaperContext($config, $repo, $http, $options, !$dryRun);
-if (!$dryRun && boolOption((string) ($options['require-market-open'] ?? 'true')) && !($paperContext['clock']['is_open'] ?? false)) {
+$plan = buildOrderPlan($report, $options, $paperContext);
+if (
+    !$dryRun
+    && ($plan['orders'] ?? []) !== []
+    && boolOption((string) ($options['require-market-open'] ?? 'true'))
+    && !($paperContext['clock']['is_open'] ?? false)
+) {
     throw new RuntimeException('Refusing to submit entry orders while Alpaca market clock is closed.');
 }
-$plan = buildOrderPlan($report, $options, $paperContext);
 $plan = persistOrderPlan($repo, $plan, $options, $now, $dryRun);
 $submitted = [];
 $submitErrors = [];

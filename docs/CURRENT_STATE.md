@@ -26,9 +26,12 @@
 
 ## Состояние миграции
 
-На момент этого code snapshot старый ручной daemon PID `2278` еще держал `var/run/paper_daemon.lock`; загруженный daemon LaunchAgent ожидал освобождения lock, а отдельный status-export LaunchAgent еще не был установлен. После push этот процесс должен быть заменен проверенным LaunchAgent через `bin/install-launchd`, а раздел обновлен фактическими PID/heartbeat/Alpaca данными.
+- Старый ручной daemon PID `2278` штатно остановлен. Транзакционный `bin/install-launchd` установил оба LaunchAgent 2026-07-15 21:29 UTC; daemon запущен как PID `89840`, и этот PID совпал с lock и heartbeat. Heartbeat содержит `account_guard_verified=true`, последний monitor завершился с кодом `0`.
+- `com.fulltimetrading.paper-status-export` запущен сразу и затем каждые 900 секунд; первый запуск завершился с кодом `0`, создал sanitized snapshot и запушил commit `47d9d4d`. Legacy cron-дубль удален, других cron-строк не было.
+- Snapshot после миграции: account `ACTIVE`, identity/multiplier `2`/shorting/block-проверки пройдены; equity `$27,167.50`, cash `$1,906.00`, buying power `$16,071.50`. Открыты `TECL 66` и `TQQQ 165`, активных ордеров нет.
+- После закрытия рынка выполнен свежий current-cycle report `as_of=2026-07-15`: сигнал `TQQQ EMA10` рассчитан, но production-shaped planner создал `0` ордеров и пометил сигнал `production_validation_blocks_entries`. Freshness gate подтвердил закрытый бар и `missing_trading_sessions=0`.
 
-Read-only сверка перед миграцией: account `ACTIVE`, multiplier `2`, блокировок нет; equity `$26,861.76`, cash `$1,906.00`, buying power `$15,953.53`. Открыты `TECL 66` и `TQQQ 165`. Legacy cycle успел открыть TQQQ по отчету `as_of=2026-07-15`, созданному до закрытия этой дневной свечи; такой вход нарушает новый closed-bar guard, не включается в доказательство стратегии и не разрешает следующие покупки. Позиция не ликвидируется задним числом без отдельного решения, но остается под stop/monitor protection.
+Legacy cycle успел открыть `TQQQ 165` по отчету, созданному 15 июля до закрытия дневной свечи. Такой вход нарушает новый closed-bar guard, не включается в доказательство стратегии и не разрешает следующие покупки. Позиция не ликвидируется задним числом без отдельного решения, но остается под stop/monitor protection.
 
 ## Быстрая проверка
 
