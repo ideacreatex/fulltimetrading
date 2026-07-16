@@ -110,6 +110,53 @@ final readonly class AlpacaPaperClient
         return $payload;
     }
 
+    /** @return list<array<string, mixed>> */
+    public function calendar(string $start, string $end): array
+    {
+        foreach ([$start, $end] as $date) {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                throw new \InvalidArgumentException('Alpaca calendar dates must use YYYY-MM-DD.');
+            }
+        }
+        $url = rtrim($this->baseUrl, '/') . '/calendar?start=' . rawurlencode($start) . '&end=' . rawurlencode($end);
+        $response = $this->http->get($url, $this->headers(), null, false);
+        if ($response['status'] < 200 || $response['status'] >= 300) {
+            throw new \RuntimeException('Alpaca paper calendar request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
+        }
+
+        $payload = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($payload)) {
+            throw new \RuntimeException('Unexpected Alpaca calendar response.');
+        }
+
+        return array_values(array_filter($payload, 'is_array'));
+    }
+
+    /** @return array<string, mixed> */
+    public function asset(string $symbol): array
+    {
+        $symbol = strtoupper(trim($symbol));
+        if (!preg_match('/^[A-Z][A-Z0-9.\-]{0,14}$/', $symbol)) {
+            throw new \InvalidArgumentException('Invalid Alpaca asset symbol.');
+        }
+        $response = $this->http->get(
+            rtrim($this->baseUrl, '/') . '/assets/' . rawurlencode($symbol),
+            $this->headers(),
+            null,
+            false,
+        );
+        if ($response['status'] < 200 || $response['status'] >= 300) {
+            throw new \RuntimeException('Alpaca paper asset request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
+        }
+
+        $payload = json_decode($response['body'], true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($payload)) {
+            throw new \RuntimeException('Unexpected Alpaca asset response.');
+        }
+
+        return $payload;
+    }
+
     /**
      * @param array<string, mixed> $order
      * @return array<string, mixed>

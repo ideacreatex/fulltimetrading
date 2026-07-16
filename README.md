@@ -1,12 +1,13 @@
 # Fulltime Trading Bot
 
-PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `FTT_ORDERS_ENABLED=true`. Новые entry-заявки дополнительно требуют `FTT_PRODUCTION_ENTRY_ENABLED=true`; после реалистичной проверки 2026-07-15 этот флаг по умолчанию выключен, поскольку ни один кандидат не прошел production gates.
+PHP-каркас для проверки торгового алгоритма из материалов FTT. Сейчас реализован backtest и guarded paper-trading слой; live trading не используется, а paper-ордера отправляются только при явном `FTT_ORDERS_ENABLED=true`. Новые entry-заявки дополнительно требуют `FTT_PRODUCTION_ENTRY_ENABLED=true`; этот флаг выключен. Найденный 2026-07-16 causal stock-rotation профиль проходит исторические 20/30 bps gates выше 100% CAGR, но из-за universe sensitivity работает только как отдельный fail-closed paper shadow без submit-пути.
 
 ## Что уже есть
 
 - Market-regime слой: SPY как "король", QQQ/SMH/RSP/IWM/DIA, секторные ETF и крупные весовые акции.
 - POOS scanner: поиск кандидатов на первый pullback к EMA20 после сильного роста на объеме.
 - Support regularity scanner: поиск акций, которые повторяемо реагируют на EMA/SMA поддержки, с проверкой прошлых касаний и forward-реакции.
+- Causal tactical rotation research: close `D` → open `D+1`, Alpaca SIP, встроенные cost/margin, rolling/concentration/leave-one-out проверки и paper-shadow без заявок.
 - Backtester: общий календарь портфеля, стартовый капитал из конфига, дробные акции, размер новой позиции от marked equity, занятая нагрузка по текущей рыночной стоимости остатка позиции, правила клуба #1, лимит открытых позиций, лимитный вход у поддержки, стоп, частичная фиксация, перенос стопа в безубыток, trailing по EMA10.
 - Club rules: `+1%` переводит стоп в БУ отдельным событием, swing-stop по умолчанию mental, hard-stop включается только явным режимом/после БУ.
 - Performance report: кварталы, SPY benchmark, разрез по стратегиям/символам, win rate, profit factor, max drawdown, Sharpe, Sortino, recovery days, closed/unrealized/total PnL.
@@ -264,6 +265,19 @@ php tools/stress_trade_costs.php \
 Финальная проверка 2026-07-15 в `var/reports/param_experiment_production_planned_qty_20260715/summary.json` использует только доступное paper-исполнение: closed-bar сигнал фиксирует количество и создает `next_touch` заявку на следующий бар с DAY-validity 1; pending-заявка резервирует слот/notional, а mental-stop close исполняется на следующем open с учетом gap. Из 1366 вариантов 716 попали в envelope `gross <= 2`, `max_open <= 4`, но production selector не выбрал ни одного. Максимальная train annualized была отрицательной (`-2.4281%`), минимальная train top-5 концентрация — `64.3890%` при gate `60%`; ни один кандидат не сохранил положительный train P/L без пяти лучших сделок. Старые результаты, где quantity пересчитывалась по close/regime будущего fill-дня, как и `same_day_touch`, считаются look-ahead и не используются.
 
 Причинный `advance_next_session` IEX-профиль описан в [`docs/SAME_DAY_TOUCH_ALPACA_OPTIMIZATION_2026-07-16.md`](docs/SAME_DAY_TOUCH_ALPACA_OPTIMIZATION_2026-07-16.md), но теперь явно отклонён: его `14.97% CAGR` ниже обязательного порога `100%`. Новая SIP-проверка в [`docs/CAUSAL_100PCT_SEARCH_2026-07-16.md`](docs/CAUSAL_100PCT_SEARCH_2026-07-16.md) использует только завершённый D-1 сигнал, touch/reclaim по завершённым 5-минутным барам, следующий наблюдаемый open, train-only выбор и fail-closed проверки данных/нагрузки. Ни один sub-100% профиль не включает entry submission.
+
+Расширенный stock-rotation поиск затем нашёл профиль [`causal-stock-rotation-hybrid-v4`](docs/CAUSAL_STOCK_ROTATION_HYBRID_V4_2026-07-16.md): при 20 bps train 2021–23 CAGR `116.98%`, validation 2024–25 `109.23%`, full `126.95%`, total `+9158.90%`, DD `−30.23%`; обязательный stress 30 bps также проходит (`108.83% / 101.60% / 118.42%`, total `+7391.45%`, DD `−30.48%`). Full-результат распределён по `255` положительным holding episodes и `19` тикерам, доля лучшего эпизода при stress — `14.60%`, а `8/20` leave-one-out вариантов проходят оба cost gates. Поэтому `selected=true` означает historical qualification; `production_approved=false`, `order_submission_enabled=false` и требуется paper-forward shadow.
+
+Воспроизведение frozen профиля:
+
+```bash
+php tools/run_tactical_rotation_backtest.php \
+  --end=2026-07-15 \
+  --cost-bps=20,30,35,40,50 \
+  --include-robustness \
+  --output=docs/research_results/causal_stock_rotation_hybrid_v4_20260716.json \
+  --shadow-output=var/reports/daily/tactical_rotation_shadow.json
+```
 
 Точный realistic grid воспроизводится так:
 
@@ -577,7 +591,7 @@ find . -path ./materials -prune -o -name '*.php' -print -o -path ./bin/trade -pr
 
 ## Важные ограничения
 
-- Live endpoint кодом не используется, `FTT_PAPER_ONLY=true`. Общий submit-контур требует `FTT_ORDERS_ENABLED=true`, но новые входы отдельно заблокированы `FTT_PRODUCTION_ENTRY_ENABLED=false`, потому что realistic grid не дал production-eligible варианта. Мониторинг и защитные exits существующих paper-позиций остаются активными; фактическое состояние фиксируется в `docs/CURRENT_STATE.md`.
+- Live endpoint кодом не используется, `FTT_PAPER_ONLY=true`. Общий submit-контур требует `FTT_ORDERS_ENABLED=true`, но новые author-style входы отдельно заблокированы `FTT_PRODUCTION_ENTRY_ENABLED=false`. Новый tactical-rotation candidate изолирован в read-only/paper-shadow инструменте и не может отправить заявку до отдельного forward approval и реализации execution-контура. Мониторинг и защитные exits существующих paper-позиций остаются активными; фактическое состояние фиксируется в `docs/CURRENT_STATE.md`.
 - Real-time dashboard `fstock` сохраняется в `dashboard_metrics`, но без исторического API эти значения не используются как hard-rule в backtest.
 - FBMA/fstock/seasonality используются в backtest только после импорта исторических значений или формализации Pine-логики.
 - Последние публичные YouTube-стримы проверены вручную и отражены в `docs/AUTHOR_REFRESH_2026-07-15.md`; полный автоматический transcript для каждого MP4/стрима в репозитории не архивируется.

@@ -7,8 +7,21 @@ use FulltimeTrading\Trading\AlpacaPaperClient;
 
 require __DIR__ . '/../bootstrap.php';
 
-new AlpacaPaperClient(new HttpClient(), 'https://paper-api.alpaca.markets/v2');
+$client = new AlpacaPaperClient(new HttpClient(), 'https://paper-api.alpaca.markets/v2');
 new AlpacaPaperClient(new HttpClient(), 'https://paper-api.alpaca.markets/v2/');
+
+foreach ([
+    static fn (): array => $client->calendar('2026/07/16', '2026-07-20'),
+    static fn (): array => $client->asset('../orders'),
+] as $unsafeRead) {
+    try {
+        $unsafeRead();
+    } catch (InvalidArgumentException) {
+        continue;
+    }
+
+    throw new RuntimeException('Unsafe read-only Alpaca parameter was accepted.');
+}
 
 $unsafe = [
     'http://paper-api.alpaca.markets/v2',

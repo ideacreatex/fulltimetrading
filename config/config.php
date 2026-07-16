@@ -28,15 +28,16 @@ return [
         ],
     ],
     'strategy' => [
-        // The realistic next-session execution walk-forward had no production-
-        // eligible >=100% CAGR variant on 2026-07-16. Keep signal generation and position
-        // protection active, but fail closed on new entries unless a human
-        // deliberately overrides this after a new validation pass.
+        // The author-style entry path remains unqualified. The separate
+        // >=100% CAGR tactical-rotation candidate is intentionally isolated in
+        // a read-only paper-shadow tool and has no order-submission path.
+        // Keep existing-position protection active while all new entries stay
+        // fail-closed unless a human approves a forward-validated executor.
         'entry_submission_enabled' => filter_var(
             getenv('FTT_PRODUCTION_ENTRY_ENABLED') === false ? 'false' : getenv('FTT_PRODUCTION_ENTRY_ENABLED'),
             FILTER_VALIDATE_BOOLEAN,
         ),
-        'entry_submission_block_reason' => 'no_causal_100pct_cagr_candidate_2026-07-16',
+        'entry_submission_block_reason' => 'author_style_unqualified_tactical_rotation_shadow_only_2026-07-16',
         'ema_periods' => [10, 20, 21, 50, 100, 200],
         'atr_period' => 14,
         'volume_avg_period' => 50,

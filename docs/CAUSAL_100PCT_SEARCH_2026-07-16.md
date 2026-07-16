@@ -1,5 +1,10 @@
 # FTT: проверка цели 100% CAGR на причинном Alpaca SIP — 2026-07-16
 
+> Этот документ фиксирует первый author-style/touch этап поиска. Последующий
+> расширенный stock-rotation поиск нашёл causal hybrid выше 100% CAGR при
+> 20/30 bps; актуальный выбранный результат находится в
+> [`CAUSAL_STOCK_ROTATION_HYBRID_V4_2026-07-16.md`](CAUSAL_STOCK_ROTATION_HYBRID_V4_2026-07-16.md).
+
 ## Решение
 
 Профиль с исторически подтверждёнными `>=100% CAGR`, просадкой не хуже `−35%`, допустимой для Alpaca нагрузкой и устойчивым train/OOS результатом **не найден**. Поэтому новый профиль не выбран, `best_qualified_variant=null`, а отправка новых entry-заявок остаётся заблокированной.
@@ -141,7 +146,10 @@ Production envelope исследования:
 - Alpaca intraday manifest переведён на v2 с immutable per-chunk provenance и exact hash verification.
 - Production qualification требует train, OOS и full-period gross, DQ, концентрацию, `100% CAGR / 35% DD` и разрешённый execution contract.
 - Отклонённый IEX-профиль `advance-touch-alpaca-20260716` больше не помечен paper-forward кандидатом.
-- `FTT_PRODUCTION_ENTRY_ENABLED` по умолчанию остаётся `false`; причина — `no_causal_100pct_cagr_candidate_2026-07-16`.
+- `FTT_PRODUCTION_ENTRY_ENABLED` по умолчанию остаётся `false`; этот флаг
+  относится к не прошедшему author-style executor. Отдельный прошедший hybrid
+  изолирован в shadow без submit-пути; причина блока —
+  `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`.
 
 Intraday touch/reclaim пока не имеет полного paper planner/monitor executor (`paper_execution_parity=false`). Даже хороший backtest не мог бы автоматически включить заявки без отдельной реализации и forward-проверки.
 

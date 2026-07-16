@@ -1,6 +1,12 @@
 # FullTimeTrading — current paper state
 
-> Research update 2026-07-16: активный paper runtime ниже не переключался и не перезапускался. Свежий Alpaca SIP causal replay не выбрал production-кандидата. Старые `+7000%` возникали из same-day look-ahead; полностью DQ-valid контроль без TECL дал максимум `6.43% CAGR` внутри gross envelope и `selected_variant=null`. Актуальный разбор: `docs/CAUSAL_100PCT_SEARCH_2026-07-16.md`.
+> Research update 2026-07-16: выбран causal stock-rotation hybrid с total
+> `+7391.45%`, CAGR `118.42%` и DD `−30.48%` уже при stress 30 bps. Train
+> `108.83%` и validation `101.60%` также проходят целевой порог. Он добавлен
+> только как fail-closed paper shadow: production/order submission выключены.
+> Активный author-style paper runtime ниже не переключался и не
+> перезапускался. Актуальный разбор:
+> `docs/CAUSAL_STOCK_ROTATION_HYBRID_V4_2026-07-16.md`.
 
 Обновлено: 2026-07-16 (Asia/Nicosia). Здесь хранится только sanitized operational context: без ключей и полных идентификаторов аккаунта.
 
@@ -8,11 +14,34 @@
 
 - Торговый endpoint жестко ограничен `https://paper-api.alpaca.markets/v2`; redirects для Alpaca trading API запрещены.
 - `FTT_PAPER_ONLY=true` и общий submit-контур использует `FTT_ORDERS_ENABLED=true` только для Alpaca paper.
-- Новые entry-заявки отдельно заблокированы: `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина `no_causal_100pct_cagr_candidate_2026-07-16`.
+- Новые author-style entry-заявки отдельно заблокированы:
+  `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина
+  `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`.
 - Сигналы продолжают формироваться; мониторинг и защитные partial/stop/full exits уже открытых paper-позиций остаются активными.
 - Observation-профиль `tuned-daily`: universe `UPRO,TQQQ,SOXL,USD,TECL`, `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, cooldown `5`, same-strength `45`, обязательный close выше support, mental stop, БУ `+1%`, partial `50%`, `next_touch`, DAY-validity `1` бар.
 
-## Основание для блокировки входов
+## Новый causal stock-rotation shadow
+
+- Frozen profile: `causal-stock-rotation-hybrid-v4`, Alpaca SIP 1Day,
+  completed close `D` → open `D+1`, четыре независимых static-capital sleeve.
+- При 20 bps: train 2021–23 CAGR `116.98%`, validation 2024–25
+  `109.23%`, full `126.95%`, total `+9158.90%`, DD `−30.23%`.
+- При обязательных 30 bps: train `108.83%`, validation `101.60%`, full
+  `118.42%`, total `+7391.45%`, DD `−30.48%`.
+- Full-результат при 30 bps: `255` положительных holding episodes, `19`
+  тикеров, доля лучшего эпизода `14.60%`; без пяти лучших дней CAGR остаётся
+  `79.27%`.
+- Одновременно 20/30 bps проходят `8/20` leave-one-out проверок. Stable
+  complete-at-2020 universe сохраняет train выше 100%, но validation даёт
+  только `74.75%`; поэтому нужен paper-forward shadow.
+- Текущий shadow на close 2026-07-15: dynamic sleeve удерживает `PANW` с
+  gross `0.82153`, но следующая сессия не является ребалансировкой — action
+  `hold`. Три defensive sleeve в cash с DD-cooldown `46` (`45` после open).
+  Новых заявок нет.
+- Новый backtester/tool не содержит submit-пути. `production_approved=false`,
+  `order_submission_enabled=false`; активный daemon PID `95088` не затронут.
+
+## Предыдущая author-style / touch проверка
 
 - Новый обязательный порог — `100% CAGR` одновременно на train и замороженном OOS при DD до `35%`, planned gross до `1.25x` и observed/bounded gross до `1.30x`.
 - В свежем Alpaca SIP 5m grid `SOXL,TQQQ,UPRO` все `18/18` вариантов прошли DQ; `14/18` прошли gross envelope, но ни один не достиг порога или concentration gates. Лучший ряд внутри envelope: train `8.00%`, full `6.43%`, OOS `4.62%` CAGR; 69 сделок, full DD `−22.63%`, top-5 `97.27%` gross profit.
