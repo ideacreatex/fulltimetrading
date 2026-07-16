@@ -24,6 +24,13 @@ final class PoosBacktester
         /** @var array<string, mixed> */
         private readonly array $riskConfig,
     ) {
+        $supportMode = (string) ($this->strategyConfig['support_regularity']['entry_signal_mode'] ?? 'touch_confirmed');
+        $fillMode = (string) ($this->strategyConfig['order_fill_mode'] ?? 'next_touch');
+        if ($supportMode === 'advance_next_session' && $fillMode === 'same_day_touch') {
+            throw new \InvalidArgumentException(
+                'advance_next_session requires order_fill_mode=next_touch; same-day fill would reintroduce look-ahead.',
+            );
+        }
     }
 
     /**
@@ -191,6 +198,39 @@ final class PoosBacktester
                 }
             }
 
+            // Pending next-session limits fill before the session close. Apply
+            // fill-day risk rules now so exits and partials affect today's
+            // cash, exposure, and the sizing of orders planned after close.
+            if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') !== 'same_day_touch') {
+                foreach (array_keys($openedToday) as $positionKey) {
+                    if (!isset($positionsBySymbol[$positionKey])) {
+                        unset($openedToday[$positionKey]);
+                        continue;
+                    }
+                    $symbol = (string) ($positionsBySymbol[$positionKey]['symbol'] ?? '');
+                    if ($symbol === '' || !isset($calendar[$date][$symbol], $contextBySymbol[$symbol])) {
+                        continue;
+                    }
+                    $bar = $calendar[$date][$symbol]['bar'];
+                    $index = $calendar[$date][$symbol]['index'];
+                    $indicatorMap = $contextBySymbol[$symbol]['indicators'];
+                    $trade = $this->updateNewlyFilledPosition(
+                        $positionsBySymbol[$positionKey],
+                        $bar,
+                        $indicatorMap,
+                        $index,
+                        $partialPct,
+                    );
+                    if ($trade !== null) {
+                        $this->recordStoppedPosition($stoppedBySymbol, $positionsBySymbol[$positionKey], $trade);
+                        $cash += $trade->pnl;
+                        $allTrades[] = $trade;
+                        unset($positionsBySymbol[$positionKey]);
+                    }
+                    unset($openedToday[$positionKey]);
+                }
+            }
+
             // Once an unfilled order has used its final eligible bar it no
             // longer reserves a slot or capital for the batch planned after
             // this session closes (DAY semantics when validBars is one).
@@ -327,6 +367,17 @@ final class PoosBacktester
     private function canFill(Signal $signal, Bar $bar, array $indicatorMap, int $index): bool
     {
         if (in_array($signal->strategy, ['SUPPORT_REGULARITY', 'RESISTANCE_REGULARITY_SHORT'], true)) {
+            // A resting limit is marketable at a favorable opening gap even
+            // if the session never trades back to the limit price. The daily
+            // model keeps the limit as a conservative fill price; minute
+            // replay can apply the actual better open.
+            if ($signal->direction === 'short' && $bar->open >= $signal->entry) {
+                return true;
+            }
+            if ($signal->direction !== 'short' && $bar->open <= $signal->entry) {
+                return true;
+            }
+
             return $bar->low <= $signal->entry && $bar->high >= $signal->entry;
         }
 
@@ -360,6 +411,10 @@ final class PoosBacktester
 
         $events = $pending['events'];
         $events[] = $bar->time->format('Y-m-d') . ': filled limit at ' . round($signal->entry, 4);
+        $entryCost = $this->transactionCost(abs($signal->entry * $shares));
+        if ($entryCost > 0.0) {
+            $events[] = $bar->time->format('Y-m-d') . ': modeled entry cost ' . round($entryCost, 4);
+        }
         $positionsByKey[$positionKey] = [
             'key' => $positionKey,
             'symbol' => $signal->symbol,
@@ -372,7 +427,7 @@ final class PoosBacktester
             'hard_stop_active' => $this->initialHardStopActive($signal),
             'break_even_armed' => false,
             'took_partial' => false,
-            'realized_pnl' => 0.0,
+            'realized_pnl' => -$entryCost,
             'events' => $events,
         ];
 
@@ -515,7 +570,7 @@ final class PoosBacktester
             'hard_stop_active' => true,
             'break_even_armed' => false,
             'took_partial' => false,
-            'realized_pnl' => 0.0,
+            'realized_pnl' => -$this->transactionCost(abs($entry * $shares)),
             'events' => [
                 $bar->time->format('Y-m-d') . ': break-even green garden add-on filled at close ' . round($entry, 4),
             ],
@@ -981,15 +1036,32 @@ final class PoosBacktester
             $position['events'] = $events;
             $hardStopActive = true;
 
-            // If the close finishes through a newly armed hard BE stop, the
-            // session necessarily crossed that stop after reaching the trigger.
-            // Exit now instead of carrying an impossible overnight position.
-            if ($breakEvenStopMode === 'hard' && $this->closeViolatesStop($signal, $bar, $stop)) {
+            // Daily OHLC cannot reveal whether low or high happened first. If
+            // the newly armed hard BE stop is also inside this bar, use the
+            // conservative trigger-then-stop path rather than carrying an
+            // optimistically surviving position.
+            if (
+                $breakEvenTriggerMode === 'high'
+                && $breakEvenStopMode === 'hard'
+                && $this->stopTouched($signal, $bar, $stop)
+            ) {
+                // The session open happened before the high that armed this
+                // stop, so an earlier opening gap cannot be used as its fill.
+                // The conservative trigger-then-reversal path exits at stop.
                 $exit = $stop;
                 $pnl = $realized + $this->pnlPerShare($signal, $exit) * $remainingShares;
-                $events[] = $bar->time->format('Y-m-d') . ': newly armed break-even stop crossed before close at ' . round($exit, 4);
+                $events[] = $bar->time->format('Y-m-d') . ': ambiguous OHLC resolved conservatively at newly armed break-even stop ' . round($exit, 4);
 
                 return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'break_even_stop', $events);
+            }
+            if ($breakEvenStopMode === 'close' && $this->mentalStopViolated($signal, $bar, $stop)) {
+                $events[] = $bar->time->format('Y-m-d') . ': newly armed break-even close stop confirmed; exit queued for next open';
+                $position['mental_exit_pending'] = true;
+                $position['mental_exit_trigger_type'] = 'break_even';
+                $position['mental_exit_trigger_date'] = $bar->time->format('Y-m-d');
+                $position['events'] = $events;
+
+                return null;
             }
         }
 
@@ -1007,6 +1079,7 @@ final class PoosBacktester
             $partialShares = max(0.0, ((float) $position['shares']) * $partialPct);
             $partialShares = min($partialShares, $remainingShares);
             $realized += $this->pnlPerShare($signal, $signal->target) * $partialShares;
+            $realized -= $this->transactionCost(abs($signal->target * $partialShares));
             $remainingShares -= $partialShares;
             $stop = $this->breakEvenStopPrice($signal, $breakEvenStopOffsetPct);
             $events[] = $bar->time->format('Y-m-d') . ': took partial ' . round($partialShares, 6) . ' at ' . round($signal->target, 4) . ', stop to breakeven';
@@ -1058,6 +1131,47 @@ final class PoosBacktester
         $position['events'] = $events;
 
         return true;
+    }
+
+    /**
+     * A limit reached below the daily open has unknown intraday ordering: the
+     * bar high may precede the fill. In that case only an initial hard stop
+     * below the entry is path-certain; high-driven BE/target rules wait until
+     * the next bar. If the order is marketable at the open, normal conservative
+     * daily execution can process the complete fill bar.
+     *
+     * @param array<string, mixed> $position
+     * @param array<string, list<float|null>> $indicatorMap
+     */
+    private function updateNewlyFilledPosition(
+        array &$position,
+        Bar $bar,
+        array $indicatorMap,
+        int $index,
+        float $partialPct,
+    ): ?Trade {
+        /** @var Signal $signal */
+        $signal = $position['signal'];
+        $marketableAtOpen = $signal->direction === 'short'
+            ? $bar->open >= $signal->entry
+            : $bar->open <= $signal->entry;
+        if ($marketableAtOpen) {
+            return $this->updatePosition($position, $bar, $indicatorMap, $index, $partialPct);
+        }
+
+        if ((bool) ($position['hard_stop_active'] ?? true) && $this->stopTouched($signal, $bar, (float) $position['stop'])) {
+            $exit = $this->hardStopExitPrice($signal, $bar, (float) $position['stop']);
+            $pnl = (float) $position['realized_pnl']
+                + $this->pnlPerShare($signal, $exit) * (float) $position['remaining_shares'];
+            $events = is_array($position['events'] ?? null) ? $position['events'] : [];
+            $events[] = $bar->time->format('Y-m-d') . ': fill-day hard stop filled at ' . round($exit, 4);
+
+            return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'stop', $events);
+        }
+
+        $this->markNewlyFilledMentalExit($position, $bar);
+
+        return null;
     }
 
     private function initialHardStopActive(Signal $signal): bool
@@ -1161,11 +1275,23 @@ final class PoosBacktester
         return $ema10 > $stop && $ema10 < $bar->close;
     }
 
+    private function transactionCost(float $notional): float
+    {
+        $basisPoints = max(0.0, (float) ($this->riskConfig['transaction_cost_bps'] ?? 0.0));
+
+        return max(0.0, $notional) * $basisPoints / 10000.0;
+    }
+
     /** @param array<string, mixed> $position @param list<string> $events */
     private function tradeFromPosition(array $position, Bar $bar, float $exit, float $pnl, string $reason, array $events): Trade
     {
         /** @var Signal $signal */
         $signal = $position['signal'];
+        $exitCost = $this->transactionCost(abs($exit * (float) ($position['remaining_shares'] ?? 0.0)));
+        if ($exitCost > 0.0) {
+            $pnl -= $exitCost;
+            $events[] = $bar->time->format('Y-m-d') . ': modeled exit cost ' . round($exitCost, 4);
+        }
         $initialRisk = $signal->riskPerShare * (float) $position['shares'];
         $rMultiple = $initialRisk > 0 ? $pnl / $initialRisk : 0.0;
 

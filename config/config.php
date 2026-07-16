@@ -70,6 +70,16 @@ return [
             'target_atr_multiple' => 3.0,
             'cooldown_bars' => 10,
             'require_close_above_support' => true,
+            // touch_confirmed preserves the deployed closed-bar scanner. The
+            // research-only advance mode plans tomorrow's DAY limit using only
+            // information available after today's close.
+            'entry_signal_mode' => 'touch_confirmed',
+            'advance_max_distance_pct' => 0.10,
+            'advance_max_distance_atr' => 3.0,
+            'advance_min_level_slope_pct' => -0.01,
+            'advance_require_untouched' => true,
+            'advance_level_projection' => 'static',
+            'advance_max_projection_pct' => 0.01,
         ],
         'short_resistance' => [
             'enabled' => false,
@@ -265,6 +275,7 @@ return [
         'max_position_pct' => 1.0,
         'max_open_positions' => 4,
         'allow_fractional_shares' => true,
+        'transaction_cost_bps' => 0.0,
         'paper_only' => true,
     ],
 ];

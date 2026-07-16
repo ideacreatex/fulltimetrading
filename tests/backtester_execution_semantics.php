@@ -93,12 +93,179 @@ $bePosition = [
     'realized_pnl' => 0.0,
     'events' => [],
 ];
-$beBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 100.0, 103.0, 95.0, 99.0, 1000.0);
+$beBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 95.0, 103.0, 94.0, 99.0, 1000.0);
 $beArgs = [&$bePosition, $beBar, ['ema10' => [null]], 0, 0.5];
 $beTrade = $update->invokeArgs($backtester, $beArgs);
 executionAssert($beTrade instanceof Trade, 'A close through a newly armed hard BE stop must not remain open overnight.');
 executionAssert($beTrade->exitReason === 'break_even_stop', 'Same-session BE reversal must use the hard BE exit reason.');
 executionAssert(abs($beTrade->exit - 100.0) < 1.0e-9, 'Same-session BE reversal must exit at the armed stop.');
+
+$updateFillDay = new ReflectionMethod($backtester, 'updateNewlyFilledPosition');
+$canFill = new ReflectionMethod($backtester, 'canFill');
+$longGapBelow = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 95.0, 97.0, 92.0, 94.0, 1000.0);
+executionAssert(
+    $canFill->invoke($backtester, $signal, $longGapBelow, [], 0) === true,
+    'A long DAY limit must fill when a favorable opening gap is already below the limit.',
+);
+$shortGapSignal = new Signal(
+    'TEST',
+    new DateTimeImmutable('2026-07-13'),
+    'RESISTANCE_REGULARITY_SHORT',
+    100.0,
+    110.0,
+    70.0,
+    10.0,
+    1.0,
+    ['test'],
+    'short',
+);
+$shortGapAbove = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 105.0, 108.0, 103.0, 107.0, 1000.0);
+executionAssert(
+    $canFill->invoke($backtester, $shortGapSignal, $shortGapAbove, [], 0) === true,
+    'A short DAY limit must fill when a favorable opening gap is already above the limit.',
+);
+$marketableFillPosition = array_merge($bePosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$marketableFillBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 100.0, 103.0, 99.0, 101.0, 1000.0);
+$marketableArgs = [&$marketableFillPosition, $marketableFillBar, ['ema10' => [null]], 0, 0.5];
+$marketableTrade = $updateFillDay->invokeArgs($backtester, $marketableArgs);
+executionAssert(
+    $marketableTrade instanceof Trade && $marketableTrade->exitReason === 'break_even_stop',
+    'A next-session limit marketable at the open must process conservative fill-day risk rules.',
+);
+
+$intraminuteFillPosition = array_merge($bePosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$intraminuteFillBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 105.0, 135.0, 99.0, 110.0, 1000.0);
+$intraminuteArgs = [&$intraminuteFillPosition, $intraminuteFillBar, ['ema10' => [null]], 0, 0.5];
+$intraminuteTrade = $updateFillDay->invokeArgs($backtester, $intraminuteArgs);
+executionAssert(
+    $intraminuteTrade === null
+        && $intraminuteFillPosition['break_even_armed'] === false
+        && $intraminuteFillPosition['took_partial'] === false,
+    'A high printed before an intraminute limit fill must not arm BE or take profit retroactively.',
+);
+
+$shortSignal = new Signal(
+    'TEST',
+    new DateTimeImmutable('2026-07-13'),
+    'RESISTANCE_REGULARITY',
+    100.0,
+    110.0,
+    70.0,
+    10.0,
+    1.0,
+    ['test'],
+    'short',
+);
+$shortPosition = array_merge($bePosition, [
+    'signal' => $shortSignal,
+    'remaining_shares' => 10.0,
+    'stop' => 110.0,
+    'initial_stop' => 110.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$shortMarketableBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 105.0, 106.0, 97.0, 99.0, 1000.0);
+$shortMarketableArgs = [&$shortPosition, $shortMarketableBar, ['ema10' => [null]], 0, 0.5];
+$shortMarketableTrade = $updateFillDay->invokeArgs($backtester, $shortMarketableArgs);
+executionAssert(
+    $shortMarketableTrade instanceof Trade && $shortMarketableTrade->exitReason === 'break_even_stop',
+    'A short sell limit marketable at the open must process fill-day risk rules.',
+);
+
+$shortIntraminutePosition = array_merge($shortPosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 110.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$shortIntraminuteBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 95.0, 101.0, 69.0, 90.0, 1000.0);
+$shortIntraminuteArgs = [&$shortIntraminutePosition, $shortIntraminuteBar, ['ema10' => [null]], 0, 0.5];
+$shortIntraminuteTrade = $updateFillDay->invokeArgs($backtester, $shortIntraminuteArgs);
+executionAssert(
+    $shortIntraminuteTrade === null
+        && $shortIntraminutePosition['break_even_armed'] === false
+        && $shortIntraminutePosition['took_partial'] === false,
+    'A low printed before a nonmarketable short limit fill must not trigger BE or target retroactively.',
+);
+
+$closeTriggerStrategy = $strategy;
+$closeTriggerStrategy['club_rules']['break_even_trigger_mode'] = 'close';
+$closeTriggerBacktester = new PoosBacktester(
+    $indicators,
+    new MarketRegimeAnalyzer($indicators, []),
+    new PoosScanner($indicators, $closeTriggerStrategy),
+    $closeTriggerStrategy,
+    [],
+);
+$closeTriggerUpdate = new ReflectionMethod($closeTriggerBacktester, 'updatePosition');
+$closeTriggerPosition = array_merge($bePosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$closeTriggerBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 95.0, 104.0, 94.0, 103.0, 1000.0);
+$closeTriggerArgs = [&$closeTriggerPosition, $closeTriggerBar, ['ema10' => [null]], 0, 0.5];
+$closeTriggerTrade = $closeTriggerUpdate->invokeArgs($closeTriggerBacktester, $closeTriggerArgs);
+executionAssert(
+    $closeTriggerTrade === null && $closeTriggerPosition['break_even_armed'] === true,
+    'A close-triggered BE stop must not use an earlier intraday low as a retroactive same-bar exit.',
+);
+
+$closeStopStrategy = $strategy;
+$closeStopStrategy['club_rules']['break_even_stop_mode'] = 'close';
+$closeStopBacktester = new PoosBacktester(
+    $indicators,
+    new MarketRegimeAnalyzer($indicators, []),
+    new PoosScanner($indicators, $closeStopStrategy),
+    $closeStopStrategy,
+    [],
+);
+$closeStopUpdate = new ReflectionMethod($closeStopBacktester, 'updatePosition');
+$closeStopPosition = array_merge($bePosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$closeStopBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 99.0, 103.0, 98.0, 99.0, 1000.0);
+$closeStopArgs = [&$closeStopPosition, $closeStopBar, ['ema10' => [null]], 0, 0.5];
+$closeStopTrade = $closeStopUpdate->invokeArgs($closeStopBacktester, $closeStopArgs);
+executionAssert(
+    $closeStopTrade === null
+        && $closeStopPosition['break_even_armed'] === true
+        && $closeStopPosition['mental_exit_pending'] === true
+        && $closeStopPosition['mental_exit_trigger_type'] === 'break_even',
+    'A newly armed close-mode BE stop violated at close must queue the next-open exit immediately.',
+);
 
 $openPending = new ReflectionMethod($backtester, 'openPendingPosition');
 $plannedPositions = [];
@@ -127,6 +294,87 @@ executionAssert(
         && abs((float) ($reservation['reservation_price'] ?? 0.0) - 100.0) < 1.0e-9,
     'Pending limits must reserve their fixed order quantity at the limit price.',
 );
+
+$costBacktester = new PoosBacktester(
+    $indicators,
+    new MarketRegimeAnalyzer($indicators, []),
+    new PoosScanner($indicators, $strategy),
+    $strategy,
+    ['transaction_cost_bps' => 10.0],
+);
+$costOpen = new ReflectionMethod($costBacktester, 'openPendingPosition');
+$costPositions = [];
+$costOpenArgs = [&$costPositions, $plannedPending, $futureFillBar];
+$costOpen->invokeArgs($costBacktester, $costOpenArgs);
+$costPosition = $costPositions['TEST:planned'];
+executionAssert(
+    abs((float) $costPosition['realized_pnl'] - (-0.7)) < 1.0e-9,
+    'Modeled one-way entry costs must be charged when the limit fills.',
+);
+$tradeFromPosition = new ReflectionMethod($costBacktester, 'tradeFromPosition');
+$costExitBar = new Bar('TEST', new DateTimeImmutable('2026-07-15'), 110.0, 111.0, 109.0, 110.0, 1000.0);
+$costTrade = $tradeFromPosition->invoke(
+    $costBacktester,
+    $costPosition,
+    $costExitBar,
+    110.0,
+    69.3,
+    'test_exit',
+    [],
+);
+executionAssert(
+    abs($costTrade->pnl - 68.53) < 1.0e-9,
+    'Modeled one-way exit costs must be charged on the remaining shares.',
+);
+
+$partialCostPosition = [
+    'symbol' => 'TEST',
+    'signal' => $signal,
+    'entry_time' => new DateTimeImmutable('2026-07-10'),
+    'shares' => 10.0,
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'initial_stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => -1.0,
+    'events' => [],
+];
+$partialBar = new Bar('TEST', new DateTimeImmutable('2026-07-14'), 110.0, 131.0, 105.0, 120.0, 1000.0);
+$partialArgs = [&$partialCostPosition, $partialBar, ['ema10' => [null]], 0, 0.5];
+$partialTrade = $update->invokeArgs($costBacktester, $partialArgs);
+executionAssert($partialTrade === null && $partialCostPosition['took_partial'] === true, 'Partial target must remain open for its runner.');
+$partialFinal = $tradeFromPosition->invoke(
+    $costBacktester,
+    $partialCostPosition,
+    new Bar('TEST', new DateTimeImmutable('2026-07-15'), 120.0, 121.0, 119.0, 120.0, 1000.0),
+    120.0,
+    (float) $partialCostPosition['realized_pnl'] + 100.0,
+    'test_exit',
+    [],
+);
+executionAssert(
+    abs($partialFinal->pnl - 247.75) < 1.0e-9,
+    'Entry, partial and runner exit costs must each be charged exactly once.',
+);
+
+$advanceStrategy = $strategy;
+$advanceStrategy['support_regularity']['entry_signal_mode'] = 'advance_next_session';
+$advanceStrategy['order_fill_mode'] = 'same_day_touch';
+$advanceGuarded = false;
+try {
+    new PoosBacktester(
+        $indicators,
+        new MarketRegimeAnalyzer($indicators, []),
+        new PoosScanner($indicators, $advanceStrategy),
+        $advanceStrategy,
+        [],
+    );
+} catch (InvalidArgumentException) {
+    $advanceGuarded = true;
+}
+executionAssert($advanceGuarded, 'advance_next_session must reject same-day order fills.');
 
 $priorityMethod = new ReflectionMethod($backtester, 'prioritizedSignalsForDate');
 $lower = new Signal(

@@ -22,6 +22,7 @@ use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Strategy\MarketRegime;
 use FulltimeTrading\Strategy\MarketRegimeAnalyzer;
 use FulltimeTrading\Strategy\PoosScanner;
+use FulltimeTrading\Strategy\ResearchProfileSafetyGate;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 use FulltimeTrading\Trading\PositionSizingPolicy;
@@ -31,6 +32,7 @@ require __DIR__ . '/../bootstrap.php';
 ini_set('memory_limit', '1G');
 
 $options = [
+    'profile' => '',
     'provider' => 'yahoo',
     'start' => '2021-01-01',
     'end' => (new DateTimeImmutable('today'))->format('Y-m-d'),
@@ -56,6 +58,15 @@ $options = [
     'support-near-atr-multiple' => '0.60',
     'support-stop-atr-multiple' => '1.50',
     'support-target-atr-multiple' => '3.00',
+    'support-signal-cooldown-bars' => '10',
+    'support-weekly-enabled' => 'true',
+    'support-entry-signal-mode' => 'touch_confirmed',
+    'advance-max-distance-pct' => '0.10',
+    'advance-max-distance-atr' => '3.0',
+    'advance-min-level-slope-pct' => '-0.01',
+    'advance-require-untouched' => 'true',
+    'advance-level-projection' => 'static',
+    'advance-max-projection-pct' => '0.01',
     'order-valid-bars' => '1',
     'order-fill-mode' => 'next_touch',
     'partial-take-profit-pct' => '0.50',
@@ -72,17 +83,29 @@ $options = [
     'break-even-add-on-fraction' => '0',
     'unstable-market-position-pct' => '0.05',
     'stable-market-score-threshold' => '2.50',
+    'transaction-cost-bps' => '0',
     'robust-split-date' => '2024-01-01',
     'min-symbol-session-coverage-pct' => '0.98',
 ];
 
+$cliOptions = [];
 foreach (array_slice($argv, 1) as $arg) {
     if (!str_starts_with($arg, '--') || !str_contains($arg, '=')) {
         continue;
     }
     [$key, $value] = explode('=', substr($arg, 2), 2);
-    $options[$key] = $value;
+    $cliOptions[$key] = $value;
 }
+
+$activeProfile = loadResearchProfile((string) ($cliOptions['profile'] ?? ''));
+if ($activeProfile !== null) {
+    $profileOptions = $activeProfile['options'] ?? [];
+    if (!is_array($profileOptions)) {
+        throw new RuntimeException('Research strategy profile options must be an array.');
+    }
+    $options = array_replace($options, $profileOptions);
+}
+$options = array_replace($options, $cliOptions);
 
 $config = Config::fromFile(__DIR__ . '/../config/config.php');
 $repo = new SqliteRepository((string) $config->get('database_path'));
@@ -92,6 +115,7 @@ $provider = providerFromOptions($config, $http, $options);
 $symbols = symbolsFromOptions($options, $config);
 $benchmark = strtoupper((string) $options['benchmark']);
 $strategy = strategyFromOptions($config, $repo, $options);
+$strategy = (new ResearchProfileSafetyGate())->apply($strategy, $activeProfile);
 $risk = riskFromOptions($config, $options);
 $marketSymbols = marketSymbolsFromOptions($strategy, $options, $benchmark);
 
@@ -161,6 +185,14 @@ $payload = [
     'generated_at' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
     'provider' => $options['provider'],
     'offline' => boolOption((string) $options['offline']),
+    'strategy_profile' => $activeProfile === null ? null : [
+        'name' => (string) $options['profile'],
+        'status' => (string) ($activeProfile['status'] ?? 'research'),
+        'production_approved' => (bool) ($activeProfile['production_approved'] ?? false),
+        'validated_through' => (string) ($activeProfile['validated_through'] ?? ''),
+        'data_source' => (string) ($activeProfile['data_source'] ?? ''),
+        'notes' => (string) ($activeProfile['notes'] ?? ''),
+    ],
     'as_of' => $asOf,
     'data' => [
         'symbols_requested' => count($symbols),
@@ -195,6 +227,7 @@ $payload = [
         'mental_stop_exit_on_close' => (bool) ($strategy['club_rules']['mental_stop_exit_on_close'] ?? true),
         'hybrid_hard_stop_symbols' => array_values((array) ($strategy['club_rules']['hybrid_hard_stop_symbols'] ?? [])),
         'hard_stop_fill_mode' => (string) ($strategy['club_rules']['hard_stop_fill_mode'] ?? 'gap_open'),
+        'transaction_cost_bps' => (float) ($risk['transaction_cost_bps'] ?? 0.0),
     ],
     'model' => [
         'summary' => $report['summary'] ?? [],
@@ -322,6 +355,23 @@ function strategyFromOptions(Config $config, SqliteRepository $repo, array $opti
     $strategy['support_regularity']['near_atr_multiple'] = (float) $options['support-near-atr-multiple'];
     $strategy['support_regularity']['stop_atr_multiple'] = (float) $options['support-stop-atr-multiple'];
     $strategy['support_regularity']['target_atr_multiple'] = (float) $options['support-target-atr-multiple'];
+    $strategy['support_regularity']['cooldown_bars'] = (int) $options['support-signal-cooldown-bars'];
+    $strategy['support_regularity']['weekly_enabled'] = boolOption((string) $options['support-weekly-enabled']);
+    $strategy['support_regularity']['entry_signal_mode'] = enumOption(
+        (string) $options['support-entry-signal-mode'],
+        ['touch_confirmed', 'advance_next_session'],
+        'touch_confirmed',
+    );
+    $strategy['support_regularity']['advance_max_distance_pct'] = (float) $options['advance-max-distance-pct'];
+    $strategy['support_regularity']['advance_max_distance_atr'] = (float) $options['advance-max-distance-atr'];
+    $strategy['support_regularity']['advance_min_level_slope_pct'] = (float) $options['advance-min-level-slope-pct'];
+    $strategy['support_regularity']['advance_require_untouched'] = boolOption((string) $options['advance-require-untouched']);
+    $strategy['support_regularity']['advance_level_projection'] = enumOption(
+        (string) $options['advance-level-projection'],
+        ['static', 'dynamic_exact', 'linear'],
+        'static',
+    );
+    $strategy['support_regularity']['advance_max_projection_pct'] = (float) $options['advance-max-projection-pct'];
     $strategy['order_valid_bars'] = (int) $options['order-valid-bars'];
     $strategy['order_fill_mode'] = enumOption((string) $options['order-fill-mode'], ['same_day_touch', 'next_touch'], 'next_touch');
     $strategy['partial_take_profit_pct'] = (float) $options['partial-take-profit-pct'];
@@ -363,6 +413,7 @@ function riskFromOptions(Config $config, array $options): array
     $risk['position_sizing_mode'] = 'capital_pct';
     $risk['max_open_positions'] = (int) $options['max-open-positions'];
     $risk['allow_fractional_shares'] = true;
+    $risk['transaction_cost_bps'] = max(0.0, (float) $options['transaction-cost-bps']);
 
     return $risk;
 }
@@ -391,6 +442,27 @@ function enumOption(string $value, array $allowed, string $default): string
 function boolOption(string $value): bool
 {
     return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'y', 'on'], true);
+}
+
+/** @return array<string, mixed>|null */
+function loadResearchProfile(string $name): ?array
+{
+    $name = trim($name);
+    if ($name === '') {
+        return null;
+    }
+
+    $profiles = require __DIR__ . '/../config/research_strategy_profiles.php';
+    if (!is_array($profiles) || !isset($profiles[$name]) || !is_array($profiles[$name])) {
+        $known = is_array($profiles) ? implode(', ', array_keys($profiles)) : '';
+        throw new InvalidArgumentException(sprintf(
+            'Unknown research strategy profile "%s". Known profiles: %s',
+            $name,
+            $known === '' ? '(none)' : $known,
+        ));
+    }
+
+    return $profiles[$name];
 }
 
 function signalStableKey(Signal $signal): string
@@ -720,6 +792,12 @@ function formatTelegramText(array $payload): string
 
     $lines = [];
     $lines[] = 'FTT daily status ' . (string) $payload['as_of'];
+    if (is_array($payload['strategy_profile'] ?? null)) {
+        $profile = $payload['strategy_profile'];
+        $lines[] = 'Profile: ' . (string) ($profile['name'] ?? '')
+            . ' [' . (string) ($profile['status'] ?? 'research') . ']'
+            . (($profile['production_approved'] ?? false) ? '' : ' NOT PRODUCTION APPROVED');
+    }
     $lines[] = 'Action: ' . (string) $payload['action'];
     $lines[] = 'Mode: ' . (($payload['offline'] ?? false) ? 'offline cache' : 'online/provider cache');
     $lines[] = 'Data: loaded ' . (int) ($payload['data']['symbols_loaded'] ?? 0) . '/' . (int) ($payload['data']['symbols_requested'] ?? 0)

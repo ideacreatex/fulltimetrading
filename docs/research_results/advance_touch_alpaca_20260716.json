@@ -1,0 +1,167 @@
+{
+  "schema_version": 2,
+  "profile": "advance-touch-alpaca-20260716",
+  "status": "paper_forward_candidate",
+  "production_approved": false,
+  "validated_through": "2026-07-15",
+  "selection_policy": {
+    "objective": "highest robust return inside the 35 percent block-bootstrap q95 drawdown limit without selecting a target cliff",
+    "complete_minute_replay_required_before_portfolio_metrics_publication": true,
+    "active_entry_submission": false
+  },
+  "data": {
+    "source": "Alpaca IEX",
+    "adjustment": "split",
+    "start": "2021-01-01",
+    "end": "2026-07-15",
+    "benchmark_sessions": 1388,
+    "symbols": ["UPRO", "TQQQ", "SOXL", "TECL"],
+    "coverage": {
+      "UPRO": 1.0,
+      "TQQQ": 1.0,
+      "SOXL": 1.0,
+      "TECL": 0.9985590778097982
+    }
+  },
+  "parameters": {
+    "entry_signal_mode": "advance_next_session",
+    "order_fill_mode": "next_touch",
+    "order_valid_bars": 1,
+    "min_touches": 5,
+    "min_success_rate": 0.8,
+    "touch_tolerance_pct": 0.01,
+    "advance_max_distance_pct": 0.05,
+    "advance_max_distance_atr": 3.0,
+    "advance_min_level_slope_pct": 0.0,
+    "advance_require_untouched": true,
+    "advance_level_projection": "dynamic_exact",
+    "weekly_level_projection": "completed_week_static",
+    "advance_max_projection_pct": 0.01,
+    "stop_atr_multiple": 1.5,
+    "target_atr_multiple": 2.7,
+    "break_even_profit_pct": 0.05,
+    "partial_take_profit_pct": 0.5,
+    "family_cap": 0.44,
+    "max_gross": 2.0,
+    "max_open": 4,
+    "transaction_cost_bps": 10.0
+  },
+  "daily_causal": {
+    "starting_equity": 30000.0,
+    "ending_equity": 64835.00446935971,
+    "return_pct": 1.1611668156453236,
+    "annualized_return_pct": 0.14968073427368433,
+    "max_drawdown_pct": -0.19240858586821682,
+    "profit_factor": 2.530719115112867,
+    "sharpe": 0.8515944211747116,
+    "sortino": 0.5542934761895861,
+    "trades": 72,
+    "wins": 28,
+    "losses": 44,
+    "open_positions": 2,
+    "closed_pnl": 36630.658461133644,
+    "unrealized_pnl": -1795.6539917739356,
+    "best_trade_gross_profit_share_pct": 0.11971460634538654,
+    "top_5_trades_gross_profit_share_pct": 0.4833829498060785,
+    "pnl_without_top_5_trades": 7356.495036991873,
+    "top_symbol": "TECL",
+    "top_symbol_gross_profit_share_pct": 0.4767329215927168,
+    "max_observed_gross_exposure": 1.3285499456505863,
+    "pre_2024": {
+      "trades": 23,
+      "return_pct": 0.17692688626489034,
+      "annualized_return_pct": 0.056159082222814405,
+      "max_drawdown_pct": -0.12448079097000425,
+      "top_5_trades_gross_profit_share_pct": 0.9515756421928354,
+      "pnl_without_top_5_trades": -4455.253583554008
+    },
+    "post_2024": {
+      "trades": 49,
+      "return_pct": 0.8362795861551172,
+      "annualized_return_pct": 0.26990554570933534,
+      "max_drawdown_pct": -0.19240858586821682,
+      "top_5_trades_gross_profit_share_pct": 0.5819782567026474,
+      "pnl_without_top_5_trades": 2048.6884490451594
+    }
+  },
+  "daily_block_bootstrap": {
+    "iterations": 1000,
+    "block_size": 20,
+    "standard_seed": 20260716,
+    "cagr_q05": 0.015207378907097304,
+    "cagr_q50": 0.14281366055795486,
+    "cagr_q95": 0.30217195648521067,
+    "max_drawdown_q50": 0.20634690733484623,
+    "max_drawdown_q95": 0.34614257630134865,
+    "positive_cagr_probability": 0.967,
+    "seed_sensitivity": {
+      "seeds": "20260710..20260719",
+      "iterations_per_seed": 1000,
+      "max_drawdown_q95_min": 0.329942783924447,
+      "max_drawdown_q95_median": 0.3374100680254378,
+      "max_drawdown_q95_max": 0.3479349917851542,
+      "seeds_passing_35_pct": 10,
+      "seeds_tested": 10,
+      "cagr_q05_min": 0.015207378907097304,
+      "cagr_q05_median": 0.01748039620474894,
+      "positive_cagr_probability_min": 0.966
+    }
+  },
+  "minute_execution_validation": {
+    "feed": "Alpaca IEX 1Min regular session",
+    "status": "portfolio_metrics_blocked_incomplete_replay",
+    "input_trades": 72,
+    "exact_signal_and_entry_matches": 72,
+    "fully_modeled_minute_exits": 66,
+    "unresolved_exits": 6,
+    "daily_fallback_exits": 0,
+    "fetch_errors": 0,
+    "missing_minute_bars": 0,
+    "resolved_subset_daily_pnl": 36712.60913031423,
+    "resolved_subset_minute_pnl": 44497.41579256933,
+    "resolved_subset_minute_minus_daily_pnl": 7784.8066622551105,
+    "portfolio_cagr": null,
+    "portfolio_max_drawdown": null,
+    "portfolio_bootstrap": null,
+    "block_reason": "6 break-even paths diverged because favorable entry fills and/or intraday event ordering changed break-even timing; no daily exit/date fallback is permitted"
+  },
+  "paper_account_read_only_probe": {
+    "observed_at": "2026-07-16T02:01:10+00:00",
+    "status": "ACTIVE",
+    "currency": "USD",
+    "trading_blocked": false,
+    "account_blocked": false,
+    "orders_submitted": false,
+    "balance_recorded": false,
+    "entry_submission_enabled": false
+  },
+  "determinism": {
+    "canonical_and_reversed_universe_match": true,
+    "canonicalization": "jq compact sorted keys over normalized payload sections",
+    "trades_sha256": "4dbfd28d95fb81c62409b50bfaa141398b91000bafd140af3e70593299ed6591",
+    "equity_sha256": "100f77b7020891ec6f1b7d3836cdf61abff54fee38c5dc93a04ecc7b30f31207",
+    "summary_robustness_bootstrap_sha256": "147b74d67db240c3a0ebca8e7d925cec1948f2a45db68ca4ccc3b229b2dd1a7f"
+  },
+  "search": {
+    "current_gap_semantics_evaluations_at_least": 614,
+    "count_is_evaluations_not_unique_configurations": true,
+    "target_plateau": {
+      "2.65": {"annualized_return_pct": 0.14310590833328796, "max_drawdown_pct": -0.19395767353588686},
+      "2.70": {"annualized_return_pct": 0.14968073427368433, "max_drawdown_pct": -0.19240858586821682},
+      "2.72": {"annualized_return_pct": 0.15065707622839275, "max_drawdown_pct": -0.1917885267507209},
+      "2.74": {"annualized_return_pct": 0.1516336474844482, "max_drawdown_pct": -0.1911682246127474},
+      "2.75": {"annualized_return_pct": 0.15212201911440615, "max_drawdown_pct": -0.19085798276450022},
+      "2.76": {"annualized_return_pct": 0.14235434707313033, "max_drawdown_pct": -0.22954926798797776},
+      "2.78": {"annualized_return_pct": 0.13851907437601096, "max_drawdown_pct": -0.22907387142048827}
+    },
+    "rejected_point_leader": {
+      "family_cap": 0.65,
+      "target_atr_multiple": 3.0,
+      "partial_take_profit_pct": 0.75,
+      "annualized_return_pct": 0.24131204590846633,
+      "max_drawdown_pct": -0.25592118268467395,
+      "post_2024_top_5_trades_gross_profit_share_pct": 0.6344795721384776,
+      "reason": "post_top_5_trades_concentration"
+    }
+  }
+}

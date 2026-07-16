@@ -187,6 +187,13 @@ final class PoosScanner
         $targetAtrMultiple = (float) ($config['target_atr_multiple'] ?? 3.0);
         $cooldownBars = (int) ($config['cooldown_bars'] ?? 10);
         $requireCloseAboveSupport = (bool) ($config['require_close_above_support'] ?? false);
+        $entrySignalMode = (string) ($config['entry_signal_mode'] ?? 'touch_confirmed');
+        $advanceMaxDistancePct = (float) ($config['advance_max_distance_pct'] ?? 0.10);
+        $advanceMaxDistanceAtr = (float) ($config['advance_max_distance_atr'] ?? 3.0);
+        $advanceMinLevelSlopePct = (float) ($config['advance_min_level_slope_pct'] ?? -0.01);
+        $advanceRequireUntouched = (bool) ($config['advance_require_untouched'] ?? true);
+        $advanceLevelProjection = (string) ($config['advance_level_projection'] ?? 'static');
+        $advanceMaxProjectionPct = (float) ($config['advance_max_projection_pct'] ?? 0.01);
 
         $signals = [];
         $lastSignalIndexBySetup = [];
@@ -219,12 +226,28 @@ final class PoosScanner
                     if ($level === null || $level <= 0.0) {
                         continue;
                     }
-
-                    if (!$this->isNearSupport($bar, $level, $atr, $touchTolerance, $violationTolerance, $nearPct, $nearAtrMultiple)) {
-                        continue;
-                    }
-                    if ($requireCloseAboveSupport && $bar->close < $level) {
-                        continue;
+                    $priorLevel = $indicatorMap[$key][$i - 1] ?? null;
+                    if ($entrySignalMode === 'advance_next_session') {
+                        if (!$this->isAdvanceSupportCandidate(
+                            $bar,
+                            $level,
+                            is_float($priorLevel) ? $priorLevel : null,
+                            $atr,
+                            $touchTolerance,
+                            $advanceMaxDistancePct,
+                            $advanceMaxDistanceAtr,
+                            $advanceMinLevelSlopePct,
+                            $advanceRequireUntouched,
+                        )) {
+                            continue;
+                        }
+                    } else {
+                        if (!$this->isNearSupport($bar, $level, $atr, $touchTolerance, $violationTolerance, $nearPct, $nearAtrMultiple)) {
+                            continue;
+                        }
+                        if ($requireCloseAboveSupport && $bar->close < $level) {
+                            continue;
+                        }
                     }
 
                     $stats = $this->supportStats(
@@ -241,15 +264,26 @@ final class PoosScanner
                         continue;
                     }
 
-                    $entry = $level;
-                    $stop = max(0.01, $level - $atr * $stopAtrMultiple);
+                    $entry = $entrySignalMode === 'advance_next_session'
+                        ? $this->projectSupportLevel(
+                            $level,
+                            is_float($priorLevel) ? $priorLevel : null,
+                            $advanceLevelProjection,
+                            $advanceMaxProjectionPct,
+                            $type,
+                            $period,
+                            $bars,
+                            $i,
+                        )
+                        : $level;
+                    $stop = max(0.01, $entry - $atr * $stopAtrMultiple);
                     if ($entry <= $stop) {
                         continue;
                     }
 
                     $risk = $entry - $stop;
                     $target = $entry + $atr * $targetAtrMultiple;
-                    $distancePct = abs($bar->close - $level) / $level;
+                    $distancePct = abs($bar->close - $entry) / $entry;
                     $score = 1.0
                         + $stats['success_rate'] * 3.0
                         + min(1.0, $stats['touches'] / 10.0)
@@ -270,6 +304,9 @@ final class PoosScanner
                         $score,
                         [
                             strtoupper($type) . $period . ' support is in play',
+                            $entrySignalMode === 'advance_next_session'
+                                ? 'limit planned from prior close for the next session'
+                                : 'support confirmed by the current closed bar',
                             'prior touches: ' . $stats['touches'],
                             'prior support success rate: ' . round($stats['success_rate'] * 100, 1) . '%',
                             'avg forward return after touch: ' . round($stats['avg_forward_return'] * 100, 2) . '%',
@@ -284,6 +321,9 @@ final class PoosScanner
                             'setup_touches' => $stats['touches'],
                             'setup_success_rate' => $stats['success_rate'],
                             'setup_avg_forward_return' => $stats['avg_forward_return'],
+                            'entry_signal_mode' => $entrySignalMode,
+                            'planning_support_level' => $level,
+                            'planned_entry_level' => $entry,
                             'setup_key' => $setupKey,
                         ],
                     );
@@ -354,6 +394,11 @@ final class PoosScanner
         $targetAtrMultiple = (float) ($config['target_atr_multiple'] ?? 3.0);
         $cooldownBars = (int) ($config['cooldown_bars'] ?? 10);
         $requireCloseAboveSupport = (bool) ($config['require_close_above_support'] ?? false);
+        $entrySignalMode = (string) ($config['entry_signal_mode'] ?? 'touch_confirmed');
+        $advanceMaxDistancePct = (float) ($config['advance_max_distance_pct'] ?? 0.10);
+        $advanceMaxDistanceAtr = (float) ($config['advance_max_distance_atr'] ?? 3.0);
+        $advanceMinLevelSlopePct = (float) ($config['advance_min_level_slope_pct'] ?? -0.01);
+        $advanceRequireUntouched = (bool) ($config['advance_require_untouched'] ?? true);
 
         $signals = [];
         $lastSignalIndexBySetup = [];
@@ -392,11 +437,28 @@ final class PoosScanner
                     if ($level === null || $level <= 0.0) {
                         continue;
                     }
-                    if (!$this->isNearSupport($bar, $level, $dailyAtr, $touchTolerance, $violationTolerance, $nearPct, $nearAtrMultiple)) {
-                        continue;
-                    }
-                    if ($requireCloseAboveSupport && $bar->close < $level) {
-                        continue;
+                    $priorLevel = $weeklyIndicatorMap[$key][$weeklyIndex - 1] ?? null;
+                    if ($entrySignalMode === 'advance_next_session') {
+                        if (!$this->isAdvanceSupportCandidate(
+                            $bar,
+                            $level,
+                            is_float($priorLevel) ? $priorLevel : null,
+                            $dailyAtr,
+                            $touchTolerance,
+                            $advanceMaxDistancePct,
+                            $advanceMaxDistanceAtr,
+                            $advanceMinLevelSlopePct,
+                            $advanceRequireUntouched,
+                        )) {
+                            continue;
+                        }
+                    } else {
+                        if (!$this->isNearSupport($bar, $level, $dailyAtr, $touchTolerance, $violationTolerance, $nearPct, $nearAtrMultiple)) {
+                            continue;
+                        }
+                        if ($requireCloseAboveSupport && $bar->close < $level) {
+                            continue;
+                        }
                     }
 
                     $stats = $this->supportStats(
@@ -413,6 +475,11 @@ final class PoosScanner
                         continue;
                     }
 
+                    // Weekly signals are planned for the next daily session,
+                    // while the current weekly candle is still incomplete.
+                    // Use only the last completed weekly MA here. Applying the
+                    // daily dynamic projection would require the future weekly
+                    // close and would reintroduce look-ahead.
                     $entry = $level;
                     $stop = max(0.01, $level - $weeklyAtr * $stopAtrMultiple);
                     if ($entry <= $stop) {
@@ -442,6 +509,9 @@ final class PoosScanner
                         $score,
                         [
                             strtoupper($type) . $period . ' weekly support is in play',
+                            $entrySignalMode === 'advance_next_session'
+                                ? 'weekly limit planned from prior close for the next session'
+                                : 'weekly support confirmed by the current closed bar',
                             'prior weekly touches: ' . $stats['touches'],
                             'prior weekly support success rate: ' . round($stats['success_rate'] * 100, 1) . '%',
                             'avg weekly forward return after touch: ' . round($stats['avg_forward_return'] * 100, 2) . '%',
@@ -456,6 +526,10 @@ final class PoosScanner
                             'setup_touches' => $stats['touches'],
                             'setup_success_rate' => $stats['success_rate'],
                             'setup_avg_forward_return' => $stats['avg_forward_return'],
+                            'entry_signal_mode' => $entrySignalMode,
+                            'planning_support_level' => $level,
+                            'planned_entry_level' => $entry,
+                            'level_projection' => 'completed_week_static',
                             'setup_key' => $setupKey,
                         ],
                     );
@@ -698,6 +772,82 @@ final class PoosScanner
         $atrDistancePct = ($atr * $nearAtrMultiple) / $bar->close;
 
         return $notBroken && $distancePct <= max($nearPct, $atrDistancePct);
+    }
+
+    private function isAdvanceSupportCandidate(
+        Bar $bar,
+        float $level,
+        ?float $priorLevel,
+        float $atr,
+        float $touchTolerance,
+        float $maxDistancePct,
+        float $maxDistanceAtr,
+        float $minLevelSlopePct,
+        bool $requireUntouched,
+    ): bool {
+        // The signal is created only after this bar closes and can therefore
+        // activate a limit no earlier than the next session. Requiring the
+        // planning bar to remain above an untouched support prevents the old
+        // same-day recovery bar from selecting its own retroactive fill.
+        if ($level <= 0.0 || $atr <= 0.0 || $bar->close < $level) {
+            return false;
+        }
+        if ($requireUntouched && $bar->low <= $level * (1.0 + max(0.0, $touchTolerance))) {
+            return false;
+        }
+
+        $distancePct = ($bar->close - $level) / $level;
+        $pctCap = $maxDistancePct > 0.0 ? $maxDistancePct : INF;
+        $atrCap = $maxDistanceAtr > 0.0 ? ($atr * $maxDistanceAtr) / $level : INF;
+        if ($distancePct > min($pctCap, $atrCap)) {
+            return false;
+        }
+
+        if ($priorLevel !== null && $priorLevel > 0.0) {
+            $slopePct = ($level - $priorLevel) / $priorLevel;
+            if ($slopePct < $minLevelSlopePct) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function projectSupportLevel(
+        float $level,
+        ?float $priorLevel,
+        string $projection,
+        float $maxProjectionPct,
+        string $type,
+        int $period,
+        array $bars,
+        int $index,
+    ): float {
+        if ($projection === 'dynamic_exact' && $type === 'sma' && $period > 1) {
+            $priorCloses = array_slice($bars, max(0, $index - $period + 2), $period - 1);
+            if (count($priorCloses) === $period - 1) {
+                $projected = array_sum(array_map(
+                    static fn (Bar $bar): float => $bar->close,
+                    $priorCloses,
+                )) / ($period - 1);
+
+                return $this->capProjectedLevel($level, $projected, $maxProjectionPct);
+            }
+        }
+        // For an EMA, solving price == next intraday EMA(price) yields the
+        // completed EMA itself, so static is already the exact touch level.
+        if ($projection !== 'linear' || $priorLevel === null || $priorLevel <= 0.0) {
+            return $level;
+        }
+
+        return $this->capProjectedLevel($level, $level + ($level - $priorLevel), $maxProjectionPct);
+    }
+
+    private function capProjectedLevel(float $level, float $projected, float $maxProjectionPct): float
+    {
+        $maxShift = abs($level) * max(0.0, $maxProjectionPct);
+
+        return max(0.01, max($level - $maxShift, min($level + $maxShift, $projected)));
     }
 
     private function isNearResistance(

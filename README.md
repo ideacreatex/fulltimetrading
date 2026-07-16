@@ -263,6 +263,8 @@ php tools/stress_trade_costs.php \
 
 Финальная проверка 2026-07-15 в `var/reports/param_experiment_production_planned_qty_20260715/summary.json` использует только доступное paper-исполнение: closed-bar сигнал фиксирует количество и создает `next_touch` заявку на следующий бар с DAY-validity 1; pending-заявка резервирует слот/notional, а mental-stop close исполняется на следующем open с учетом gap. Из 1366 вариантов 716 попали в envelope `gross <= 2`, `max_open <= 4`, но production selector не выбрал ни одного. Максимальная train annualized была отрицательной (`-2.4281%`), минимальная train top-5 концентрация — `64.3890%` при gate `60%`; ни один кандидат не сохранил положительный train P/L без пяти лучших сделок. Старые результаты, где quantity пересчитывалась по close/regime будущего fill-дня, как и `same_day_touch`, считаются look-ahead и не используются.
 
+Новый причинный `advance_next_session` research-профиль, который планирует лимит только на следующую сессию и проходит 35% daily block-bootstrap tail gate, описан в [`docs/SAME_DAY_TOUCH_ALPACA_OPTIMIZATION_2026-07-16.md`](docs/SAME_DAY_TOUCH_ALPACA_OPTIMIZATION_2026-07-16.md). Alpaca IEX minute replay теперь fail-closed: неполный набор выходов не публикует portfolio CAGR/DD. Профиль остается `paper_forward_candidate`, не меняет production defaults и не включает entry submission.
+
 Точный realistic grid воспроизводится так:
 
 ```bash

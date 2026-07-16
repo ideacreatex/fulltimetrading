@@ -4,6 +4,7 @@
 declare(strict_types=1);
 
 use FulltimeTrading\Backtest\BacktestResult;
+use FulltimeTrading\Backtest\BlockBootstrapAnalyzer;
 use FulltimeTrading\Backtest\PerformanceReport;
 use FulltimeTrading\Backtest\PoosBacktester;
 use FulltimeTrading\Backtest\RobustnessAnalyzer;
@@ -397,20 +398,41 @@ function experimentVariants(array $symbols, array $options = []): array
     $base = [
         'symbols' => $symbols,
         'initial_cash' => (float) ($options['initial-cash'] ?? 1000.0),
-        'max_open' => 4,
-        'max_gross' => 2.0,
-        'family_cap' => 1.10,
-        'reentry_cooldown_days' => 0,
-        'allow_same_strength_after_days' => 30,
-        'min_touches' => 4,
-        'min_success_rate' => 0.70,
+        'max_open' => (int) ($options['max-open'] ?? 4),
+        'max_gross' => (float) ($options['max-gross'] ?? 2.0),
+        'family_cap' => (float) ($options['family-cap'] ?? 1.10),
+        'reentry_cooldown_days' => (int) ($options['reentry-cooldown-days'] ?? 0),
+        'allow_same_strength_after_days' => (int) ($options['same-after'] ?? 30),
+        'min_touches' => (int) ($options['min-touches'] ?? 4),
+        'min_success_rate' => (float) ($options['min-success-rate'] ?? 0.70),
         'require_close_above_support' => !isset($options['support-require-close-above'])
             || boolOption($options, 'support-require-close-above'),
-        'touch_tolerance_pct' => 0.015,
-        'near_atr_multiple' => 0.60,
-        'stop_atr_multiple' => 1.5,
-        'target_atr_multiple' => 3.0,
-        'layers' => 3,
+        'touch_tolerance_pct' => (float) ($options['touch-tolerance-pct'] ?? 0.015),
+        'near_atr_multiple' => (float) ($options['near-atr-multiple'] ?? 0.60),
+        'stop_atr_multiple' => (float) ($options['stop-atr-multiple'] ?? 1.5),
+        'target_atr_multiple' => (float) ($options['target-atr-multiple'] ?? 3.0),
+        'signal_cooldown_bars' => (int) ($options['signal-cooldown-bars'] ?? 10),
+        'support_entry_signal_mode' => enumOption(
+            $options,
+            'support-entry-signal-mode',
+            ['touch_confirmed', 'advance_next_session'],
+            'touch_confirmed',
+        ),
+        'support_weekly_enabled' => !isset($options['support-weekly-enabled'])
+            || boolOption($options, 'support-weekly-enabled'),
+        'advance_max_distance_pct' => (float) ($options['advance-max-distance-pct'] ?? 0.10),
+        'advance_max_distance_atr' => (float) ($options['advance-max-distance-atr'] ?? 3.0),
+        'advance_min_level_slope_pct' => (float) ($options['advance-min-level-slope-pct'] ?? -0.01),
+        'advance_require_untouched' => !isset($options['advance-require-untouched'])
+            || boolOption($options, 'advance-require-untouched'),
+        'advance_level_projection' => enumOption(
+            $options,
+            'advance-level-projection',
+            ['static', 'dynamic_exact', 'linear'],
+            'static',
+        ),
+        'advance_max_projection_pct' => (float) ($options['advance-max-projection-pct'] ?? 0.01),
+        'layers' => (int) ($options['layers'] ?? 3),
         'require_green_garden' => true,
         'break_even_add_on_fraction' => 0.0,
         'break_even_profit_pct' => (float) ($options['break-even-profit-pct'] ?? 0.01),
@@ -420,10 +442,11 @@ function experimentVariants(array $symbols, array $options = []): array
         'partial_take_profit_pct' => (float) ($options['partial-take-profit-pct'] ?? 0.5),
         'order_valid_bars' => (int) ($options['order-valid-bars'] ?? 1),
         'order_fill_mode' => enumOption($options, 'order-fill-mode', ['same_day_touch', 'next_touch'], 'next_touch'),
-        'unstable_market_position_pct' => 0.05,
-        'stable_market_score_threshold' => 2.5,
+        'unstable_market_position_pct' => (float) ($options['unstable-market-position-pct'] ?? 0.05),
+        'stable_market_score_threshold' => (float) ($options['stable-market-score-threshold'] ?? 2.5),
         'swing_stop_mode' => enumOption($options, 'swing-stop-mode', ['hard', 'mental', 'hybrid'], 'hard'),
         'hard_stop_fill_mode' => enumOption($options, 'hard-stop-fill-mode', ['gap_open', 'stop_price'], 'gap_open'),
+        'transaction_cost_bps' => (float) ($options['transaction-cost-bps'] ?? 0.0),
     ];
 
     $variants = boolOption($options, 'risk-only') ? [] : ['baseline' => $base];
@@ -432,6 +455,130 @@ function experimentVariants(array $symbols, array $options = []): array
         $name = $prefix . '_' . shortParams($overrides);
         $variants[$name] = $variant;
     };
+
+    if (boolOption($options, 'joint-grid')) {
+        $dimensions = [
+            'max_gross' => floatListOption($options, 'max-gross-values', [$base['max_gross']]),
+            'family_cap' => floatListOption($options, 'family-cap-values', [$base['family_cap']]),
+            'reentry_cooldown_days' => intListOption($options, 'cooldown-days', [$base['reentry_cooldown_days']]),
+            'allow_same_strength_after_days' => intListOption($options, 'same-after-days', [$base['allow_same_strength_after_days']]),
+            'min_touches' => intListOption($options, 'min-touches-values', [$base['min_touches']]),
+            'min_success_rate' => floatListOption($options, 'min-success-rate-values', [$base['min_success_rate']]),
+            'touch_tolerance_pct' => floatListOption($options, 'touch-tolerance-pct-values', [$base['touch_tolerance_pct']]),
+            'near_atr_multiple' => floatListOption($options, 'near-atr-multiple-values', [$base['near_atr_multiple']]),
+            'stop_atr_multiple' => floatListOption($options, 'stop-atr-multiple-values', [$base['stop_atr_multiple']]),
+            'target_atr_multiple' => floatListOption($options, 'target-atr-multiple-values', [$base['target_atr_multiple']]),
+            'signal_cooldown_bars' => intListOption($options, 'signal-cooldown-bars-values', [$base['signal_cooldown_bars']]),
+            'support_entry_signal_mode' => stringListOption(
+                $options,
+                'support-entry-signal-modes',
+                [$base['support_entry_signal_mode']],
+                ['touch_confirmed', 'advance_next_session'],
+            ),
+            'support_weekly_enabled' => boolListOption(
+                $options,
+                'support-weekly-enabled-values',
+                [$base['support_weekly_enabled']],
+            ),
+            'advance_max_distance_pct' => floatListOption(
+                $options,
+                'advance-max-distance-pct-values',
+                [$base['advance_max_distance_pct']],
+            ),
+            'advance_max_distance_atr' => floatListOption(
+                $options,
+                'advance-max-distance-atr-values',
+                [$base['advance_max_distance_atr']],
+            ),
+            'advance_min_level_slope_pct' => signedFloatListOption(
+                $options,
+                'advance-min-level-slope-pct-values',
+                [$base['advance_min_level_slope_pct']],
+            ),
+            'advance_require_untouched' => boolListOption(
+                $options,
+                'advance-require-untouched-values',
+                [$base['advance_require_untouched']],
+            ),
+            'advance_level_projection' => stringListOption(
+                $options,
+                'advance-level-projection-modes',
+                [$base['advance_level_projection']],
+                ['static', 'dynamic_exact', 'linear'],
+            ),
+            'advance_max_projection_pct' => nonNegativeFloatListOption(
+                $options,
+                'advance-max-projection-pct-values',
+                [$base['advance_max_projection_pct']],
+            ),
+            'layers' => intListOption($options, 'layers-values', [$base['layers']]),
+            'break_even_profit_pct' => nonNegativeFloatListOption(
+                $options,
+                'break-even-profit-pct-values',
+                [$base['break_even_profit_pct']],
+            ),
+            'break_even_trigger_mode' => stringListOption(
+                $options,
+                'break-even-trigger-modes',
+                [$base['break_even_trigger_mode']],
+                ['high', 'close'],
+            ),
+            'break_even_stop_mode' => stringListOption(
+                $options,
+                'break-even-stop-modes',
+                [$base['break_even_stop_mode']],
+                ['hard', 'close'],
+            ),
+            'break_even_stop_offset_pct' => nonNegativeFloatListOption(
+                $options,
+                'break-even-stop-offset-pct-values',
+                [$base['break_even_stop_offset_pct']],
+            ),
+            'partial_take_profit_pct' => nonNegativeFloatListOption(
+                $options,
+                'partial-take-profit-pct-values',
+                [$base['partial_take_profit_pct']],
+            ),
+            'order_valid_bars' => intListOption($options, 'order-valid-bars-values', [$base['order_valid_bars']]),
+            'unstable_market_position_pct' => floatListOption(
+                $options,
+                'unstable-market-position-pct-values',
+                [$base['unstable_market_position_pct']],
+            ),
+            'transaction_cost_bps' => nonNegativeFloatListOption(
+                $options,
+                'transaction-cost-bps-values',
+                [$base['transaction_cost_bps']],
+            ),
+        ];
+
+        $variantCount = array_product(array_map('count', $dimensions));
+        $maxVariants = max(1, (int) ($options['joint-max-variants'] ?? 5000));
+        if ($variantCount > $maxVariants) {
+            throw new InvalidArgumentException(sprintf(
+                'Joint grid expands to %d variants; raise --joint-max-variants above the default %d deliberately.',
+                $variantCount,
+                $maxVariants,
+            ));
+        }
+
+        $variants = [];
+        $overrides = [[]];
+        foreach ($dimensions as $key => $values) {
+            $expanded = [];
+            foreach ($overrides as $row) {
+                foreach ($values as $value) {
+                    $expanded[] = array_merge($row, [$key => $value]);
+                }
+            }
+            $overrides = $expanded;
+        }
+        foreach ($overrides as $row) {
+            $add('joint', $row);
+        }
+
+        return $variants;
+    }
 
     $maxGrossValues = floatListOption($options, 'max-gross-values', [1.75, 2.0, 2.25, 2.5]);
     $familyCapValues = floatListOption($options, 'family-cap-values', [0.75, 0.85, 0.90, 1.00, 1.10, 1.20]);
@@ -577,6 +724,21 @@ function nonNegativeFloatListOption(array $options, string $key, array $default)
     return $values === [] ? $default : $values;
 }
 
+/** @param array<string, string> $options @param list<float> $default @return list<float> */
+function signedFloatListOption(array $options, string $key, array $default): array
+{
+    if (!isset($options[$key])) {
+        return $default;
+    }
+
+    $values = array_map(
+        static fn (string $value): float => (float) trim($value),
+        explode(',', (string) $options[$key]),
+    );
+
+    return $values === [] ? $default : array_values(array_unique($values, SORT_REGULAR));
+}
+
 /** @param array<string, string> $options @param list<int> $default @return list<int> */
 function intListOption(array $options, string $key, array $default): array
 {
@@ -590,6 +752,26 @@ function intListOption(array $options, string $key, array $default): array
     ), static fn (int $value): bool => $value >= 0));
 
     return $values === [] ? $default : $values;
+}
+
+/** @param array<string, string> $options @param list<bool> $default @return list<bool> */
+function boolListOption(array $options, string $key, array $default): array
+{
+    if (!isset($options[$key])) {
+        return $default;
+    }
+
+    $values = [];
+    foreach (explode(',', (string) $options[$key]) as $value) {
+        $normalized = strtolower(trim($value));
+        if (in_array($normalized, ['1', 'true', 'yes', 'y', 'on'], true)) {
+            $values['true'] = true;
+        } elseif (in_array($normalized, ['0', 'false', 'no', 'n', 'off'], true)) {
+            $values['false'] = false;
+        }
+    }
+
+    return $values === [] ? $default : array_values($values);
 }
 
 /** @param array<string, string> $options @param list<string> $default @param list<string> $allowed @return list<string> */
@@ -657,11 +839,19 @@ function configureExperimentVariant(array $baseStrategy, array $baseRisk, array 
     $strategy['support_regularity']['min_touches'] = (int) $variant['min_touches'];
     $strategy['support_regularity']['min_success_rate'] = (float) $variant['min_success_rate'];
     $strategy['support_regularity']['require_close_above_support'] = (bool) ($variant['require_close_above_support'] ?? true);
-    $strategy['support_regularity']['weekly_enabled'] = true;
+    $strategy['support_regularity']['weekly_enabled'] = (bool) ($variant['support_weekly_enabled'] ?? true);
     $strategy['support_regularity']['touch_tolerance_pct'] = (float) $variant['touch_tolerance_pct'];
     $strategy['support_regularity']['near_atr_multiple'] = (float) $variant['near_atr_multiple'];
     $strategy['support_regularity']['stop_atr_multiple'] = (float) $variant['stop_atr_multiple'];
     $strategy['support_regularity']['target_atr_multiple'] = (float) $variant['target_atr_multiple'];
+    $strategy['support_regularity']['cooldown_bars'] = (int) ($variant['signal_cooldown_bars'] ?? 10);
+    $strategy['support_regularity']['entry_signal_mode'] = (string) ($variant['support_entry_signal_mode'] ?? 'touch_confirmed');
+    $strategy['support_regularity']['advance_max_distance_pct'] = (float) ($variant['advance_max_distance_pct'] ?? 0.10);
+    $strategy['support_regularity']['advance_max_distance_atr'] = (float) ($variant['advance_max_distance_atr'] ?? 3.0);
+    $strategy['support_regularity']['advance_min_level_slope_pct'] = (float) ($variant['advance_min_level_slope_pct'] ?? -0.01);
+    $strategy['support_regularity']['advance_require_untouched'] = (bool) ($variant['advance_require_untouched'] ?? true);
+    $strategy['support_regularity']['advance_level_projection'] = (string) ($variant['advance_level_projection'] ?? 'static');
+    $strategy['support_regularity']['advance_max_projection_pct'] = (float) ($variant['advance_max_projection_pct'] ?? 0.01);
     $strategy['short_resistance']['enabled'] = false;
     $strategy['short_symbols'] = [];
     $strategy['inverse_long_symbols'] = [];
@@ -698,6 +888,7 @@ function configureExperimentVariant(array $baseStrategy, array $baseRisk, array 
     $risk['fixed_position_usd'] = 0.0;
     $risk['allow_fractional_shares'] = true;
     $risk['max_open_positions'] = (int) $variant['max_open'];
+    $risk['transaction_cost_bps'] = (float) ($variant['transaction_cost_bps'] ?? 0.0);
 
     return [$strategy, $risk];
 }
@@ -958,6 +1149,12 @@ function robustScore(float $ann, float $dd, float $score, array $consistency, ar
 
 function saveResult(string $prefix, string $name, array $variant, array $report, BacktestResult $result): void
 {
+    $report['block_bootstrap'] = (new BlockBootstrapAnalyzer())->analyze(
+        $result->equityCurve,
+        1000,
+        20,
+        20260716,
+    );
     file_put_contents($prefix . '_report.json', json_encode([
         'variant' => $name,
         'params' => $variant,
