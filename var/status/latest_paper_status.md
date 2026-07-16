@@ -1,28 +1,28 @@
 # FTT Paper Status
 
-- Generated: `2026-07-16T19:26:06+00:00`
+- Generated: `2026-07-16T19:41:14+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `no_planned_quantity_walk_forward_candidate_2026-07-15`
-- Equity: `$25,490.26`
+- Equity: `$25,493.75`
 - Cash: `$1,905.99`
-- Buying power: `$15,387.56`
+- Buying power: `$15,408.20`
 
 ## Positions
-- `TECL` qty `66`, price `$181.95`, value `$12008.69`, P/L `$-2808.67`
-- `TQQQ` qty `165`, price `$70.14`, value `$11573.92`, P/L `$-857.17`
+- `TECL` qty `66`, price `$181.69`, value `$11991.54`, P/L `$-2825.82`
+- `TQQQ` qty `165`, price `$70.30`, value `$11598.67`, P/L `$-832.42`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-07-16T19:25:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:24:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:23:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:22:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:20:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:19:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:18:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-16T19:17:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:40:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:39:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:38:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:37:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:36:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:35:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:34:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-16T19:33:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
