@@ -359,6 +359,25 @@ executionAssert(
     'Entry, partial and runner exit costs must each be charged exactly once.',
 );
 
+$trueHoldPosition = array_merge($partialCostPosition, [
+    'remaining_shares' => 10.0,
+    'stop' => 90.0,
+    'hard_stop_active' => false,
+    'break_even_armed' => false,
+    'took_partial' => false,
+    'realized_pnl' => 0.0,
+    'events' => [],
+]);
+$trueHoldArgs = [&$trueHoldPosition, $partialBar, ['ema10' => [115.0]], 0, 0.0];
+$trueHoldTrade = $update->invokeArgs($backtester, $trueHoldArgs);
+executionAssert(
+    $trueHoldTrade === null
+        && $trueHoldPosition['took_partial'] === false
+        && $trueHoldPosition['break_even_armed'] === true
+        && abs((float) $trueHoldPosition['stop'] - 100.0) < 1.0e-9,
+    'A zero partial must not create a fake partial or arm the runner-only EMA10 trail.',
+);
+
 $advanceStrategy = $strategy;
 $advanceStrategy['support_regularity']['entry_signal_mode'] = 'advance_next_session';
 $advanceStrategy['order_fill_mode'] = 'same_day_touch';
@@ -437,6 +456,16 @@ executionAssert(
 executionAssert(
     $priorityKeys($priorityOne) === $priorityKeys($priorityTwo),
     'Signal priority must not depend on the input symbol order.',
+);
+
+$marginInterest = new ReflectionMethod($backtester, 'marginInterestCharge');
+executionAssert(
+    abs((float) $marginInterest->invoke($backtester, 25000.0, 3, 0.0625) - 13.020833333333334) < 1.0e-9,
+    'Margin interest must accrue across calendar days on the modeled EOD debit.',
+);
+executionAssert(
+    (float) $marginInterest->invoke($backtester, 25000.0, 3, 0.0) === 0.0,
+    'A zero configured margin rate must preserve legacy backtests.',
 );
 
 echo "Backtester execution semantics OK\n";

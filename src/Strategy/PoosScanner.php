@@ -38,6 +38,10 @@ final class PoosScanner
             $this->scanWeeklySupportRegularity($symbol, $bars, $indicatorMap, $marketRegimes),
             $this->scanResistanceRegularity($symbol, $bars, $indicatorMap, $marketRegimes),
         );
+        if (($this->config['poos_base_enabled'] ?? true) === false) {
+            return $this->dedupeAndSortSignals($signals);
+        }
+
         $rocketLookback = (int) ($this->config['rocket_lookback'] ?? 63);
         $firstPullbackLookback = (int) ($this->config['first_pullback_lookback'] ?? 20);
         $touchTolerance = (float) ($this->config['ema_touch_tolerance_pct'] ?? 0.01);

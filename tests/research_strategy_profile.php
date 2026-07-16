@@ -15,6 +15,9 @@ if (!is_array($profile)) {
 if (($profile['production_approved'] ?? null) !== false) {
     throw new RuntimeException('A research-only profile must fail closed for production approval.');
 }
+if (($profile['status'] ?? null) !== 'rejected_below_100pct_cagr_floor') {
+    throw new RuntimeException('The sub-100% CAGR control must remain explicitly rejected.');
+}
 
 $options = $profile['options'] ?? [];
 $expected = [

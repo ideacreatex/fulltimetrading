@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-16T13:30:00Z",
+  "status": "no_causal_candidate_meets_100pct_cagr_floor",
+  "decision": {
+    "selected_variant": null,
+    "best_historically_qualified_variant": null,
+    "best_paper_deployable_variant": null,
+    "entry_submission_enabled": false,
+    "entry_submission_block_reason": "no_causal_100pct_cagr_candidate_2026-07-16",
+    "paper_orders_sent_by_research": 0
+  },
+  "qualification_policy": {
+    "minimum_train_and_oos_cagr_pct": 100.0,
+    "maximum_train_and_oos_drawdown_pct": 35.0,
+    "maximum_planned_gross": 1.25,
+    "maximum_observed_or_bounded_gross": 1.3,
+    "maximum_open_positions": 4,
+    "minimum_train_trades": 50,
+    "minimum_oos_trades": 10,
+    "maximum_best_trade_gross_profit_share_pct": 25.0,
+    "maximum_top_5_gross_profit_share_pct": 60.0,
+    "maximum_top_symbol_gross_profit_share_pct": 65.0,
+    "selection_basis": "training_only_then_frozen_oos_no_fallback"
+  },
+  "old_same_day_touch": {
+    "maximum_grid_headline": {
+      "total_return_pct": 7877.115005471667,
+      "cagr_pct": 121.00251835723128,
+      "max_drawdown_pct": -39.822028083573335,
+      "trades": 302,
+      "profit_factor": 3.59879727323013,
+      "max_gross_exposure": 2.6646658800411553,
+      "top_5_gross_profit_share_pct": 55.05558273787918
+    },
+    "best_old_row_within_35pct_drawdown": {
+      "total_return_pct": 6207.605920261073,
+      "cagr_pct": 111.80190406277788,
+      "max_drawdown_pct": -33.55935851689422,
+      "trades": 285,
+      "profit_factor": 8.76699098868204,
+      "max_gross_exposure": 2.105347644555838
+    },
+    "fully_materialized_control": {
+      "total_return_pct": 4849.098673114634,
+      "cagr_pct": 102.70038216781683,
+      "max_drawdown_pct": -29.241428720874,
+      "trades": 277,
+      "profit_factor": 5.594316424279641,
+      "max_gross_exposure": 2.154038110132375,
+      "same_scanner_day_fills": 150,
+      "same_scanner_day_close_above_entry": 150,
+      "same_scanner_day_pnl_usd": 763824.65,
+      "same_scanner_day_closed_pnl_share_pct": 60.5297,
+      "ambiguous_break_even_bars": 89,
+      "ambiguous_break_even_cohort_pnl_usd": 459474.5,
+      "ambiguous_break_even_closed_pnl_share_pct": 36.41,
+      "pnl_share_from_2025_and_2026_ytd_pct": 80.302
+    },
+    "deterministic_same_day_control": {
+      "closed_trades": 260,
+      "retrospective_same_day_fills": 220,
+      "same_day_close_above_entry": 220,
+      "same_day_pnl_share_pct": 94.846,
+      "same_day_profit_factor": 16.06,
+      "future_pending_fill_profit_factor": 2.13
+    },
+    "valid_for_deployment": false,
+    "rejection_reasons": [
+      "scanner used the completed daily low high close and indicators before backdating a fill inside that same bar",
+      "daily break-even ordering resolved ambiguous high-low paths optimistically",
+      "observed gross exceeded the current Alpaca production envelope"
+    ]
+  },
+  "causal_execution_contract": {
+    "signal_timing": "advance_next_session_from_completed_d_minus_1",
+    "fill_mode": "intraday_touch_then_completed_5m_reclaim_then_next_observed_bar_open",
+    "timeframe": "5Min",
+    "maximum_fill_delay_minutes": 5,
+    "maximum_chase_atr": 0.1,
+    "intraday_slippage_bps": 10.0,
+    "transaction_cost_bps": 10.0,
+    "margin_interest_annual_pct": 6.25,
+    "reject_pre_entry_stop_breach": true,
+    "require_complete_regular_session": true,
+    "minimum_session_coverage_pct": 100.0,
+    "maximum_session_gap_bars": 1,
+    "daily_fallback_allowed": false,
+    "paper_execution_parity": false
+  },
+  "alpaca_sip_snapshots": {
+    "four_symbol": {
+      "symbols": ["SOXL", "TECL", "TQQQ", "UPRO"],
+      "start": "2021-01-01",
+      "end_exclusive": "2026-07-16",
+      "manifest_file": "058bd381c1acfb6c1724758ebd7d81a929a40a56.manifest.json",
+      "manifest_sha256": "179af3a637170051afc65093f792f12a342fd62a9e70ec67f7cfe8db42836c06",
+      "chunks": 24,
+      "bars": 907989,
+      "bytes": 216737840,
+      "verified_provenance_sidecars": 24
+    },
+    "complete_three_symbol": {
+      "symbols": ["SOXL", "TQQQ", "UPRO"],
+      "start": "2021-01-01",
+      "end_exclusive": "2026-07-16",
+      "manifest_file": "828288101ac576708d59c51f77d7e32a1abaac77.manifest.json",
+      "manifest_sha256": "5c4d3bea0cc381042e3ce523bc37ce2b9199feb7f6b83901c02dc49f3c5ad052",
+      "chunks": 18,
+      "bars": 750361,
+      "bytes": 179152606,
+      "verified_provenance_sidecars": 18
+    }
+  },
+  "experiments": {
+    "four_symbol_production_envelope_grid": {
+      "raw_summary_sha256": "208fd4deea88c4216422a858c13ad1da500fe6b1b1974cd6fc874b64cbf44196",
+      "variants": 18,
+      "data_quality_valid_full": 0,
+      "data_quality_valid_training": 0,
+      "data_quality_valid_oos": 0,
+      "numerically_inside_production_envelope_before_data_quality": 12,
+      "qualified": 0,
+      "walk_forward_selected_variant": null,
+      "raw_leader": {
+        "max_gross": 1.25,
+        "family_cap": 0.7,
+        "training_cagr_pct": 12.9416,
+        "training_drawdown_pct": -22.4399,
+        "training_trades": 45,
+        "full_total_return_pct": 101.3172,
+        "full_cagr_pct": 13.5014,
+        "full_drawdown_pct": -26.3657,
+        "full_trades": 97,
+        "oos_cagr_pct": 14.1611,
+        "oos_drawdown_pct": -19.5347,
+        "oos_trades": 52,
+        "partial_gross_upper_bound": 1.404193,
+        "full_top_5_gross_profit_share_pct": 68.832,
+        "full_pnl_without_top_5_usd": -5111.17,
+        "data_quality_passes": false
+      },
+      "best_numeric_row_inside_gross": {
+        "max_gross": 1.15,
+        "family_cap": 0.7,
+        "training_cagr_pct": 12.0813,
+        "full_cagr_pct": 12.6687,
+        "oos_cagr_pct": 13.3612,
+        "full_drawdown_pct": -23.787,
+        "full_trades": 97,
+        "partial_gross_upper_bound": 1.271223,
+        "full_top_5_gross_profit_share_pct": 67.141,
+        "full_pnl_without_top_5_usd": -3713.29,
+        "data_quality_passes": false
+      },
+      "data_quality_failures": [
+        "incomplete_candidate_intraday_session",
+        "incomplete_regular_path_TECL_77_of_78",
+        "incomplete_regular_path_TECL_10_minute_gap"
+      ]
+    },
+    "complete_three_symbol_production_envelope_grid": {
+      "raw_summary_sha256": "df348efdea6b4fb5144b0e84b793435113ef2ed247ac252d3b3d0d63f5b8a69a",
+      "variants": 18,
+      "data_quality_valid_full": 18,
+      "data_quality_valid_training": 18,
+      "data_quality_valid_oos": 18,
+      "inside_production_gross_envelope": 14,
+      "variants_at_or_above_100pct_cagr": 0,
+      "robust_variants": 0,
+      "holdout_valid_variants": 0,
+      "qualified": 0,
+      "walk_forward_candidate_count": 18,
+      "walk_forward_eligible_count": 0,
+      "walk_forward_selected_variant": null,
+      "raw_leader": {
+        "max_gross": 1.25,
+        "family_cap": 0.7,
+        "training_cagr_pct": 8.8615,
+        "training_drawdown_pct": -16.3136,
+        "training_trades": 35,
+        "full_total_return_pct": 46.6,
+        "full_cagr_pct": 7.1691,
+        "full_drawdown_pct": -22.6337,
+        "full_trades": 69,
+        "oos_total_return_pct": 13.8132,
+        "oos_cagr_pct": 5.2187,
+        "oos_drawdown_pct": -11.998,
+        "oos_trades": 34,
+        "full_gross_upper_bound": 1.3465,
+        "full_top_5_gross_profit_share_pct": 97.39,
+        "full_pnl_without_top_5_usd": -397.84,
+        "data_quality_passes": true
+      },
+      "best_row_inside_gross_envelope": {
+        "max_gross": 1.2,
+        "family_cap": 0.7,
+        "training_cagr_pct": 7.9976,
+        "training_drawdown_pct": -16.0696,
+        "training_trades": 35,
+        "full_cagr_pct": 6.4291,
+        "full_drawdown_pct": -22.6259,
+        "full_trades": 69,
+        "oos_cagr_pct": 4.6194,
+        "oos_drawdown_pct": -11.9892,
+        "oos_trades": 34,
+        "full_gross_upper_bound": 1.28977,
+        "oos_gross_upper_bound": 1.26766,
+        "full_top_5_gross_profit_share_pct": 97.2694,
+        "full_pnl_without_top_5_usd": -384.48,
+        "data_quality_passes": true,
+        "qualifies": false
+      }
+    }
+  },
+  "author_differences": {
+    "author_entry": "resting exact first-touch limit",
+    "tested_entry": "touch completed-bar reclaim next-bar open",
+    "author_break_even": "approximately plus 1 percent",
+    "final_grid_break_even": "plus 3 percent",
+    "author_baseline_stop": "strategy or EMA minus approximately 1 ATR",
+    "final_grid_stop": "1.5 ATR",
+    "author_example_target": "approximately 1.5 ATR",
+    "final_grid_target": "5 ATR",
+    "author_typical_position_pct": "5 to 10 percent",
+    "final_grid_family_cap_pct": "70 to 90 percent"
+  },
+  "verification": {
+    "test_files_passed": 30,
+    "test_files_failed": 0,
+    "php_syntax_check_passed": true,
+    "json_validation_passed": true,
+    "git_diff_check_passed": true,
+    "raw_invalid_grid_artifacts_promoted": false
+  }
+}

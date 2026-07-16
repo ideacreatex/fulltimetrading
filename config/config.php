@@ -29,14 +29,14 @@ return [
     ],
     'strategy' => [
         // The realistic next-session execution walk-forward had no production-
-        // eligible variant on 2026-07-15. Keep signal generation and position
+        // eligible >=100% CAGR variant on 2026-07-16. Keep signal generation and position
         // protection active, but fail closed on new entries unless a human
         // deliberately overrides this after a new validation pass.
         'entry_submission_enabled' => filter_var(
             getenv('FTT_PRODUCTION_ENTRY_ENABLED') === false ? 'false' : getenv('FTT_PRODUCTION_ENTRY_ENABLED'),
             FILTER_VALIDATE_BOOLEAN,
         ),
-        'entry_submission_block_reason' => 'no_planned_quantity_walk_forward_candidate_2026-07-15',
+        'entry_submission_block_reason' => 'no_causal_100pct_cagr_candidate_2026-07-16',
         'ema_periods' => [10, 20, 21, 50, 100, 200],
         'atr_period' => 14,
         'volume_avg_period' => 50,

@@ -15,6 +15,7 @@ final readonly class BacktestResult
      * @param list<array{date:string, equity:float}> $equityCurve
      * @param list<string> $openPositions
      * @param list<array<string, mixed>> $positionStates
+     * @param array<string, mixed> $entryDiagnostics
      */
     public function __construct(
         public array $signals,
@@ -24,6 +25,7 @@ final readonly class BacktestResult
         public array $equityCurve = [],
         public array $openPositions = [],
         public array $positionStates = [],
+        public array $entryDiagnostics = [],
     ) {
     }
 
@@ -40,7 +42,8 @@ final readonly class BacktestResult
         $grossLoss = abs(array_sum(array_map(static fn (Trade $trade): float => min(0.0, $trade->pnl), $this->trades)));
         $returns = $this->dailyReturns($this->equityCurve);
         $totalPnl = $this->endingCash - $this->startingCash;
-        $unrealizedPnl = $totalPnl - $pnl;
+        $financingCost = max(0.0, (float) ($this->entryDiagnostics['modeled_margin_interest'] ?? 0.0));
+        $unrealizedPnl = $totalPnl - $pnl + $financingCost;
 
         return [
             'signals' => count($this->signals),
@@ -52,6 +55,7 @@ final readonly class BacktestResult
             'pnl' => $pnl,
             'closed_pnl' => $pnl,
             'unrealized_pnl' => $unrealizedPnl,
+            'modeled_margin_interest' => $financingCost,
             'total_pnl' => $totalPnl,
             'return_pct' => $this->startingCash > 0.0 ? $totalPnl / $this->startingCash : 0.0,
             'annualized_return_pct' => $this->annualizedReturnPct(),

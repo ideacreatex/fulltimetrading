@@ -1,19 +1,23 @@
 # FullTimeTrading — current paper state
 
-> Research update 2026-07-16: активный paper runtime ниже не переключался и не перезапускался. Новая изолированная регрессия не выбрала production-кандидата; старые `+395.79%` зависели от порядка universe. Актуальные детерминированные сравнения: `docs/STRATEGY_REGRESSION_2026-07-16.md`.
+> Research update 2026-07-16: активный paper runtime ниже не переключался и не перезапускался. Свежий Alpaca SIP causal replay не выбрал production-кандидата. Старые `+7000%` возникали из same-day look-ahead; полностью DQ-valid контроль без TECL дал максимум `6.43% CAGR` внутри gross envelope и `selected_variant=null`. Актуальный разбор: `docs/CAUSAL_100PCT_SEARCH_2026-07-16.md`.
 
-Обновлено: 2026-07-15 (Asia/Nicosia). Здесь хранится только sanitized operational context: без ключей и полных идентификаторов аккаунта.
+Обновлено: 2026-07-16 (Asia/Nicosia). Здесь хранится только sanitized operational context: без ключей и полных идентификаторов аккаунта.
 
 ## Safety и выбранное решение
 
 - Торговый endpoint жестко ограничен `https://paper-api.alpaca.markets/v2`; redirects для Alpaca trading API запрещены.
 - `FTT_PAPER_ONLY=true` и общий submit-контур использует `FTT_ORDERS_ENABLED=true` только для Alpaca paper.
-- Новые entry-заявки отдельно заблокированы: `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина `no_planned_quantity_walk_forward_candidate_2026-07-15`.
+- Новые entry-заявки отдельно заблокированы: `FTT_PRODUCTION_ENTRY_ENABLED=false`, причина `no_causal_100pct_cagr_candidate_2026-07-16`.
 - Сигналы продолжают формироваться; мониторинг и защитные partial/stop/full exits уже открытых paper-позиций остаются активными.
 - Observation-профиль `tuned-daily`: universe `UPRO,TQQQ,SOXL,USD,TECL`, `max_gross=1.75`, `max_open=4`, `family_cap=1.20`, cooldown `5`, same-strength `45`, обязательный close выше support, mental stop, БУ `+1%`, partial `50%`, `next_touch`, DAY-validity `1` бар.
 
 ## Основание для блокировки входов
 
+- Новый обязательный порог — `100% CAGR` одновременно на train и замороженном OOS при DD до `35%`, planned gross до `1.25x` и observed/bounded gross до `1.30x`.
+- В свежем Alpaca SIP 5m grid `SOXL,TQQQ,UPRO` все `18/18` вариантов прошли DQ; `14/18` прошли gross envelope, но ни один не достиг порога или concentration gates. Лучший ряд внутри envelope: train `8.00%`, full `6.43%`, OOS `4.62%` CAGR; 69 сделок, full DD `−22.63%`, top-5 `97.27%` gross profit.
+- Четырёхтикерный grid с TECL диагностически дал до `13.50%` full CAGR, но все варианты fail-closed из-за неполных использованных 5m-сессий; они не являются допустимым результатом.
+- Walk-forward выбирает только по train и не подменяет отклонённый вариант после просмотра OOS: `candidate_count=18`, `eligible_count=0`, `selected_variant=null`, `qualified_variants=0`.
 - Финальный Alpaca IEX daily replay: 2021-01-01 — 2026-07-14, `1366` вариантов; в production envelope вошли `716`, eligible — `0`.
 - Максимальная train annualized внутри envelope отрицательная (`-2.4281%`); ни один вариант не сохранил положительный train P/L без пяти лучших сделок, а минимальная train top-5 concentration — `64.3890%` при gate `60%`.
 - Observation-профиль воспроизведен daily-report на том же cache: total `+395.7899%`, annualized `+33.6314%`, DD `-49.1552%`, `177` сделок. Train total `-20.7892%`, top-5 `89.1044%` и P/L без top-5 `-$16,564.89`, поэтому это не production-valid результат.

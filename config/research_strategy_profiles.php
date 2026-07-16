@@ -11,11 +11,11 @@ declare(strict_types=1);
  */
 return [
     'advance-touch-alpaca-20260716' => [
-        'status' => 'paper_forward_candidate',
+        'status' => 'rejected_below_100pct_cagr_floor',
         'production_approved' => false,
         'validated_through' => '2026-07-15',
         'data_source' => 'Alpaca IEX, split-adjusted daily bars; fail-closed IEX 1-minute execution validation',
-        'notes' => 'Causal next-session support limit. The 0.44 family cap passed the conservative daily block-bootstrap drawdown gate across ten seeds. Active paper entry submission remains disabled.',
+        'notes' => 'Causal next-session support limit retained only as a reproducible rejected control. It is below the explicit 100% CAGR floor, has weak/concentrated 2021-2023 evidence, and must not be used for paper entries.',
         'options' => [
             'provider' => 'alpaca',
             'feed' => 'iex',

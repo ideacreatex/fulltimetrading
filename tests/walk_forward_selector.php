@@ -23,7 +23,12 @@ function wfCandidate(string $name, float $ann, float $dd, float $gross = 2.0, in
 {
     return [
         'variant' => $name,
-        'params' => ['max_gross' => $gross, 'max_open' => $maxOpen],
+        'params' => [
+            'max_gross' => $gross,
+            'max_open' => $maxOpen,
+            'support_entry_signal_mode' => 'advance_next_session',
+            'order_fill_mode' => 'intraday_touch_reclaim',
+        ],
         'training' => [
             'points' => 500,
             'trades' => 100,
@@ -76,6 +81,92 @@ $enveloped = $selector->select([
     wfCandidate('production', 0.60, -0.20, 2.0, 4),
 ], $policy, ['max_gross' => 2.0, 'max_open' => 4]);
 wfAssertSame('production', $enveloped['selected_variant'], 'production envelope is applied before selection');
+
+$executionEnvelope = [
+    'allowed_signal_fill_pairs' => ['advance_next_session:intraday_touch_reclaim'],
+];
+$causalExecution = $selector->evaluate(wfCandidate('causal', 0.60, -0.20), $policy, $executionEnvelope);
+wfAssertSame(true, $causalExecution['passes'], 'allowlisted causal execution contract is accepted');
+
+$sameDayTouch = wfCandidate('same-day-touch', 0.60, -0.20);
+$sameDayTouch['params']['support_entry_signal_mode'] = 'touch_confirmed';
+$sameDayTouch['params']['order_fill_mode'] = 'same_day_touch';
+$sameDayEvaluation = $selector->evaluate($sameDayTouch, $policy, $executionEnvelope);
+wfAssertSame(false, $sameDayEvaluation['passes'], 'same-day touch execution is rejected by the production contract');
+wfAssertSame(
+    true,
+    in_array('production_execution_contract', $sameDayEvaluation['failures'], true),
+    'execution-contract failure is explicit',
+);
+
+$frozen = [
+    'selected_variant' => 'alpha',
+    'selected_training' => [
+        'annualized_return_pct' => 1.20,
+        'max_drawdown_pct' => -0.20,
+    ],
+    'data_quality_passes' => true,
+    'selected_full_period_data_quality_passes' => true,
+    'selected_full_period_data_quality_failures' => [],
+    'selected_full_period_max_observed_or_bounded_gross_exposure' => 1.20,
+    'frozen_oos_evaluation' => [
+        'annualized_return_pct' => 1.10,
+        'max_drawdown_pct' => -0.25,
+        'passes' => true,
+        'failures' => [],
+        'data_quality_passes' => true,
+        'data_quality_failures' => [],
+        'max_observed_or_bounded_gross_exposure' => 1.25,
+    ],
+];
+$qualified = $selector->qualifyFrozen($frozen, 1.0, 0.35, ['max_observed_gross' => 1.30]);
+wfAssertSame(true, $qualified['historically_qualified'], 'A clean frozen train/OOS result qualifies.');
+wfAssertSame('alpha', $qualified['historically_qualified_variant'], 'Only the frozen train choice may qualify.');
+
+$holdoutDqFailure = $frozen;
+$holdoutDqFailure['frozen_oos_evaluation']['data_quality_passes'] = false;
+$holdoutDqFailure['frozen_oos_evaluation']['data_quality_failures'] = ['candidate_session_gap'];
+$rejectedForHoldoutDq = $selector->qualifyFrozen(
+    $holdoutDqFailure,
+    1.0,
+    0.35,
+    ['max_observed_gross' => 1.30],
+);
+wfAssertSame(false, $rejectedForHoldoutDq['historically_qualified'], 'Frozen OOS DQ failure rejects qualification.');
+wfAssertSame('alpha', $rejectedForHoldoutDq['selected_variant'], 'OOS DQ failure cannot trigger fallback selection.');
+wfAssertSame(
+    true,
+    in_array('holdout_data_quality:candidate_session_gap', $rejectedForHoldoutDq['historical_qualification_failures'], true),
+    'Frozen OOS DQ reason is preserved.',
+);
+
+$holdoutGrossFailure = $frozen;
+$holdoutGrossFailure['frozen_oos_evaluation']['max_observed_or_bounded_gross_exposure'] = 1.31;
+$rejectedForHoldoutGross = $selector->qualifyFrozen(
+    $holdoutGrossFailure,
+    1.0,
+    0.35,
+    ['max_observed_gross' => 1.30],
+);
+wfAssertSame(
+    true,
+    in_array('holdout_max_observed_gross', $rejectedForHoldoutGross['historical_qualification_failures'], true),
+    'Holdout observed-gross breach rejects the frozen variant.',
+);
+
+$fullGrossFailure = $frozen;
+$fullGrossFailure['selected_full_period_max_observed_or_bounded_gross_exposure'] = 1.31;
+$rejectedForFullGross = $selector->qualifyFrozen(
+    $fullGrossFailure,
+    1.0,
+    0.35,
+    ['max_observed_gross' => 1.30],
+);
+wfAssertSame(
+    true,
+    in_array('full_period_max_observed_gross', $rejectedForFullGross['historical_qualification_failures'], true),
+    'Full-period observed-gross breach rejects the frozen variant.',
+);
 
 $concentrated = wfCandidate('concentrated', 0.90, -0.20);
 $concentrated['training']['trade_metrics']['best_trade_gross_profit_share_pct'] = 0.50;

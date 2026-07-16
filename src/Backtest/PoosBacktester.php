@@ -23,21 +23,31 @@ final class PoosBacktester
         private readonly array $strategyConfig,
         /** @var array<string, mixed> */
         private readonly array $riskConfig,
+        private readonly ?IntradayTouchReclaimConfirmer $intradayEntryConfirmer = null,
     ) {
         $supportMode = (string) ($this->strategyConfig['support_regularity']['entry_signal_mode'] ?? 'touch_confirmed');
         $fillMode = (string) ($this->strategyConfig['order_fill_mode'] ?? 'next_touch');
         if ($supportMode === 'advance_next_session' && $fillMode === 'same_day_touch') {
             throw new \InvalidArgumentException(
-                'advance_next_session requires order_fill_mode=next_touch; same-day fill would reintroduce look-ahead.',
+                'advance_next_session cannot use same-day fills; that would reintroduce look-ahead.',
             );
+        }
+        if ($fillMode === 'intraday_touch_reclaim' && $supportMode !== 'advance_next_session') {
+            throw new \InvalidArgumentException(
+                'intraday_touch_reclaim requires advance_next_session candidates frozen before the activation session.',
+            );
+        }
+        if ($fillMode === 'intraday_touch_reclaim' && $this->intradayEntryConfirmer === null) {
+            throw new \InvalidArgumentException('intraday_touch_reclaim requires an IntradayTouchReclaimConfirmer.');
         }
     }
 
     /**
      * @param array<string, list<Bar>> $barsBySymbol
      * @param array<string, list<Bar>> $marketBars
+     * @param array<string, list<Bar>> $intradayBarsBySymbol
      */
-    public function run(array $barsBySymbol, array $marketBars): BacktestResult
+    public function run(array $barsBySymbol, array $marketBars, array $intradayBarsBySymbol = []): BacktestResult
     {
         // Portfolio allocation must not depend on the caller's associative-array
         // insertion order. Canonicalize both universes before building calendars
@@ -52,8 +62,13 @@ final class PoosBacktester
         $validBars = (int) ($this->strategyConfig['order_valid_bars'] ?? 10);
         $partialPct = (float) ($this->strategyConfig['partial_take_profit_pct'] ?? 0.5);
         $maxOpenPositions = (int) ($this->riskConfig['max_open_positions'] ?? 0);
+        $marginInterestAnnualPct = max(
+            0.0,
+            (float) ($this->riskConfig['margin_interest_annual_pct'] ?? 0.0),
+        );
 
         $marketRegimes = $this->marketRegimeAnalyzer->analyze($marketBars);
+        $intradaySessions = $this->indexIntradaySessions($intradayBarsBySymbol);
         $allSignals = [];
         $allTrades = [];
         $signalsByDate = [];
@@ -99,8 +114,46 @@ final class PoosBacktester
         $equityCurve = [];
         $positionStates = [];
         $stoppedBySymbol = [];
+        $entryDiagnostics = [
+            'mode' => (string) ($this->strategyConfig['order_fill_mode'] ?? 'next_touch'),
+            'evaluations' => 0,
+            'statuses' => [],
+            'pre_entry_stop_breaches' => 0,
+            'opened_positions' => 0,
+            'data_quality_passes' => true,
+            'data_quality_failures' => [],
+            'data_quality_events' => [],
+            'missing_candidate_sessions' => 0,
+            'missing_candidate_session_examples' => [],
+            'incomplete_candidate_sessions' => 0,
+            'incomplete_candidate_session_examples' => [],
+            'candidate_session_quality_policy' => $this->intradayEntryConfirmer?->sessionQualityPolicy(),
+            'max_intraday_gross_exposure_upper_bound' => 0.0,
+            'intraday_gross_exposure_upper_bound_by_session' => [],
+            'intraday_gross_upper_bound_calculable' => true,
+            'margin_interest_annual_pct' => $marginInterestAnnualPct,
+            'modeled_margin_interest' => 0.0,
+        ];
+        $previousSessionDate = null;
+        $previousBorrowedNotional = 0.0;
 
         foreach ($dates as $date) {
+            if ($previousSessionDate !== null && $previousBorrowedNotional > 0.0) {
+                $calendarDays = max(1, (int) (new \DateTimeImmutable($previousSessionDate))->diff(
+                    new \DateTimeImmutable($date),
+                )->days);
+                $interest = $this->marginInterestCharge(
+                    $previousBorrowedNotional,
+                    $calendarDays,
+                    $marginInterestAnnualPct,
+                );
+                $cash -= $interest;
+                $entryDiagnostics['modeled_margin_interest'] += $interest;
+            }
+            $sessionOpeningPositions = $positionsBySymbol;
+            $sessionPriorBars = $lastBarsBySymbol;
+            $sessionStartingEquity = $this->markedEquity($cash, $sessionOpeningPositions, $sessionPriorBars);
+            $intradayOpenedForExposure = [];
             $openedToday = [];
             foreach ($calendar[$date] as $symbol => $day) {
                 $lastBarsBySymbol[$symbol] = $day['bar'];
@@ -140,12 +193,30 @@ final class PoosBacktester
                 }
             }
 
+            foreach ($positionsBySymbol as $positionKey => $position) {
+                if (!isset($sessionOpeningPositions[$positionKey])) {
+                    $intradayOpenedForExposure[$positionKey] = $position;
+                }
+            }
+
             $fillCandidates = [];
             foreach (array_keys($pendingBySymbol) as $pendingKey) {
                 /** @var Signal $pendingSignal */
                 $pendingSignal = $pendingBySymbol[$pendingKey]['signal'];
                 $symbol = $pendingSignal->symbol;
                 if (!isset($calendar[$date][$symbol], $contextBySymbol[$symbol])) {
+                    if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') === 'intraday_touch_reclaim') {
+                        $pendingBySymbol[$pendingKey]['age']++;
+                        $this->recordEntryDataQualityFailure(
+                            $entryDiagnostics,
+                            'missing_candidate_daily_session',
+                            $symbol . ' ' . $date,
+                            $date,
+                        );
+                        if ($pendingBySymbol[$pendingKey]['age'] > $validBars) {
+                            unset($pendingBySymbol[$pendingKey]);
+                        }
+                    }
                     continue;
                 }
 
@@ -161,16 +232,69 @@ final class PoosBacktester
                 if (!$this->canOpenAfterStop($pendingSignal, $stoppedBySymbol, $date)) {
                     continue;
                 }
-                if ($this->canFill($pendingSignal, $bar, $indicatorMap, $index)) {
-                    $fillCandidates[] = [
-                        'key' => $pendingKey,
-                        'symbol' => $symbol,
-                        'bar' => $bar,
-                    ];
+                $entryDecision = null;
+                if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') === 'intraday_touch_reclaim') {
+                    $entryDecision = $this->intradayEntryConfirmer?->resolve(
+                        $pendingSignal,
+                        $date,
+                        $intradaySessions[$symbol][$date] ?? [],
+                    );
+                    if ($entryDecision === null) {
+                        throw new \LogicException('Intraday entry confirmer unexpectedly returned no decision.');
+                    }
+                    $entryDiagnostics['evaluations']++;
+                    $entryDiagnostics['statuses'][$entryDecision->status] =
+                        (int) ($entryDiagnostics['statuses'][$entryDecision->status] ?? 0) + 1;
+                    if ($entryDecision->preEntryStopBreach) {
+                        $entryDiagnostics['pre_entry_stop_breaches']++;
+                    }
+                    if ($entryDecision->status === 'conflicting_duplicate') {
+                        throw new \RuntimeException(sprintf(
+                            'Intraday entry data conflicts for %s on %s: %s',
+                            $symbol,
+                            $date,
+                            $entryDecision->reason,
+                        ));
+                    }
+                    if (in_array($entryDecision->status, [
+                        'missing_session_data',
+                        'incomplete_session_data',
+                        'missing_next_bar',
+                        'fill_delay_exceeded',
+                    ], true)) {
+                        $this->recordEntryDataQualityFailure(
+                            $entryDiagnostics,
+                            'incomplete_candidate_intraday_session:' . $entryDecision->status,
+                            $symbol . ' ' . $date,
+                            $date,
+                        );
+                        continue;
+                    }
+                    if (!$entryDecision->isFilled()) {
+                        continue;
+                    }
+                } elseif (!$this->canFill($pendingSignal, $bar, $indicatorMap, $index)) {
+                    continue;
                 }
+
+                $fillCandidates[] = [
+                    'key' => $pendingKey,
+                    'symbol' => $symbol,
+                    'bar' => $bar,
+                    'entry_decision' => $entryDecision,
+                ];
             }
 
             usort($fillCandidates, function (array $a, array $b) use ($pendingBySymbol): int {
+                $decisionA = $a['entry_decision'] ?? null;
+                $decisionB = $b['entry_decision'] ?? null;
+                if ($decisionA instanceof IntradayEntryDecision && $decisionB instanceof IntradayEntryDecision) {
+                    $timeOrder = $decisionA->fillAt <=> $decisionB->fillAt;
+                    if ($timeOrder !== 0) {
+                        return $timeOrder;
+                    }
+                }
+
                 /** @var Signal $signalA */
                 $signalA = $pendingBySymbol[$a['key']]['signal'];
                 /** @var Signal $signalB */
@@ -188,17 +312,52 @@ final class PoosBacktester
 
                 /** @var Bar $bar */
                 $bar = $candidate['bar'];
+                $entryDecision = $candidate['entry_decision'] ?? null;
                 if ($this->openPendingPosition(
                     $positionsBySymbol,
                     $pendingBySymbol[$pendingKey],
                     $bar,
+                    $entryDecision instanceof IntradayEntryDecision ? $entryDecision : null,
                 )) {
-                    $openedToday[$pendingKey] = true;
+                    $openedToday[$pendingKey] = $entryDecision;
+                    if ($entryDecision instanceof IntradayEntryDecision) {
+                        $entryDiagnostics['opened_positions']++;
+                        $intradayOpenedForExposure[$pendingKey] = $positionsBySymbol[$pendingKey];
+                    }
                     unset($pendingBySymbol[$pendingKey]);
                 }
             }
 
-            // Pending next-session limits fill before the session close. Apply
+            if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') === 'intraday_touch_reclaim') {
+                $upperBound = $this->intradayGrossExposureUpperBound(
+                    $sessionStartingEquity,
+                    $sessionOpeningPositions,
+                    $intradayOpenedForExposure,
+                    $sessionPriorBars,
+                    $intradaySessions,
+                    $date,
+                );
+                if ($upperBound['gross'] === null) {
+                    $entryDiagnostics['intraday_gross_upper_bound_calculable'] = false;
+                    foreach ($upperBound['failures'] as $failure) {
+                        $this->recordEntryDataQualityFailure(
+                            $entryDiagnostics,
+                            'intraday_exposure_upper_bound:' . $failure,
+                            $date,
+                            $date,
+                        );
+                    }
+                } elseif ($upperBound['positions'] > 0) {
+                    $gross = (float) $upperBound['gross'];
+                    $entryDiagnostics['intraday_gross_exposure_upper_bound_by_session'][$date] = $gross;
+                    $entryDiagnostics['max_intraday_gross_exposure_upper_bound'] = max(
+                        (float) $entryDiagnostics['max_intraday_gross_exposure_upper_bound'],
+                        $gross,
+                    );
+                }
+            }
+
+            // Pending next-session entries fill before the session close. Apply
             // fill-day risk rules now so exits and partials affect today's
             // cash, exposure, and the sizing of orders planned after close.
             if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') !== 'same_day_touch') {
@@ -212,15 +371,26 @@ final class PoosBacktester
                         continue;
                     }
                     $bar = $calendar[$date][$symbol]['bar'];
+                    $entryDecision = $openedToday[$positionKey] ?? null;
                     $index = $calendar[$date][$symbol]['index'];
                     $indicatorMap = $contextBySymbol[$symbol]['indicators'];
-                    $trade = $this->updateNewlyFilledPosition(
-                        $positionsBySymbol[$positionKey],
-                        $bar,
-                        $indicatorMap,
-                        $index,
-                        $partialPct,
-                    );
+                    $trade = $entryDecision instanceof IntradayEntryDecision
+                        ? $this->updateIntradayConfirmedPosition(
+                            $positionsBySymbol[$positionKey],
+                            $entryDecision,
+                            $intradaySessions[$symbol][$date] ?? [],
+                            $bar,
+                            $indicatorMap,
+                            $index,
+                            $partialPct,
+                        )
+                        : $this->updateNewlyFilledPosition(
+                            $positionsBySymbol[$positionKey],
+                            $bar,
+                            $indicatorMap,
+                            $index,
+                            $partialPct,
+                        );
                     if ($trade !== null) {
                         $this->recordStoppedPosition($stoppedBySymbol, $positionsBySymbol[$positionKey], $trade);
                         $cash += $trade->pnl;
@@ -283,7 +453,11 @@ final class PoosBacktester
                     'age' => 0,
                     'planned_shares' => $plannedShares,
                     'planned_at' => $date,
-                    'events' => [$date . ': planned ' . $signal->direction . ' ' . $signal->strategy . ' limit at ' . round($signal->entry, 4)],
+                    'events' => [$date . ': planned ' . $signal->direction . ' ' . $signal->strategy
+                        . (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') === 'intraday_touch_reclaim'
+                            ? ' touch/reclaim candidate around '
+                            : ' limit at ')
+                        . round($signal->entry, 4)],
                 ];
 
                 if (($this->strategyConfig['order_fill_mode'] ?? 'next_touch') !== 'same_day_touch') {
@@ -330,10 +504,16 @@ final class PoosBacktester
                 $positionStates[] = $positionState;
             }
 
+            $closingEquity = $this->markedEquity($cash, $positionsBySymbol, $lastBarsBySymbol);
             $equityCurve[] = [
                 'date' => $date,
-                'equity' => $this->markedEquity($cash, $positionsBySymbol, $lastBarsBySymbol),
+                'equity' => $closingEquity,
             ];
+            $previousBorrowedNotional = max(
+                0.0,
+                $this->reservedCapital($positionsBySymbol, $lastBarsBySymbol) - $closingEquity,
+            );
+            $previousSessionDate = $date;
         }
 
         usort($allSignals, function (Signal $a, Signal $b): int {
@@ -360,6 +540,7 @@ final class PoosBacktester
             $equityCurve,
             array_keys($positionsBySymbol),
             $positionStates,
+            $entryDiagnostics,
         );
     }
 
@@ -390,6 +571,396 @@ final class PoosBacktester
     }
 
     /**
+     * @param array<string, list<Bar>> $barsBySymbol
+     * @return array<string, array<string, list<Bar>>>
+     */
+    private function indexIntradaySessions(array $barsBySymbol): array
+    {
+        $timezone = new \DateTimeZone('America/New_York');
+        $sessions = [];
+        foreach ($barsBySymbol as $symbol => $bars) {
+            $symbol = strtoupper((string) $symbol);
+            foreach ($bars as $bar) {
+                if (!$bar instanceof Bar || strtoupper($bar->symbol) !== $symbol) {
+                    continue;
+                }
+                $date = $bar->time->setTimezone($timezone)->format('Y-m-d');
+                $sessions[$symbol][$date][] = $bar;
+            }
+        }
+
+        foreach ($sessions as &$byDate) {
+            foreach ($byDate as &$bars) {
+                usort($bars, static fn (Bar $a, Bar $b): int => $a->time <=> $b->time);
+            }
+            unset($bars);
+        }
+        unset($byDate);
+
+        return $sessions;
+    }
+
+    /**
+     * Record an execution-data defect without discarding earlier defects. A
+     * candidate session with a missing daily bar, missing intraday path, or a
+     * non-executable next bar is not an ordinary no-fill; it invalidates the
+     * affected historical experiment.
+     *
+     * @param array<string, mixed> $diagnostics
+     */
+    private function recordEntryDataQualityFailure(
+        array &$diagnostics,
+        string $failure,
+        string $example,
+        ?string $date = null,
+    ): void {
+        if ($date === null && preg_match('/\b(\d{4}-\d{2}-\d{2})\b/', $example, $matches) === 1) {
+            $date = $matches[1];
+        }
+        if ($date === null || preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date) !== 1) {
+            $date = 'undated';
+        }
+
+        $diagnostics['data_quality_passes'] = false;
+        $failures = is_array($diagnostics['data_quality_failures'] ?? null)
+            ? $diagnostics['data_quality_failures']
+            : [];
+        $failures[] = $failure;
+        $diagnostics['data_quality_failures'] = array_values(array_unique($failures));
+        $events = is_array($diagnostics['data_quality_events'] ?? null)
+            ? $diagnostics['data_quality_events']
+            : [];
+        $events[] = [
+            'date' => $date,
+            'failure' => $failure,
+            'example' => $example,
+        ];
+        $diagnostics['data_quality_events'] = $events;
+        $diagnostics['missing_candidate_sessions'] = (int) ($diagnostics['missing_candidate_sessions'] ?? 0) + 1;
+        $diagnostics['incomplete_candidate_sessions'] = (int) ($diagnostics['incomplete_candidate_sessions'] ?? 0) + 1;
+
+        foreach (['missing_candidate_session_examples', 'incomplete_candidate_session_examples'] as $field) {
+            $examples = is_array($diagnostics[$field] ?? null) ? $diagnostics[$field] : [];
+            if (count($examples) < 20 && !in_array($example, $examples, true)) {
+                $examples[] = $example;
+            }
+            $diagnostics[$field] = $examples;
+        }
+    }
+
+    /**
+     * Conservative session-level gross-exposure bound. It keeps every
+     * position present at the session open and every confirmed intraday fill
+     * at full size, even if one may have exited before another filled. It then
+     * combines each position's highest notional with its adverse price path.
+     * These extrema need not be simultaneous, so the result is an upper bound,
+     * not a reconstructed point estimate. This deliberately catches positions
+     * opened and closed inside one session that disappear from EOD snapshots.
+     *
+     * @param array<string, array<string, mixed>> $openingPositions
+     * @param array<string, array<string, mixed>> $openedPositions
+     * @param array<string, Bar> $priorBars
+     * @param array<string, array<string, list<Bar>>> $intradaySessions
+     * @return array{gross:?float,positions:int,failures:list<string>}
+     */
+    private function intradayGrossExposureUpperBound(
+        float $startingEquity,
+        array $openingPositions,
+        array $openedPositions,
+        array $priorBars,
+        array $intradaySessions,
+        string $date,
+    ): array {
+        $positionCount = count($openingPositions) + count($openedPositions);
+        if ($positionCount === 0) {
+            return ['gross' => 0.0, 'positions' => 0, 'failures' => []];
+        }
+        if (!is_finite($startingEquity) || $startingEquity <= 0.0) {
+            return ['gross' => null, 'positions' => $positionCount, 'failures' => ['non_positive_starting_equity']];
+        }
+
+        $notionalUpper = 0.0;
+        $baseNotional = 0.0;
+        $equityLower = $startingEquity;
+        $baseEquity = $startingEquity;
+        $failures = [];
+
+        $accumulate = function (array $position, bool $openedToday) use (
+            &$notionalUpper,
+            &$baseNotional,
+            &$equityLower,
+            &$baseEquity,
+            &$failures,
+            $priorBars,
+            $intradaySessions,
+            $date,
+        ): void {
+            $symbol = strtoupper((string) ($position['symbol'] ?? ''));
+            $signal = $position['signal'] ?? null;
+            $shares = max(0.0, (float) ($position['remaining_shares'] ?? 0.0));
+            if ($symbol === '' || !$signal instanceof Signal || $shares <= 0.0) {
+                return;
+            }
+
+            $sessionValidation = $this->intradayEntryConfirmer?->validateRegularSessionPath(
+                $symbol,
+                $date,
+                $intradaySessions[$symbol][$date] ?? [],
+            );
+            if ($sessionValidation === null) {
+                $failures[] = 'session_quality_validator_unavailable:' . $symbol;
+                return;
+            }
+            if ($sessionValidation['passes'] !== true) {
+                foreach ($sessionValidation['failures'] as $failure) {
+                    $failures[] = $failure === 'missing_regular_session'
+                        ? 'missing_regular_path:' . $symbol
+                        : 'incomplete_regular_path:' . $symbol . ':' . $failure;
+                }
+                return;
+            }
+
+            $basePrice = $openedToday
+                ? $signal->entry
+                : (($priorBars[$symbol] ?? null) instanceof Bar ? $priorBars[$symbol]->close : null);
+            if (!is_float($basePrice) && !is_int($basePrice)) {
+                $failures[] = 'missing_prior_mark:' . $symbol;
+                return;
+            }
+            $basePrice = (float) $basePrice;
+            if ($basePrice <= 0.0) {
+                $failures[] = 'invalid_prior_mark:' . $symbol;
+                return;
+            }
+
+            $entryTime = $openedToday && ($position['entry_time'] ?? null) instanceof \DateTimeImmutable
+                ? $position['entry_time']
+                : null;
+            $eligibleBars = [];
+            foreach ($sessionValidation['bars'] as $bar) {
+                if ($entryTime !== null && $bar->time < $entryTime) {
+                    continue;
+                }
+                $eligibleBars[] = $bar;
+            }
+            if ($eligibleBars === []) {
+                $failures[] = 'missing_regular_path:' . $symbol;
+                return;
+            }
+
+            $highest = max(array_map(static fn (Bar $bar): float => $bar->high, $eligibleBars));
+            $lowest = min(array_map(static fn (Bar $bar): float => $bar->low, $eligibleBars));
+            $notionalUpper += abs($highest * $shares);
+            $baseNotional += abs($basePrice * $shares);
+
+            if ($openedToday) {
+                $entryCost = (float) ($position['realized_pnl'] ?? 0.0);
+                $equityLower += $entryCost;
+                $baseEquity += $entryCost;
+            }
+            $adversePrice = $signal->direction === 'short' ? $highest : $lowest;
+            $equityLower += $signal->direction === 'short'
+                ? ($basePrice - $adversePrice) * $shares
+                : ($adversePrice - $basePrice) * $shares;
+        };
+
+        foreach ($openingPositions as $position) {
+            $accumulate($position, false);
+        }
+        foreach ($openedPositions as $position) {
+            $accumulate($position, true);
+        }
+
+        $failures = array_values(array_unique($failures));
+        if ($failures !== []) {
+            return ['gross' => null, 'positions' => $positionCount, 'failures' => $failures];
+        }
+        if ($equityLower <= 0.0 || $baseEquity <= 0.0) {
+            return ['gross' => null, 'positions' => $positionCount, 'failures' => ['non_positive_equity_lower_bound']];
+        }
+
+        return [
+            'gross' => max($baseNotional / $baseEquity, $notionalUpper / $equityLower),
+            'positions' => $positionCount,
+            'failures' => [],
+        ];
+    }
+
+    private function signalAtIntradayFill(Signal $planned, IntradayEntryDecision $decision): Signal
+    {
+        if (!$decision->isFilled()) {
+            throw new \InvalidArgumentException('Cannot create an execution signal from an unfilled decision.');
+        }
+
+        $entry = (float) $decision->fillPrice;
+        $risk = $planned->direction === 'short'
+            ? $planned->stop - $entry
+            : $entry - $planned->stop;
+        if ($risk <= 0.0) {
+            throw new \RuntimeException('Confirmed intraday entry is already beyond its frozen stop.');
+        }
+
+        $targetMode = (string) ($this->strategyConfig['intraday_touch_reclaim']['target_mode'] ?? 'rebase_distance');
+        $target = $planned->target;
+        if ($targetMode === 'rebase_distance') {
+            $targetDistance = abs($planned->target - $planned->entry);
+            $target = $planned->direction === 'short'
+                ? $entry - $targetDistance
+                : $entry + $targetDistance;
+        } elseif ($targetMode !== 'planned_price') {
+            throw new \InvalidArgumentException('Unknown intraday target mode: ' . $targetMode);
+        }
+
+        $metadata = $planned->metadata;
+        $metadata['planned_signal_entry'] = $planned->entry;
+        $metadata['intraday_entry_status'] = $decision->status;
+        $metadata['intraday_touch_at'] = $decision->touchBarStart?->format(DATE_ATOM);
+        $metadata['intraday_reclaim_at'] = $decision->reclaimBarStart?->format(DATE_ATOM);
+        $metadata['intraday_decision_at'] = $decision->decisionAt?->format(DATE_ATOM);
+        $metadata['intraday_fill_at'] = $decision->fillAt?->format(DATE_ATOM);
+        $metadata['intraday_raw_fill_price'] = $decision->rawFillPrice;
+        $metadata['intraday_fill_price'] = $decision->fillPrice;
+        $metadata['intraday_fill_delay_minutes'] = $decision->fillDelayMinutes;
+        $metadata['intraday_pre_entry_stop_breach'] = $decision->preEntryStopBreach;
+        $metadata['intraday_target_mode'] = $targetMode;
+
+        return new Signal(
+            $planned->symbol,
+            $planned->createdAt,
+            $planned->strategy,
+            $entry,
+            $planned->stop,
+            $target,
+            $risk,
+            $planned->score,
+            array_merge($planned->reasons, ['causal intraday touch/reclaim confirmed before entry']),
+            $planned->direction,
+            $metadata,
+        );
+    }
+
+    /** @param list<Bar> $sessionBars */
+    private function postEntrySessionBar(
+        IntradayEntryDecision $decision,
+        array $sessionBars,
+        Bar $dailyBar,
+    ): Bar {
+        if (!$decision->isFilled()) {
+            throw new \InvalidArgumentException('Cannot build a fill-day path from an unfilled decision.');
+        }
+
+        $tail = $this->postEntrySessionBars($decision, $sessionBars);
+        if ($tail === []) {
+            throw new \RuntimeException('No intraday bars remain at or after the confirmed fill.');
+        }
+
+        $entry = (float) $decision->fillPrice;
+        $high = $entry;
+        $low = $entry;
+        $volume = 0.0;
+        foreach ($tail as $bar) {
+            $high = max($high, $bar->high);
+            $low = min($low, $bar->low);
+            $volume += $bar->volume;
+        }
+
+        return new Bar(
+            $dailyBar->symbol,
+            $dailyBar->time,
+            $entry,
+            $high,
+            $low,
+            $dailyBar->close,
+            $volume,
+        );
+    }
+
+    /** @param list<Bar> $sessionBars @return list<Bar> */
+    private function postEntrySessionBars(IntradayEntryDecision $decision, array $sessionBars): array
+    {
+        if (!$decision->isFilled()) {
+            return [];
+        }
+
+        $tail = array_values(array_filter(
+            $sessionBars,
+            static function (mixed $bar) use ($decision): bool {
+                if (!$bar instanceof Bar || $bar->time < $decision->fillAt) {
+                    return false;
+                }
+                $local = $bar->time->setTimezone(new \DateTimeZone('America/New_York'));
+                $time = $local->format('H:i');
+
+                return $local->format('Y-m-d') === $decision->session
+                    && UsEquitySessionCalendar::isRegularBarStart($decision->session, $time);
+            },
+        ));
+        usort($tail, static fn (Bar $a, Bar $b): int => $a->time <=> $b->time);
+
+        return $tail;
+    }
+
+    /**
+     * Execute fill-day risk in chronological intraday order. Daily OHLC would
+     * collapse every later high and low into one ambiguous bar and force most
+     * valid reclaim entries out at BE. EMA10 and close-based stops use only the
+     * last completed daily indicator. Close-based rules are evaluated once
+     * against the authoritative daily close, never a sparse feed's final print.
+     *
+     * @param array<string, mixed> $position
+     * @param list<Bar> $sessionBars
+     * @param array<string, list<float|null>> $indicatorMap
+     */
+    private function updateIntradayConfirmedPosition(
+        array &$position,
+        IntradayEntryDecision $decision,
+        array $sessionBars,
+        Bar $dailyBar,
+        array $indicatorMap,
+        int $dailyIndex,
+        float $partialPct,
+    ): ?Trade {
+        $tail = $this->postEntrySessionBars($decision, $sessionBars);
+        if ($tail === []) {
+            throw new \RuntimeException('No chronological intraday path remains after the confirmed fill.');
+        }
+
+        $completedDailyIndex = max(0, $dailyIndex - 1);
+        foreach ($tail as $bar) {
+            $trade = $this->updatePosition(
+                $position,
+                $bar,
+                $indicatorMap,
+                $completedDailyIndex,
+                $partialPct,
+                false,
+            );
+            if ($trade !== null) {
+                return $trade;
+            }
+        }
+
+        $officialClose = new Bar(
+            $dailyBar->symbol,
+            $dailyBar->time,
+            $dailyBar->close,
+            $dailyBar->close,
+            $dailyBar->close,
+            $dailyBar->close,
+            0.0,
+        );
+
+        return $this->updatePosition(
+            $position,
+            $officialClose,
+            $indicatorMap,
+            $dailyIndex,
+            $partialPct,
+            true,
+        );
+    }
+
+    /**
      * @param array<string, array<string, mixed>> $positionsByKey
      * @param array{key?:string, signal:Signal, age:int, planned_shares:float, planned_at?:string, events:list<string>} $pending
      */
@@ -397,20 +968,47 @@ final class PoosBacktester
         array &$positionsByKey,
         array $pending,
         Bar $bar,
+        ?IntradayEntryDecision $entryDecision = null,
     ): bool {
-        $signal = $pending['signal'];
-        $positionKey = (string) ($pending['key'] ?? $this->setupKey($signal));
+        $plannedSignal = $pending['signal'];
+        $positionKey = (string) ($pending['key'] ?? $this->setupKey($plannedSignal));
         if (isset($positionsByKey[$positionKey])) {
             return false;
         }
 
         $shares = max(0.0, (float) ($pending['planned_shares'] ?? 0.0));
+        $signal = $plannedSignal;
+        $entryTime = $bar->time;
+        if ($entryDecision !== null) {
+            if (!$entryDecision->isFilled()) {
+                return false;
+            }
+            $signal = $this->signalAtIntradayFill($plannedSignal, $entryDecision);
+            $entryTime = $entryDecision->fillAt;
+            $plannedNotional = max(0.0, $plannedSignal->entry * $shares);
+            $shares = min($shares, $plannedNotional / max(0.01, $signal->entry));
+            if (($this->riskConfig['position_sizing_mode'] ?? 'capital_pct') !== 'capital_pct') {
+                $plannedRisk = max(0.0, $plannedSignal->riskPerShare * (float) ($pending['planned_shares'] ?? 0.0));
+                $shares = min($shares, $plannedRisk / max(0.01, $signal->riskPerShare));
+            }
+            if (!($this->riskConfig['allow_fractional_shares'] ?? false)) {
+                $shares = floor($shares);
+            } else {
+                $shares = floor($shares * 1000000.0) / 1000000.0;
+            }
+        }
         if ($shares <= 0.0) {
             return false;
         }
 
         $events = $pending['events'];
-        $events[] = $bar->time->format('Y-m-d') . ': filled limit at ' . round($signal->entry, 4);
+        if ($entryDecision !== null) {
+            $events[] = $entryTime->format(DATE_ATOM) . ': touch/reclaim filled next-bar open at '
+                . round($signal->entry, 4)
+                . ' (raw ' . round((float) $entryDecision->rawFillPrice, 4) . ')';
+        } else {
+            $events[] = $bar->time->format('Y-m-d') . ': filled limit at ' . round($signal->entry, 4);
+        }
         $entryCost = $this->transactionCost(abs($signal->entry * $shares));
         if ($entryCost > 0.0) {
             $events[] = $bar->time->format('Y-m-d') . ': modeled entry cost ' . round($entryCost, 4);
@@ -419,7 +1017,7 @@ final class PoosBacktester
             'key' => $positionKey,
             'symbol' => $signal->symbol,
             'signal' => $signal,
-            'entry_time' => $bar->time,
+            'entry_time' => $entryTime,
             'shares' => $shares,
             'remaining_shares' => $shares,
             'stop' => $signal->stop,
@@ -974,7 +1572,14 @@ final class PoosBacktester
      * @param array<string, mixed> $position
      * @param array<string, list<float|null>> $indicatorMap
      */
-    private function updatePosition(array &$position, Bar $bar, array $indicatorMap, int $index, float $partialPct): ?Trade
+    private function updatePosition(
+        array &$position,
+        Bar $bar,
+        array $indicatorMap,
+        int $index,
+        float $partialPct,
+        bool $allowCloseBasedRules = true,
+    ): ?Trade
     {
         /** @var Signal $signal */
         $signal = $position['signal'];
@@ -1008,7 +1613,7 @@ final class PoosBacktester
 
         if ($hardStopActive) {
             if (($position['break_even_armed'] ?? false) === true && $breakEvenStopMode === 'close') {
-                if ($this->mentalStopViolated($signal, $bar, $stop)) {
+                if ($allowCloseBasedRules && $this->mentalStopViolated($signal, $bar, $stop)) {
                     $events[] = $bar->time->format('Y-m-d') . ': break-even close stop confirmed; exit queued for next open';
                     $position['mental_exit_pending'] = true;
                     $position['mental_exit_trigger_type'] = 'break_even';
@@ -1025,7 +1630,12 @@ final class PoosBacktester
             }
         }
 
-        if (!$position['break_even_armed'] && $this->breakEvenReached($signal, $bar, $breakEvenProfitPct, $breakEvenTriggerMode)) {
+        $breakEvenMayTrigger = $breakEvenTriggerMode !== 'close' || $allowCloseBasedRules;
+        if (
+            !$position['break_even_armed']
+            && $breakEvenMayTrigger
+            && $this->breakEvenReached($signal, $bar, $breakEvenProfitPct, $breakEvenTriggerMode)
+        ) {
             $stop = $this->breakEvenStopPrice($signal, $breakEvenStopOffsetPct);
             $events[] = $bar->time->format('Y-m-d') . ': club rule #2, +'
                 . round($breakEvenProfitPct * 100, 2) . '% reached, stop moved to ' . round($stop, 4);
@@ -1054,7 +1664,11 @@ final class PoosBacktester
 
                 return $this->tradeFromPosition($position, $bar, $exit, $pnl, 'break_even_stop', $events);
             }
-            if ($breakEvenStopMode === 'close' && $this->mentalStopViolated($signal, $bar, $stop)) {
+            if (
+                $breakEvenStopMode === 'close'
+                && $allowCloseBasedRules
+                && $this->mentalStopViolated($signal, $bar, $stop)
+            ) {
                 $events[] = $bar->time->format('Y-m-d') . ': newly armed break-even close stop confirmed; exit queued for next open';
                 $position['mental_exit_pending'] = true;
                 $position['mental_exit_trigger_type'] = 'break_even';
@@ -1065,7 +1679,12 @@ final class PoosBacktester
             }
         }
 
-        if (!$hardStopActive && $mentalStopExitOnClose && $this->mentalStopViolated($signal, $bar, (float) ($position['initial_stop'] ?? $stop))) {
+        if (
+            !$hardStopActive
+            && $mentalStopExitOnClose
+            && $allowCloseBasedRules
+            && $this->mentalStopViolated($signal, $bar, (float) ($position['initial_stop'] ?? $stop))
+        ) {
             $events[] = $bar->time->format('Y-m-d') . ': club rule #3 mental swing stop confirmed on close; exit queued for next open';
             $position['mental_exit_pending'] = true;
             $position['mental_exit_trigger_type'] = 'initial';
@@ -1075,7 +1694,11 @@ final class PoosBacktester
             return null;
         }
 
-        if (!$position['took_partial'] && $this->targetTouched($signal, $bar)) {
+        // A zero partial explicitly means "hold until the strategy is
+        // violated". Do not let a target touch with zero sold shares arm the
+        // runner-only BE/EMA10 trail; that silently turns hold into a target
+        // exit policy even though no partial was taken.
+        if ($partialPct > 0.0 && !$position['took_partial'] && $this->targetTouched($signal, $bar)) {
             $partialShares = max(0.0, ((float) $position['shares']) * $partialPct);
             $partialShares = min($partialShares, $remainingShares);
             $realized += $this->pnlPerShare($signal, $signal->target) * $partialShares;
@@ -1097,7 +1720,12 @@ final class PoosBacktester
         }
 
         $ema10 = $indicatorMap['ema10'][$index] ?? null;
-        if ($position['took_partial'] && $ema10 !== null && $this->shouldTrailToEma10($signal, $bar, $ema10, $stop)) {
+        if (
+            $allowCloseBasedRules
+            && $position['took_partial']
+            && $ema10 !== null
+            && $this->shouldTrailToEma10($signal, $bar, $ema10, $stop)
+        ) {
             $position['stop'] = $ema10;
             $position['events'][] = $bar->time->format('Y-m-d') . ': trailed stop to EMA10 ' . round($ema10, 4);
         }
@@ -1282,6 +1910,17 @@ final class PoosBacktester
         return max(0.0, $notional) * $basisPoints / 10000.0;
     }
 
+    private function marginInterestCharge(float $borrowedNotional, int $calendarDays, float $annualRate): float
+    {
+        if ($borrowedNotional <= 0.0 || $calendarDays <= 0 || $annualRate <= 0.0) {
+            return 0.0;
+        }
+
+        // Alpaca publishes an annual margin rate. The model uses the common
+        // broker 360-day convention and includes weekends between sessions.
+        return $borrowedNotional * $annualRate * $calendarDays / 360.0;
+    }
+
     /** @param array<string, mixed> $position @param list<string> $events */
     private function tradeFromPosition(array $position, Bar $bar, float $exit, float $pnl, string $reason, array $events): Trade
     {
@@ -1307,6 +1946,14 @@ final class PoosBacktester
             $rMultiple,
             $reason,
             $events,
+            [
+                'direction' => $signal->direction,
+                'stop' => $signal->stop,
+                'target' => $signal->target,
+                'risk_per_share' => $signal->riskPerShare,
+                'setup_key' => $position['key'] ?? ($signal->metadata['setup_key'] ?? null),
+                'signal_metadata' => $signal->metadata,
+            ],
         );
     }
 }

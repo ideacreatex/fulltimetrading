@@ -19,6 +19,12 @@ $scanner = new PoosScanner(new IndicatorCalculator(), []);
 $candidate = new ReflectionMethod($scanner, 'isAdvanceSupportCandidate');
 $projection = new ReflectionMethod($scanner, 'projectSupportLevel');
 
+$baseDisabledScanner = new PoosScanner(new IndicatorCalculator(), ['poos_base_enabled' => false]);
+advanceScannerAssert(
+    $baseDisabledScanner->scan('TEST', [], []) === [],
+    'Disabling the generic POOS family must leave an empty scan when no explicit setup family is enabled.',
+);
+
 $untouched = new Bar(
     'TEST',
     new DateTimeImmutable('2026-07-15'),

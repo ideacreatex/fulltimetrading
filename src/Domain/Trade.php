@@ -6,7 +6,7 @@ namespace FulltimeTrading\Domain;
 
 final readonly class Trade
 {
-    /** @param list<string> $events */
+    /** @param list<string> $events @param array<string, mixed> $metadata */
     public function __construct(
         public string $symbol,
         public string $strategy,
@@ -19,6 +19,7 @@ final readonly class Trade
         public float $rMultiple,
         public string $exitReason,
         public array $events,
+        public array $metadata = [],
     ) {
     }
 }
