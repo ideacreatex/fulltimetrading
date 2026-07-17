@@ -1,15 +1,15 @@
 {
-    "generated_at": "2026-07-17T01:44:07+00:00",
+    "generated_at": "2026-07-17T03:31:05+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
-        "branch": "codex/author-signal-refresh-2026-07-15",
-        "commit": "c29ca0b",
+        "branch": "codex/hybrid-paper-runtime-2026-07-17",
+        "commit": "df6a536",
         "dirty": false
     },
     "runtime": {
         "orders_enabled": true,
         "production_entry_enabled": false,
-        "production_entry_block_reason": "no_planned_quantity_walk_forward_candidate_2026-07-15",
+        "production_entry_block_reason": "author_style_unqualified_tactical_rotation_shadow_only_2026-07-16",
         "paper_only": true,
         "paper_base_host_ok": true,
         "data_key_set": true,
@@ -24,7 +24,7 @@
     },
     "alpaca": {
         "clock": {
-            "timestamp": "2026-07-16T21:44:08.56850138-04:00",
+            "timestamp": "2026-07-16T23:31:06.56531098-04:00",
             "is_open": false,
             "next_open": "2026-07-17T09:30:00-04:00",
             "next_close": "2026-07-17T16:00:00-04:00"
@@ -35,8 +35,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 1905.99,
-            "equity": 25094.1,
-            "buying_power": 15205.23,
+            "equity": 24983.55,
+            "buying_power": 15229.98,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -51,24 +51,24 @@
                 "side": "long",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "current_price": 178.71,
-                "market_value": 11794.86,
+                "current_price": 176.66,
+                "market_value": 11659.56,
                 "cost_basis": 14817.36003,
-                "unrealized_pl": -3022.50003,
-                "unrealized_plpc": -0.20398,
-                "change_today": -0.09344
+                "unrealized_pl": -3157.80003,
+                "unrealized_plpc": -0.21311,
+                "change_today": -0.03654
             },
             {
                 "symbol": "TQQQ",
                 "side": "long",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "current_price": 69.06,
-                "market_value": 11394.9,
+                "current_price": 69.2,
+                "market_value": 11418,
                 "cost_basis": 12431.1,
-                "unrealized_pl": -1036.2,
-                "unrealized_plpc": -0.08336,
-                "change_today": -0.07227
+                "unrealized_pl": -1013.1,
+                "unrealized_plpc": -0.0815,
+                "change_today": -0.02177
             }
         ],
         "open_orders": []
@@ -80,7 +80,7 @@
                 "status": "open",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "market_price": 178.71,
+                "market_price": 176.66,
                 "entry_price": 211.6568,
                 "stop_price": 178.9308,
                 "break_even_trigger_price": 215.89,
@@ -88,14 +88,14 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-17T01:43:07+00:00"
+                "last_event_at": "2026-07-17T03:31:02+00:00"
             },
             {
                 "symbol": "TQQQ",
                 "status": "open",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "market_price": 69.1,
+                "market_price": 69.2,
                 "entry_price": 75.34,
                 "stop_price": 69.2,
                 "break_even_trigger_price": 76.8468,
@@ -103,7 +103,7 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-17T01:43:07+00:00"
+                "last_event_at": "2026-07-17T03:31:02+00:00"
             },
             {
                 "symbol": "USD",
@@ -121,6 +121,7 @@
                 "last_event_at": "2026-07-14T14:11:04+00:00"
             }
         ],
+        "recent_orders_scope": "local_order_history_not_current_open_orders",
         "recent_orders": [
             {
                 "client_order_id": "ftt_TQQQ_20260715_ema10",
@@ -405,8 +406,8 @@
         ],
         "recent_actions": [
             {
-                "id": 3644,
-                "created_at": "2026-07-17T01:43:07+00:00",
+                "id": 3747,
+                "created_at": "2026-07-17T03:31:02+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -417,8 +418,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3643,
-                "created_at": "2026-07-17T01:42:04+00:00",
+                "id": 3746,
+                "created_at": "2026-07-17T03:28:55+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -429,8 +430,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3642,
-                "created_at": "2026-07-17T01:41:02+00:00",
+                "id": 3745,
+                "created_at": "2026-07-17T03:27:52+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -441,8 +442,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3641,
-                "created_at": "2026-07-17T01:40:00+00:00",
+                "id": 3744,
+                "created_at": "2026-07-17T03:26:50+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -453,8 +454,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3640,
-                "created_at": "2026-07-17T01:38:58+00:00",
+                "id": 3743,
+                "created_at": "2026-07-17T03:25:48+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -465,8 +466,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3639,
-                "created_at": "2026-07-17T01:37:56+00:00",
+                "id": 3742,
+                "created_at": "2026-07-17T03:24:46+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -477,8 +478,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3638,
-                "created_at": "2026-07-17T01:36:54+00:00",
+                "id": 3741,
+                "created_at": "2026-07-17T03:23:44+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -489,8 +490,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3637,
-                "created_at": "2026-07-17T01:35:52+00:00",
+                "id": 3740,
+                "created_at": "2026-07-17T03:22:42+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -501,8 +502,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3636,
-                "created_at": "2026-07-17T01:34:50+00:00",
+                "id": 3739,
+                "created_at": "2026-07-17T03:21:39+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -513,8 +514,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3635,
-                "created_at": "2026-07-17T01:33:47+00:00",
+                "id": 3738,
+                "created_at": "2026-07-17T03:20:37+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -525,8 +526,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3634,
-                "created_at": "2026-07-17T01:32:45+00:00",
+                "id": 3737,
+                "created_at": "2026-07-17T03:19:35+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -537,8 +538,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3633,
-                "created_at": "2026-07-17T01:31:43+00:00",
+                "id": 3736,
+                "created_at": "2026-07-17T03:18:33+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -549,8 +550,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3632,
-                "created_at": "2026-07-17T01:30:41+00:00",
+                "id": 3735,
+                "created_at": "2026-07-17T03:17:31+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -561,8 +562,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3631,
-                "created_at": "2026-07-17T01:29:38+00:00",
+                "id": 3734,
+                "created_at": "2026-07-17T03:16:29+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -573,8 +574,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3630,
-                "created_at": "2026-07-17T01:28:36+00:00",
+                "id": 3733,
+                "created_at": "2026-07-17T03:15:26+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -585,8 +586,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3629,
-                "created_at": "2026-07-17T01:27:34+00:00",
+                "id": 3732,
+                "created_at": "2026-07-17T03:14:24+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -597,8 +598,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3628,
-                "created_at": "2026-07-17T01:26:32+00:00",
+                "id": 3731,
+                "created_at": "2026-07-17T03:13:22+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -609,8 +610,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3627,
-                "created_at": "2026-07-17T01:25:29+00:00",
+                "id": 3730,
+                "created_at": "2026-07-17T03:12:20+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -621,8 +622,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3626,
-                "created_at": "2026-07-17T01:24:27+00:00",
+                "id": 3729,
+                "created_at": "2026-07-17T03:11:18+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -633,8 +634,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 3625,
-                "created_at": "2026-07-17T01:23:25+00:00",
+                "id": 3728,
+                "created_at": "2026-07-17T03:10:15+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -691,7 +692,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-07-17T01:43:07+00:00",
+        "generated_at": "2026-07-17T03:31:02+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": false,
@@ -703,10 +704,41 @@
     "latest_plan": {
         "generated_at": "2026-07-16T13:35:36+00:00",
         "dry_run": null,
+        "submit_requested": true,
         "submit_allowed": null,
-        "orders_count": null,
-        "skipped_count": null,
+        "orders_count": 0,
+        "skipped_count": 1,
         "orders": []
+    },
+    "tactical": {
+        "run": null,
+        "health": {
+            "expected": false,
+            "ok": true,
+            "max_age_seconds": 180,
+            "checked_at": "2026-07-17T03:31:05+00:00",
+            "errors": []
+        },
+        "notifications": {
+            "expected": false,
+            "ok": true,
+            "pending_count": 0,
+            "failed_pending_count": 0,
+            "delivered_count": 0,
+            "last_delivered_at": null,
+            "required": {
+                "signal": false,
+                "transition": false,
+                "activation": false
+            },
+            "errors": []
+        },
+        "heartbeat": null,
+        "cycle": null,
+        "sleeves": [],
+        "positions": [],
+        "active_intents": [],
+        "live_review_not_before": "2026-08-17"
     },
     "errors": []
 }
