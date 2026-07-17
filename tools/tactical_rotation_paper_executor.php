@@ -16,6 +16,7 @@ use FulltimeTrading\Trading\TacticalImplementationIdentity;
 use FulltimeTrading\Trading\TacticalRotationExecutionWindow;
 use FulltimeTrading\Trading\TacticalRotationPaperPlanner;
 use FulltimeTrading\Trading\TacticalSignalArtifactGuard;
+use FulltimeTrading\Trading\TacticalTransitionNotificationKey;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -85,6 +86,7 @@ $runtimeFiles = [
     $root . '/src/Trading/TacticalImplementationIdentity.php',
     $root . '/src/Trading/TacticalSignalArtifactGuard.php',
     $root . '/src/Trading/TacticalNotificationHealthGuard.php',
+    $root . '/src/Trading/TacticalTransitionNotificationKey.php',
     $root . '/src/Trading/TacticalLegacyOwnershipGuard.php',
     $root . '/src/Notifications/TelegramNotifier.php',
     $root . '/src/Trading/AlpacaPaperClient.php',
@@ -242,7 +244,7 @@ if ((string) $run['status'] === 'transition') {
         tacticalNotify(
             $repo,
             $notifier,
-            'transition:' . hash('sha256', json_encode($manifest, JSON_THROW_ON_ERROR)),
+            TacticalTransitionNotificationKey::fromManifest($manifest),
             tacticalTransitionMessage($account, $manifest),
             $events,
         );
