@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-07-17T03:31:05+00:00",
+    "generated_at": "2026-07-17T03:36:11+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "df6a536",
+        "commit": "b02ce9c",
         "dirty": false
     },
     "runtime": {
@@ -24,7 +24,7 @@
     },
     "alpaca": {
         "clock": {
-            "timestamp": "2026-07-16T23:31:06.56531098-04:00",
+            "timestamp": "2026-07-16T23:36:12.385480041-04:00",
             "is_open": false,
             "next_open": "2026-07-17T09:30:00-04:00",
             "next_close": "2026-07-17T16:00:00-04:00"
@@ -35,8 +35,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 1905.99,
-            "equity": 24983.55,
-            "buying_power": 15229.98,
+            "equity": 24972,
+            "buying_power": 15218.43,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -63,12 +63,12 @@
                 "side": "long",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "current_price": 69.2,
-                "market_value": 11418,
+                "current_price": 69.13,
+                "market_value": 11406.45,
                 "cost_basis": 12431.1,
-                "unrealized_pl": -1013.1,
-                "unrealized_plpc": -0.0815,
-                "change_today": -0.02177
+                "unrealized_pl": -1024.65,
+                "unrealized_plpc": -0.08243,
+                "change_today": -0.02276
             }
         ],
         "open_orders": []
@@ -88,14 +88,14 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-17T03:31:02+00:00"
+                "last_event_at": "2026-07-17T03:36:08+00:00"
             },
             {
                 "symbol": "TQQQ",
                 "status": "open",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "market_price": 69.2,
+                "market_price": 69.12,
                 "entry_price": 75.34,
                 "stop_price": 69.2,
                 "break_even_trigger_price": 76.8468,
@@ -103,7 +103,7 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-17T03:31:02+00:00"
+                "last_event_at": "2026-07-17T03:36:08+00:00"
             },
             {
                 "symbol": "USD",
@@ -406,6 +406,66 @@
         ],
         "recent_actions": [
             {
+                "id": 3752,
+                "created_at": "2026-07-17T03:36:08+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 3751,
+                "created_at": "2026-07-17T03:35:11+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 3750,
+                "created_at": "2026-07-17T03:34:09+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 3749,
+                "created_at": "2026-07-17T03:33:07+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 3748,
+                "created_at": "2026-07-17T03:32:05+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
                 "id": 3747,
                 "created_at": "2026-07-17T03:31:02+00:00",
                 "symbol": null,
@@ -584,66 +644,6 @@
                 "order_id_last4": null,
                 "client_order_id": null,
                 "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 3732,
-                "created_at": "2026-07-17T03:14:24+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 3731,
-                "created_at": "2026-07-17T03:13:22+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 3730,
-                "created_at": "2026-07-17T03:12:20+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 3729,
-                "created_at": "2026-07-17T03:11:18+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 3728,
-                "created_at": "2026-07-17T03:10:15+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
             }
         ]
     },
@@ -692,7 +692,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-07-17T03:31:02+00:00",
+        "generated_at": "2026-07-17T03:36:08+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": false,
@@ -716,7 +716,7 @@
             "expected": false,
             "ok": true,
             "max_age_seconds": 180,
-            "checked_at": "2026-07-17T03:31:05+00:00",
+            "checked_at": "2026-07-17T03:36:11+00:00",
             "errors": []
         },
         "notifications": {
@@ -733,8 +733,757 @@
             },
             "errors": []
         },
-        "heartbeat": null,
-        "cycle": null,
+        "heartbeat": {
+            "pid": 97318,
+            "started_at": "2026-07-17T03:31:43+00:00",
+            "heartbeat_at": "2026-07-17T03:32:37+00:00",
+            "submit": true,
+            "telegram": true,
+            "paper_only": true,
+            "account_guard_verified": true,
+            "last_signal_exit_code": null,
+            "last_signal_finished_at": null,
+            "last_executor_exit_code": 0,
+            "last_executor_finished_at": "2026-07-17T03:32:22+00:00",
+            "last_executor_timed_out": false,
+            "error": null
+        },
+        "cycle": {
+            "generated_at": "2026-07-16T23:32:20-04:00",
+            "run_id": "hybrid-v4-paper-2026-07-17",
+            "profile": "causal-stock-rotation-hybrid-v4",
+            "dry_run": false,
+            "paper_only": true,
+            "account_guard": {
+                "account_reference_match": true,
+                "multiplier_match": true,
+                "shorting_match": true,
+                "active": true,
+                "unblocked": true
+            },
+            "run_status": "transition",
+            "reconciliation_status": "legacy_positions_in_control",
+            "signal": {
+                "as_of": "2026-07-16",
+                "generated_at": "2026-07-17T03:30:35+00:00",
+                "intended_session": "2026-07-17",
+                "validation_selected": true,
+                "targets": {
+                    "dynamic_loo10": {
+                        "action": "hold",
+                        "symbol": null,
+                        "gross": 0,
+                        "current_symbol": "PANW",
+                        "due": false
+                    },
+                    "qqq200_full": {
+                        "action": "hold",
+                        "symbol": null,
+                        "gross": 0,
+                        "current_symbol": null,
+                        "due": false
+                    },
+                    "spy200_full": {
+                        "action": "hold",
+                        "symbol": null,
+                        "gross": 0,
+                        "current_symbol": null,
+                        "due": false
+                    },
+                    "qqq150_ex_crypto": {
+                        "action": "hold",
+                        "symbol": null,
+                        "gross": 0,
+                        "current_symbol": null,
+                        "due": false
+                    }
+                },
+                "data_provenance": {
+                    "schema": 1,
+                    "mode": "frozen_alpaca_sip_plus_completed_alpaca_iex",
+                    "request": {
+                        "symbols": [
+                            "AAPL",
+                            "AMD",
+                            "AMZN",
+                            "ANET",
+                            "AVGO",
+                            "COIN",
+                            "CRWD",
+                            "DELL",
+                            "GOOGL",
+                            "META",
+                            "MRVL",
+                            "MSFT",
+                            "MSTR",
+                            "MU",
+                            "NVDA",
+                            "PANW",
+                            "PLTR",
+                            "QQQ",
+                            "SMCI",
+                            "SPY",
+                            "TSLA",
+                            "WDC"
+                        ],
+                        "timeframe": "1Day",
+                        "start": "2020-01-01",
+                        "end": "2026-07-16"
+                    },
+                    "boundary": {
+                        "frozen_sip_cutoff_inclusive": "2026-07-15",
+                        "recent_iex_start_inclusive": "2026-07-16",
+                        "overlap_policy": "reject",
+                        "overlap_sessions": 0
+                    },
+                    "cross_feed_audit": {
+                        "mode": "audit_only_cutoff_overlap_v1",
+                        "enabled": true,
+                        "used": true,
+                        "passed": true,
+                        "role": "audit_only_not_decision_data",
+                        "decision_data_usage": "none",
+                        "used_for_merged_bars": false,
+                        "contract": {
+                            "mode": "audit_only_cutoff_overlap_v1",
+                            "enabled": true,
+                            "sessions": 5,
+                            "price_tolerance_bps": {
+                                "open": 150,
+                                "high": 150,
+                                "low": 150,
+                                "close": 50
+                            },
+                            "minimum_iex_to_sip_volume_ratio": 0.001,
+                            "maximum_iex_to_sip_volume_ratio": 0.5,
+                            "require_all_symbols": true
+                        },
+                        "feeds": {
+                            "reference": "sip",
+                            "candidate": "iex"
+                        },
+                        "cache_namespace": "alpaca-causal-tactical-rotation-v1-iex-split-1day-after-20260715",
+                        "request": {
+                            "symbols": [
+                                "AAPL",
+                                "AMD",
+                                "AMZN",
+                                "ANET",
+                                "AVGO",
+                                "COIN",
+                                "CRWD",
+                                "DELL",
+                                "GOOGL",
+                                "META",
+                                "MRVL",
+                                "MSFT",
+                                "MSTR",
+                                "MU",
+                                "NVDA",
+                                "PANW",
+                                "PLTR",
+                                "QQQ",
+                                "SMCI",
+                                "SPY",
+                                "TSLA",
+                                "WDC"
+                            ],
+                            "timeframe": "1Day",
+                            "start": "2026-07-09",
+                            "end": "2026-07-15"
+                        },
+                        "window": {
+                            "start": "2026-07-09",
+                            "end": "2026-07-15",
+                            "sessions": [
+                                "2026-07-09",
+                                "2026-07-10",
+                                "2026-07-13",
+                                "2026-07-14",
+                                "2026-07-15"
+                            ]
+                        },
+                        "compared_symbols": [
+                            "AAPL",
+                            "AMD",
+                            "AMZN",
+                            "ANET",
+                            "AVGO",
+                            "COIN",
+                            "CRWD",
+                            "DELL",
+                            "GOOGL",
+                            "META",
+                            "MRVL",
+                            "MSFT",
+                            "MSTR",
+                            "MU",
+                            "NVDA",
+                            "PANW",
+                            "PLTR",
+                            "QQQ",
+                            "SMCI",
+                            "SPY",
+                            "TSLA",
+                            "WDC"
+                        ],
+                        "compared_sessions": 5,
+                        "compared_bars": 110,
+                        "violations": 0,
+                        "observed": {
+                            "maximum_price_deviation_bps": {
+                                "open": 94.28107308806865,
+                                "high": 70.88615609177944,
+                                "low": 80.38696303121063,
+                                "close": 14.054473199573135
+                            },
+                            "minimum_iex_to_sip_volume_ratio": 0.010271069379771807,
+                            "maximum_iex_to_sip_volume_ratio": 0.06224252775797969
+                        },
+                        "canonical_sha256": {
+                            "frozen_sip": "772a91742cd3a751273408ee91c5f8bd219f9969044a09b5b353ebb8701f5c8b",
+                            "audit_iex": "ba64c6b872d6ab252d86d0129c028c9977035095df1c499d461038ccb81e37ba"
+                        }
+                    },
+                    "segments": {
+                        "frozen_sip": {
+                            "provider": "Alpaca",
+                            "feed": "sip",
+                            "adjustment": "split",
+                            "storage": "immutable_exact_cache_snapshot",
+                            "namespace": "alpaca-causal-tactical-rotation-v1-sip-split-1day",
+                            "file": "38767d08a8fa7532a8060c245c1d449119243e59.json",
+                            "size_bytes": 8554608,
+                            "sha256": "47a111363eff1ad594c458f284a5c0d3140399bcbac5b50472bffbda7c6a5863",
+                            "expected_sha256": "47a111363eff1ad594c458f284a5c0d3140399bcbac5b50472bffbda7c6a5863",
+                            "request": {
+                                "symbols": [
+                                    "AAPL",
+                                    "AMD",
+                                    "AMZN",
+                                    "ANET",
+                                    "AVGO",
+                                    "COIN",
+                                    "CRWD",
+                                    "DELL",
+                                    "GOOGL",
+                                    "META",
+                                    "MRVL",
+                                    "MSFT",
+                                    "MSTR",
+                                    "MU",
+                                    "NVDA",
+                                    "PANW",
+                                    "PLTR",
+                                    "QQQ",
+                                    "SMCI",
+                                    "SPY",
+                                    "TSLA",
+                                    "WDC"
+                                ],
+                                "timeframe": "1Day",
+                                "start": "2020-01-01",
+                                "end": "2026-07-15"
+                            },
+                            "snapshot_coverage": {
+                                "AAPL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AMD": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AMZN": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "ANET": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AVGO": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "COIN": {
+                                    "bars": 1319,
+                                    "first_session": "2021-04-14",
+                                    "last_session": "2026-07-15"
+                                },
+                                "CRWD": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "DELL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "GOOGL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "META": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MRVL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MSFT": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MSTR": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MU": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "NVDA": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "PANW": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "PLTR": {
+                                    "bars": 1453,
+                                    "first_session": "2020-09-30",
+                                    "last_session": "2026-07-15"
+                                },
+                                "QQQ": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "SMCI": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "SPY": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "TSLA": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "WDC": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                }
+                            },
+                            "snapshot_canonical_sha256": "373e4103c4be8154b1b889a65eb723de037ec742d57a8ecf9f3c3d9cb7738969",
+                            "used_through": "2026-07-15",
+                            "used_coverage": {
+                                "AAPL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AMD": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AMZN": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "ANET": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "AVGO": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "COIN": {
+                                    "bars": 1319,
+                                    "first_session": "2021-04-14",
+                                    "last_session": "2026-07-15"
+                                },
+                                "CRWD": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "DELL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "GOOGL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "META": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MRVL": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MSFT": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MSTR": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "MU": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "NVDA": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "PANW": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "PLTR": {
+                                    "bars": 1453,
+                                    "first_session": "2020-09-30",
+                                    "last_session": "2026-07-15"
+                                },
+                                "QQQ": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "SMCI": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "SPY": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "TSLA": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                },
+                                "WDC": {
+                                    "bars": 1641,
+                                    "first_session": "2020-01-02",
+                                    "last_session": "2026-07-15"
+                                }
+                            },
+                            "used_canonical_sha256": "373e4103c4be8154b1b889a65eb723de037ec742d57a8ecf9f3c3d9cb7738969"
+                        },
+                        "recent_iex": {
+                            "provider": "Alpaca",
+                            "feed": "iex",
+                            "adjustment": "split",
+                            "storage": "atomic_refreshable_cache",
+                            "namespace": "alpaca-causal-tactical-rotation-v1-iex-split-1day-after-20260715",
+                            "used": true,
+                            "request": {
+                                "symbols": [
+                                    "AAPL",
+                                    "AMD",
+                                    "AMZN",
+                                    "ANET",
+                                    "AVGO",
+                                    "COIN",
+                                    "CRWD",
+                                    "DELL",
+                                    "GOOGL",
+                                    "META",
+                                    "MRVL",
+                                    "MSFT",
+                                    "MSTR",
+                                    "MU",
+                                    "NVDA",
+                                    "PANW",
+                                    "PLTR",
+                                    "QQQ",
+                                    "SMCI",
+                                    "SPY",
+                                    "TSLA",
+                                    "WDC"
+                                ],
+                                "timeframe": "1Day",
+                                "start": "2026-07-16",
+                                "end": "2026-07-16"
+                            },
+                            "coverage": {
+                                "AAPL": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "AMD": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "AMZN": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "ANET": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "AVGO": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "COIN": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "CRWD": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "DELL": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "GOOGL": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "META": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "MRVL": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "MSFT": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "MSTR": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "MU": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "NVDA": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "PANW": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "PLTR": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "QQQ": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "SMCI": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "SPY": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "TSLA": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                },
+                                "WDC": {
+                                    "bars": 1,
+                                    "first_session": "2026-07-16",
+                                    "last_session": "2026-07-16"
+                                }
+                            },
+                            "canonical_sha256": "17dd49670b813a8a57f47d561a56de3c3c18954bcaa3c5cf40df61e8938c78dd"
+                        }
+                    },
+                    "merged": {
+                        "effective_completed_session": "2026-07-16",
+                        "coverage": {
+                            "AAPL": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "AMD": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "AMZN": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "ANET": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "AVGO": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "COIN": {
+                                "bars": 1320,
+                                "first_session": "2021-04-14",
+                                "last_session": "2026-07-16"
+                            },
+                            "CRWD": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "DELL": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "GOOGL": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "META": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "MRVL": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "MSFT": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "MSTR": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "MU": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "NVDA": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "PANW": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "PLTR": {
+                                "bars": 1454,
+                                "first_session": "2020-09-30",
+                                "last_session": "2026-07-16"
+                            },
+                            "QQQ": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "SMCI": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "SPY": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "TSLA": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            },
+                            "WDC": {
+                                "bars": 1642,
+                                "first_session": "2020-01-02",
+                                "last_session": "2026-07-16"
+                            }
+                        },
+                        "canonical_sha256": "033d9be3aea52f7ba8adb70dad7fff70d44f53fbe062cf7e1fc674aac394c12c"
+                    }
+                }
+            },
+            "errors": []
+        },
         "sleeves": [],
         "positions": [],
         "active_intents": [],
