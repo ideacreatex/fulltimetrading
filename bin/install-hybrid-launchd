@@ -1,0 +1,572 @@
+#!/bin/sh
+
+set -eu
+
+LABEL="com.fulltimetrading.hybrid-v4-paper"
+LEGACY_LABEL="com.fulltimetrading.paper-daemon"
+
+usage() {
+    cat <<'EOF'
+Usage: bin/install-hybrid-launchd [--dry-run|--status|--uninstall]
+
+The install is deliberately tied to the existing operational paper-trading
+repository. If the broker account is non-flat, the legacy protection daemon
+must be healthy before the hybrid daemon can be added.
+
+Environment overrides:
+  PROJECT_DIR                         Operational repository (default: this repository)
+  PHP_BIN                             Absolute PHP executable (default: command -v php)
+  STATUS_GIT_REMOTE                   Git remote containing the deployed branch (default: origin)
+  HYBRID_VERIFY_TIMEOUT_SECONDS       New daemon startup timeout (default: 180)
+  HYBRID_HEARTBEAT_MAX_AGE_SECONDS    New daemon heartbeat maximum age (default: 30)
+  HYBRID_ROLLBACK_STOP_TIMEOUT_SECONDS  Rollback stop verification timeout (default: 30)
+  LEGACY_VERIFY_TIMEOUT_SECONDS       Non-flat legacy health wait (default: 30)
+  LEGACY_HEALTH_MAX_AGE_SECONDS       Non-flat legacy monitor maximum age (default: 180)
+EOF
+}
+
+die() {
+    printf 'install-hybrid-launchd: %s\n' "$*" >&2
+    exit 1
+}
+
+xml_escape() {
+    printf '%s' "$1" | sed \
+        -e 's/&/\&amp;/g' \
+        -e 's/</\&lt;/g' \
+        -e 's/>/\&gt;/g' \
+        -e 's/"/\&quot;/g' \
+        -e "s/'/\&apos;/g"
+}
+
+ACTION="install"
+if [ "$#" -gt 1 ]; then
+    usage >&2
+    exit 2
+fi
+if [ "$#" -eq 1 ]; then
+    case "$1" in
+        --dry-run) ACTION="dry-run" ;;
+        --status) ACTION="status" ;;
+        --uninstall) ACTION="uninstall" ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            exit 2
+            ;;
+    esac
+fi
+
+for command in git launchctl plutil install; do
+    command -v "$command" >/dev/null 2>&1 || die "$command is required"
+done
+[ -n "${HOME:-}" ] || die "HOME is not set"
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROJECT_DIR=${PROJECT_DIR:-$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)}
+PROJECT_DIR=$(CDPATH= cd -- "$PROJECT_DIR" && pwd -P) || die "invalid PROJECT_DIR"
+PHP_BIN=${PHP_BIN:-$(command -v php || true)}
+[ -n "$PHP_BIN" ] && [ -x "$PHP_BIN" ] || die "PHP_BIN is not executable"
+case "$PHP_BIN" in /*) ;; *) die "PHP_BIN must be absolute" ;; esac
+
+USER_ID=$(id -u)
+DOMAIN="gui/$USER_ID"
+LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
+PLIST="$LAUNCH_AGENTS_DIR/$LABEL.plist"
+LEGACY_PLIST="$LAUNCH_AGENTS_DIR/$LEGACY_LABEL.plist"
+HYBRID_LOCK="$PROJECT_DIR/var/run/tactical_paper_daemon.lock"
+
+if [ "$ACTION" = "status" ]; then
+    launchctl print "$DOMAIN/$LABEL"
+    exit $?
+fi
+if [ "$ACTION" = "uninstall" ]; then
+    if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+        launchctl bootout "$DOMAIN/$LABEL"
+    fi
+    rm -f "$PLIST"
+    printf 'Removed %s\n' "$LABEL"
+    exit 0
+fi
+
+HYBRID_VERIFY_TIMEOUT_SECONDS=${HYBRID_VERIFY_TIMEOUT_SECONDS:-180}
+HYBRID_HEARTBEAT_MAX_AGE_SECONDS=${HYBRID_HEARTBEAT_MAX_AGE_SECONDS:-30}
+HYBRID_ROLLBACK_STOP_TIMEOUT_SECONDS=${HYBRID_ROLLBACK_STOP_TIMEOUT_SECONDS:-30}
+LEGACY_VERIFY_TIMEOUT_SECONDS=${LEGACY_VERIFY_TIMEOUT_SECONDS:-30}
+LEGACY_HEALTH_MAX_AGE_SECONDS=${LEGACY_HEALTH_MAX_AGE_SECONDS:-180}
+for setting in HYBRID_VERIFY_TIMEOUT_SECONDS HYBRID_HEARTBEAT_MAX_AGE_SECONDS HYBRID_ROLLBACK_STOP_TIMEOUT_SECONDS LEGACY_VERIFY_TIMEOUT_SECONDS LEGACY_HEALTH_MAX_AGE_SECONDS; do
+    eval "setting_value=\${$setting}"
+    case "$setting_value" in
+        ''|*[!0-9]*) die "$setting must be a positive integer" ;;
+    esac
+    [ "$setting_value" -gt 0 ] || die "$setting must be greater than zero"
+done
+
+TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/ftt-hybrid-launchd.XXXXXX") || die "mktemp failed"
+TRANSACTION_ACTIVE=0
+WAS_LOADED=0
+BACKUP=""
+
+rollback() {
+    printf '%s\n' "Rolling back hybrid LaunchAgent." >&2
+    ROLLBACK_BOOTOUT_FAILED=0
+    ROLLBACK_TARGET_PID=$(launchd_pid "$LABEL")
+    case "$ROLLBACK_TARGET_PID" in ''|*[!0-9]*) ROLLBACK_TARGET_PID="" ;; esac
+    if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+        if ! launchctl bootout "$DOMAIN/$LABEL"; then
+            ROLLBACK_BOOTOUT_FAILED=1
+            printf '%s\n' "ERROR: launchctl bootout failed during hybrid rollback; waiting for verified process/lock disappearance." >&2
+        fi
+    fi
+
+    ROLLBACK_STOP_ELAPSED=0
+    while ! hybrid_runtime_is_stopped; do
+        if [ "$ROLLBACK_STOP_ELAPSED" -ge "$HYBRID_ROLLBACK_STOP_TIMEOUT_SECONDS" ]; then
+            printf '%s\n' "ERROR: hybrid rollback cannot safely restore the previous plist: LaunchAgent or held lock is still present." >&2
+            return 1
+        fi
+        sleep 1
+        ROLLBACK_STOP_ELAPSED=$((ROLLBACK_STOP_ELAPSED + 1))
+    done
+    if [ "$ROLLBACK_BOOTOUT_FAILED" -eq 1 ]; then
+        printf '%s\n' "ERROR: launchctl bootout returned non-zero, but independent checks now prove the unverified daemon and held lock are gone." >&2
+    fi
+
+    if ! rm -f "$PLIST"; then
+        printf '%s\n' "ERROR: unable to remove the unverified hybrid plist during rollback." >&2
+        return 1
+    fi
+    if [ -n "$BACKUP" ] && [ -f "$BACKUP" ]; then
+        if ! install -m 0644 "$BACKUP" "$PLIST"; then
+            printf '%s\n' "ERROR: unable to restore the previous hybrid plist." >&2
+            return 1
+        fi
+        if [ "$WAS_LOADED" -eq 1 ]; then
+            if ! launchctl bootstrap "$DOMAIN" "$PLIST"; then
+                printf '%s\n' "ERROR: previous hybrid plist was restored but could not be loaded." >&2
+                return 1
+            fi
+            if ! launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+                printf '%s\n' "ERROR: restored hybrid LaunchAgent is not registered after bootstrap." >&2
+                return 1
+            fi
+        fi
+    fi
+    TRANSACTION_ACTIVE=0
+    return 0
+}
+
+cleanup() {
+    cleanup_status=$?
+    trap - EXIT
+    trap '' HUP INT TERM
+    set +e
+    CLEANUP_KEEP_TMP=0
+    if [ "$TRANSACTION_ACTIVE" -eq 1 ]; then
+        [ "$cleanup_status" -ne 0 ] || cleanup_status=1
+        if ! rollback; then
+            CLEANUP_KEEP_TMP=1
+            printf '%s\n' "ERROR: INCOMPLETE HYBRID ROLLBACK. Do not bootstrap another daemon until launchd and the lock are inspected manually." >&2
+            printf 'ERROR: rollback transaction artifacts retained at %s\n' "$TMP_DIR" >&2
+        fi
+    fi
+    if [ "$CLEANUP_KEEP_TMP" -eq 0 ]; then
+        rm -rf "$TMP_DIR"
+    fi
+    exit "$cleanup_status"
+}
+
+handle_signal() {
+    trap - HUP INT TERM
+    exit 1
+}
+
+trap cleanup EXIT
+trap handle_signal HUP INT TERM
+
+probe_lock() {
+    "$PHP_BIN" -r '
+        $lock = @fopen($argv[1], "c+");
+        if ($lock === false) {
+            exit(2);
+        }
+        if (flock($lock, LOCK_EX | LOCK_NB)) {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+            exit(0);
+        }
+        fclose($lock);
+        exit(1);
+    ' "$1"
+}
+
+launchd_pid() {
+    launchctl print "$DOMAIN/$1" 2>/dev/null \
+        | awk '$1 == "pid" && $2 == "=" { print $3; exit }'
+}
+
+hybrid_runtime_is_stopped() {
+    if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+        return 1
+    fi
+    if [ -n "${ROLLBACK_TARGET_PID:-}" ] && kill -0 "$ROLLBACK_TARGET_PID" >/dev/null 2>&1; then
+        return 1
+    fi
+    if [ ! -e "$HYBRID_LOCK" ]; then
+        return 0
+    fi
+    if probe_lock "$HYBRID_LOCK"; then
+        return 0
+    fi
+
+    return 1
+}
+
+require_operational_repository() {
+    [ -f "$LEGACY_PLIST" ] \
+        || die "legacy paper-daemon plist is missing; run only from the operational repository"
+    LEGACY_WORKING_DIRECTORY=$(plutil -extract WorkingDirectory raw "$LEGACY_PLIST" 2>/dev/null || true)
+    [ -n "$LEGACY_WORKING_DIRECTORY" ] \
+        || die "legacy paper-daemon plist has no WorkingDirectory"
+    LEGACY_WORKING_DIRECTORY=$(CDPATH= cd -- "$LEGACY_WORKING_DIRECTORY" 2>/dev/null && pwd -P) \
+        || die "legacy paper-daemon WorkingDirectory is unavailable"
+    [ "$LEGACY_WORKING_DIRECTORY" = "$PROJECT_DIR" ] \
+        || die "PROJECT_DIR is not the operational paper-daemon repository: $PROJECT_DIR"
+
+    CONFIGURED_DATABASE=$("$PHP_BIN" -r '
+        require $argv[1] . "/bootstrap.php";
+        $config = FulltimeTrading\Support\Config::fromFile($argv[1] . "/config/config.php");
+        echo (string) $config->get("database_path");
+    ' "$PROJECT_DIR") || die "unable to read configured database path"
+    [ -f "$CONFIGURED_DATABASE" ] || die "operational paper database is missing: $CONFIGURED_DATABASE"
+    CONFIGURED_DATABASE_DIRECTORY=$(CDPATH= cd -- "$(dirname -- "$CONFIGURED_DATABASE")" && pwd -P) \
+        || die "configured database directory is unavailable"
+    CONFIGURED_DATABASE="$CONFIGURED_DATABASE_DIRECTORY/$(basename -- "$CONFIGURED_DATABASE")"
+    [ "$CONFIGURED_DATABASE" = "$PROJECT_DIR/var/db/trading.sqlite" ] \
+        || die "configured database is not the operational repository state"
+}
+
+broker_state() {
+    "$PHP_BIN" -r '
+        require $argv[1] . "/bootstrap.php";
+        $config = FulltimeTrading\Support\Config::fromFile($argv[1] . "/config/config.php");
+        $client = new FulltimeTrading\Trading\AlpacaPaperClient(
+            new FulltimeTrading\Data\HttpClient(),
+            getenv("APCA_PAPER_BASE_URL") ?: (string) $config->get("trading.alpaca.paper_base_url"),
+        );
+        $account = $client->account();
+        FulltimeTrading\Trading\AlpacaPaperAccountGuard::validateConfigured($account);
+        $positions = $client->positions();
+        $orders = $client->openOrders();
+        echo ($positions !== [] || $orders !== []) ? "non-flat" : "flat";
+    ' "$PROJECT_DIR"
+}
+
+legacy_runtime_is_healthy() {
+    LEGACY_PID=$(launchd_pid "$LEGACY_LABEL")
+    case "$LEGACY_PID" in ''|*[!0-9]*) return 1 ;; esac
+
+    LEGACY_LOCK="$PROJECT_DIR/var/run/paper_daemon.lock"
+    [ -s "$LEGACY_LOCK" ] || return 1
+    LEGACY_LOCK_PID=$(tr -d '[:space:]' <"$LEGACY_LOCK")
+    case "$LEGACY_LOCK_PID" in ''|*[!0-9]*) return 1 ;; esac
+    [ "$LEGACY_LOCK_PID" = "$LEGACY_PID" ] || return 1
+    if probe_lock "$LEGACY_LOCK"; then
+        return 1
+    else
+        LEGACY_LOCK_RESULT=$?
+        [ "$LEGACY_LOCK_RESULT" -eq 1 ] || return 1
+    fi
+
+    LEGACY_HEARTBEAT="$PROJECT_DIR/var/run/paper_daemon_heartbeat.json"
+    LEGACY_MONITOR="$PROJECT_DIR/var/reports/daily/latest_paper_monitor.json"
+    [ -s "$LEGACY_HEARTBEAT" ] && [ -s "$LEGACY_MONITOR" ] || return 1
+    "$PHP_BIN" -r '
+        $heartbeat = json_decode((string) @file_get_contents($argv[1]), true);
+        $monitor = json_decode((string) @file_get_contents($argv[2]), true);
+        if (!is_array($heartbeat) || !is_array($monitor)) {
+            exit(1);
+        }
+        $heartbeatAt = is_string($heartbeat["heartbeat_at"] ?? null)
+            ? strtotime($heartbeat["heartbeat_at"])
+            : false;
+        $finishedAt = is_string($heartbeat["last_monitor_finished_at"] ?? null)
+            ? strtotime($heartbeat["last_monitor_finished_at"])
+            : false;
+        $reportAt = is_string($monitor["generated_at"] ?? null)
+            ? strtotime($monitor["generated_at"])
+            : false;
+        $now = time();
+        $maxAge = (int) $argv[4];
+        $healthy = (string) ($heartbeat["pid"] ?? "") === $argv[3]
+            && ($heartbeat["submit"] ?? null) === true
+            && ($heartbeat["account_guard_verified"] ?? null) === true
+            && ($heartbeat["legacy_entries_allowed"] ?? null) === false
+            && (int) ($heartbeat["last_monitor_exit_code"] ?? -1) === 0
+            && $heartbeatAt !== false
+            && $finishedAt !== false
+            && $reportAt !== false
+            && $heartbeatAt >= $now - $maxAge
+            && $heartbeatAt <= $now + 5
+            && $finishedAt >= $now - $maxAge
+            && $finishedAt <= $now + 5
+            && $reportAt >= $finishedAt - 30
+            && $reportAt <= $finishedAt + 5
+            && ($monitor["dry_run"] ?? null) === false
+            && ($monitor["submit_allowed"] ?? null) === true;
+        exit($healthy ? 0 : 1);
+    ' "$LEGACY_HEARTBEAT" "$LEGACY_MONITOR" "$LEGACY_PID" "$LEGACY_HEALTH_MAX_AGE_SECONDS"
+}
+
+require_operational_repository
+EXPECTED_RUN_ID=$("$PHP_BIN" -r '$p=require $argv[1]; echo (string) ($p["run_id"] ?? "");' "$PROJECT_DIR/config/tactical_paper.php")
+[ -n "$EXPECTED_RUN_ID" ] || die "tactical paper run_id is missing"
+
+GENERATED="$TMP_DIR/$LABEL.plist"
+PROJECT_XML=$(xml_escape "$PROJECT_DIR")
+PHP_XML=$(xml_escape "$PHP_BIN")
+OUT_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_tactical_paper_daemon.out.log")
+ERR_XML=$(xml_escape "$PROJECT_DIR/var/log/launchd_tactical_paper_daemon.err.log")
+
+cat >"$GENERATED" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$LABEL</string>
+  <key>WorkingDirectory</key><string>$PROJECT_XML</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$PHP_XML</string><string>bin/trade</string><string>tactical-paper-daemon</string>
+    <string>--submit=true</string><string>--telegram=true</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>$OUT_XML</string>
+  <key>StandardErrorPath</key><string>$ERR_XML</string>
+</dict>
+</plist>
+EOF
+plutil -lint "$GENERATED" >/dev/null || die "invalid generated plist"
+if [ "$ACTION" = "dry-run" ]; then
+    cat "$GENERATED"
+    exit 0
+fi
+
+"$PHP_BIN" -r '
+    require $argv[1] . "/bootstrap.php";
+    $notifier = FulltimeTrading\Notifications\TelegramNotifier::fromEnv(
+        new FulltimeTrading\Data\HttpClient(),
+    );
+    exit($notifier instanceof FulltimeTrading\Notifications\TelegramNotifier ? 0 : 1);
+' "$PROJECT_DIR" || die "Telegram notifier environment is required for paper signal delivery"
+
+BRANCH=$(git -C "$PROJECT_DIR" symbolic-ref --quiet --short HEAD || true)
+[ -n "$BRANCH" ] || die "detached HEAD"
+[ -z "$(git -C "$PROJECT_DIR" status --porcelain --untracked-files=all)" ] \
+    || die "working tree must be clean"
+REMOTE=${STATUS_GIT_REMOTE:-origin}
+git -C "$PROJECT_DIR" remote get-url "$REMOTE" >/dev/null 2>&1 \
+    || die "Git remote is not configured: $REMOTE"
+REMOTE_REF="refs/remotes/$REMOTE/$BRANCH"
+git -C "$PROJECT_DIR" fetch --quiet --no-tags "$REMOTE" \
+    "+refs/heads/$BRANCH:$REMOTE_REF" \
+    || die "unable to fetch pushed branch"
+LOCAL=$(git -C "$PROJECT_DIR" rev-parse HEAD)
+UPSTREAM=$(git -C "$PROJECT_DIR" rev-parse "$REMOTE_REF^{commit}")
+[ "$LOCAL" = "$UPSTREAM" ] || die "current branch must be pushed before install"
+
+BROKER_STATE=$(broker_state) || die "paper account/broker snapshot guard failed"
+if [ "$BROKER_STATE" = "non-flat" ]; then
+    LEGACY_VERIFY_ELAPSED=0
+    while ! legacy_runtime_is_healthy; do
+        [ "$LEGACY_VERIFY_ELAPSED" -lt "$LEGACY_VERIFY_TIMEOUT_SECONDS" ] \
+            || die "non-flat account requires the live operational exits-only legacy daemon, held lock, and a successful monitor cycle within ${LEGACY_HEALTH_MAX_AGE_SECONDS}s"
+        sleep 1
+        LEGACY_VERIFY_ELAPSED=$((LEGACY_VERIFY_ELAPSED + 1))
+    done
+elif [ "$BROKER_STATE" != "flat" ]; then
+    die "unexpected broker state: $BROKER_STATE"
+fi
+
+# Exercise the exact executor against the broker snapshot, but isolate every
+# mutable executor path from the operational database and var tree.
+PREFLIGHT_VAR="$TMP_DIR/preflight-var"
+mkdir -p "$PREFLIGHT_VAR/db" "$PREFLIGHT_VAR/run" "$PREFLIGHT_VAR/reports"
+PREFLIGHT_ARTIFACT="$PREFLIGHT_VAR/reports/tactical_rotation_shadow.json"
+[ -s "$PROJECT_DIR/var/reports/daily/tactical_rotation_shadow.json" ] \
+    || die "validated tactical signal artifact is missing from the operational repository"
+cp "$PROJECT_DIR/var/reports/daily/tactical_rotation_shadow.json" "$PREFLIGHT_ARTIFACT"
+"$PHP_BIN" "$PROJECT_DIR/bin/trade" tactical-paper-executor \
+    --submit=false \
+    --telegram=false \
+    --db="$PREFLIGHT_VAR/db/trading.sqlite" \
+    --artifact="$PREFLIGHT_ARTIFACT" \
+    --output="$PREFLIGHT_VAR/reports/tactical_paper_cycle.json" \
+    --lock="$PREFLIGHT_VAR/run/tactical_paper_executor.lock" \
+    --mutation-lock="$PREFLIGHT_VAR/run/alpaca_paper_account_mutation.lock" >/dev/null \
+    || die "isolated tactical executor preflight failed"
+"$PHP_BIN" -r '
+    $payload = json_decode((string) @file_get_contents($argv[1]), true);
+    $healthy = is_array($payload)
+        && hash_equals($argv[2], (string) ($payload["run_id"] ?? ""))
+        && ($payload["dry_run"] ?? null) === true
+        && ($payload["paper_only"] ?? null) === true
+        && is_array($payload["errors"] ?? null)
+        && $payload["errors"] === [];
+    exit($healthy ? 0 : 1);
+' "$PREFLIGHT_VAR/reports/tactical_paper_cycle.json" "$EXPECTED_RUN_ID" \
+    || die "isolated tactical executor preflight output is unhealthy"
+
+mkdir -p "$LAUNCH_AGENTS_DIR" "$PROJECT_DIR/var/log" "$PROJECT_DIR/var/run"
+if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+    WAS_LOADED=1
+    [ -f "$PLIST" ] || die "loaded hybrid LaunchAgent has no restorable plist"
+fi
+if [ -f "$PLIST" ]; then
+    BACKUP="$TMP_DIR/previous.plist"
+    cp "$PLIST" "$BACKUP"
+fi
+
+TRANSACTION_ACTIVE=1
+if [ "$WAS_LOADED" -eq 1 ]; then
+    launchctl bootout "$DOMAIN/$LABEL"
+fi
+install -m 0644 "$GENERATED" "$PLIST"
+plutil -lint "$PLIST" >/dev/null
+
+VERIFY_STARTED_AT=$(date +%s)
+launchctl bootstrap "$DOMAIN" "$PLIST" || die "launchctl bootstrap failed"
+
+HEARTBEAT="$PROJECT_DIR/var/run/tactical_paper_daemon_heartbeat.json"
+LOCK="$PROJECT_DIR/var/run/tactical_paper_daemon.lock"
+CYCLE="$PROJECT_DIR/var/reports/daily/tactical_paper_cycle.json"
+
+telegram_delivery_is_verified() {
+    "$PHP_BIN" -r '
+        require $argv[1] . "/bootstrap.php";
+        $cycle = json_decode((string) @file_get_contents($argv[4]), true);
+        $assessment = FulltimeTrading\Trading\TacticalNotificationHealthGuard::assess(
+            $argv[2],
+            $argv[3],
+            is_array($cycle) ? $cycle : null,
+        );
+        $required = is_array($assessment["required"] ?? null) ? $assessment["required"] : [];
+        $healthy = ($assessment["expected"] ?? false) === true
+            && ($assessment["ok"] ?? false) === true
+            && ($required["signal"] ?? false) === true;
+        exit($healthy ? 0 : 1);
+    ' "$PROJECT_DIR" "$CONFIGURED_DATABASE" "$EXPECTED_RUN_ID" "$CYCLE"
+}
+
+telegram_delivery_diagnostics() {
+    "$PHP_BIN" -r '
+        require $argv[1] . "/bootstrap.php";
+        $cycle = json_decode((string) @file_get_contents($argv[4]), true);
+        $assessment = FulltimeTrading\Trading\TacticalNotificationHealthGuard::assess(
+            $argv[2],
+            $argv[3],
+            is_array($cycle) ? $cycle : null,
+        );
+        fwrite(STDERR, "Telegram outbox verification: " . json_encode([
+            "expected" => $assessment["expected"] ?? false,
+            "ok" => $assessment["ok"] ?? false,
+            "pending_count" => $assessment["pending_count"] ?? null,
+            "failed_pending_count" => $assessment["failed_pending_count"] ?? null,
+            "required" => $assessment["required"] ?? null,
+            "errors" => $assessment["errors"] ?? null,
+        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n");
+    ' "$PROJECT_DIR" "$CONFIGURED_DATABASE" "$EXPECTED_RUN_ID" "$CYCLE"
+}
+
+hybrid_runtime_is_verified() {
+    PID=$(launchd_pid "$LABEL")
+    case "$PID" in ''|*[!0-9]*) return 1 ;; esac
+    [ -s "$LOCK" ] || return 1
+    LOCK_PID=$(tr -d '[:space:]' <"$LOCK")
+    case "$LOCK_PID" in ''|*[!0-9]*) return 1 ;; esac
+    [ "$LOCK_PID" = "$PID" ] || return 1
+    if probe_lock "$LOCK"; then
+        return 1
+    else
+        LOCK_RESULT=$?
+        [ "$LOCK_RESULT" -eq 1 ] || return 1
+    fi
+    [ -s "$HEARTBEAT" ] && [ -s "$CYCLE" ] || return 1
+
+    "$PHP_BIN" -r '
+        $heartbeat = json_decode((string) @file_get_contents($argv[1]), true);
+        $cycle = json_decode((string) @file_get_contents($argv[2]), true);
+        if (!is_array($heartbeat) || !is_array($cycle)) {
+            exit(1);
+        }
+        $startedAt = is_string($heartbeat["started_at"] ?? null)
+            ? strtotime($heartbeat["started_at"])
+            : false;
+        $heartbeatAt = is_string($heartbeat["heartbeat_at"] ?? null)
+            ? strtotime($heartbeat["heartbeat_at"])
+            : false;
+        $executorAt = is_string($heartbeat["last_executor_finished_at"] ?? null)
+            ? strtotime($heartbeat["last_executor_finished_at"])
+            : false;
+        $cycleAt = is_string($cycle["generated_at"] ?? null)
+            ? strtotime($cycle["generated_at"])
+            : false;
+        $now = time();
+        $installedAt = (int) $argv[4];
+        $fresh = static fn ($at): bool => $at !== false
+            && $at >= $installedAt - 5
+            && $at <= $now + 5;
+        $accountGuard = is_array($cycle["account_guard"] ?? null)
+            ? $cycle["account_guard"]
+            : [];
+        $healthy = (string) ($heartbeat["pid"] ?? "") === $argv[3]
+            && ($heartbeat["submit"] ?? null) === true
+            && ($heartbeat["telegram"] ?? null) === true
+            && ($heartbeat["paper_only"] ?? null) === true
+            && ($heartbeat["account_guard_verified"] ?? null) === true
+            && ($heartbeat["error"] ?? null) === null
+            && (int) ($heartbeat["last_executor_exit_code"] ?? -1) === 0
+            && ($heartbeat["last_executor_timed_out"] ?? null) === false
+            && $fresh($startedAt)
+            && $fresh($heartbeatAt)
+            && $fresh($executorAt)
+            && $heartbeatAt >= $now - (int) $argv[5]
+            && $fresh($cycleAt)
+            && (string) ($cycle["run_id"] ?? "") === $argv[6]
+            && ($cycle["dry_run"] ?? null) === false
+            && ($cycle["paper_only"] ?? null) === true
+            && is_array($cycle["errors"] ?? null)
+            && $cycle["errors"] === []
+            && ($accountGuard["account_reference_match"] ?? false) === true
+            && ($accountGuard["multiplier_match"] ?? false) === true
+            && ($accountGuard["shorting_match"] ?? false) === true
+            && ($accountGuard["active"] ?? false) === true
+            && ($accountGuard["unblocked"] ?? false) === true
+            && $cycleAt <= $executorAt + 5
+            && $cycleAt >= $executorAt - 300;
+        exit($healthy ? 0 : 1);
+    ' "$HEARTBEAT" "$CYCLE" "$PID" "$VERIFY_STARTED_AT" "$HYBRID_HEARTBEAT_MAX_AGE_SECONDS" "$EXPECTED_RUN_ID" \
+        || return 1
+
+    telegram_delivery_is_verified
+}
+
+VERIFY_ELAPSED=0
+while ! hybrid_runtime_is_verified; do
+    if [ "$VERIFY_ELAPSED" -ge "$HYBRID_VERIFY_TIMEOUT_SECONDS" ]; then
+        telegram_delivery_diagnostics || true
+        die "hybrid daemon/Telegram verification timed out"
+    fi
+    sleep 1
+    VERIFY_ELAPSED=$((VERIFY_ELAPSED + 1))
+done
+
+VERIFIED_PID=$(launchd_pid "$LABEL")
+TRANSACTION_ACTIVE=0
+printf 'Installed and verified %s (pid %s)\n' "$LABEL" "$VERIFIED_PID"

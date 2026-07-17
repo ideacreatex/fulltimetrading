@@ -5,12 +5,14 @@ declare(strict_types=1);
 
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Storage\SqliteRepository;
+use FulltimeTrading\Storage\TacticalPaperRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\PaperPlanStatusSummary;
 use FulltimeTrading\Support\StatusExportGitPublisher;
 use FulltimeTrading\Support\StatusSnapshotSafety;
 use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
 use FulltimeTrading\Trading\AlpacaPaperClient;
+use FulltimeTrading\Trading\TacticalNotificationHealthGuard;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -34,6 +36,10 @@ foreach (array_slice($argv, 1) as $arg) {
 $config = Config::fromFile(__DIR__ . '/../config/config.php');
 $repo = new SqliteRepository((string) $config->get('database_path'));
 $repo->migrate();
+$tacticalConfig = require __DIR__ . '/../config/tactical_paper.php';
+$tacticalRepo = new TacticalPaperRepository((string) $config->get('database_path'));
+$tacticalRepo->migrate();
+$tacticalRunId = (string) ($tacticalConfig['run_id'] ?? '');
 
 $now = new DateTimeImmutable();
 $http = new HttpClient();
@@ -71,6 +77,25 @@ $latestMonitor = statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/l
     ?: statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/latest_paper_monitor_cycle.json');
 $latestPlan = statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/latest_paper_order_plan_cycle.json')
     ?: statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/latest_paper_order_plan_tuned_daily_margin_ready.json');
+$tacticalCycle = statusExportReadOptionalJson(__DIR__ . '/../var/reports/daily/tactical_paper_cycle.json');
+$tacticalHeartbeat = statusExportReadOptionalJson(__DIR__ . '/../var/run/tactical_paper_daemon_heartbeat.json');
+$tacticalRun = $tacticalRunId !== '' ? $tacticalRepo->run($tacticalRunId) : null;
+$tacticalNotificationHealth = TacticalNotificationHealthGuard::assess(
+    (string) $config->get('database_path'),
+    $tacticalRunId,
+    $tacticalCycle,
+);
+$tacticalHealth = statusExportTacticalRuntimeHealth(
+    $tacticalRun,
+    $tacticalHeartbeat,
+    $tacticalCycle,
+    __DIR__ . '/../var/run/tactical_paper_daemon.lock',
+    $tacticalRunId,
+    $tacticalConfig,
+    $tacticalNotificationHealth,
+    $now,
+);
+$errors = array_values(array_unique(array_merge($errors, $tacticalHealth['errors'])));
 
 $payload = [
     'generated_at' => $now->format(DateTimeInterface::ATOM),
@@ -101,6 +126,20 @@ $payload = [
     'latest_cycle' => statusExportSummarizeCycle($latestCycle),
     'latest_monitor' => statusExportSummarizeMonitor($latestMonitor),
     'latest_plan' => statusExportSummarizePlan($latestPlan),
+    'tactical' => [
+        'run' => statusExportSanitizeTacticalRun($tacticalRun),
+        'health' => $tacticalHealth,
+        'notifications' => $tacticalNotificationHealth,
+        'heartbeat' => statusExportSanitizeTacticalHeartbeat($tacticalHeartbeat),
+        'cycle' => statusExportSanitizeTacticalCycle($tacticalCycle),
+        'sleeves' => statusExportSanitizeTacticalSleeves($tacticalRunId !== '' ? $tacticalRepo->sleeves($tacticalRunId) : []),
+        'positions' => $tacticalRunId !== '' ? $tacticalRepo->positions($tacticalRunId) : [],
+        'active_intents' => array_map(
+            'statusExportSanitizeTacticalIntent',
+            $tacticalRunId !== '' ? $tacticalRepo->activeIntents($tacticalRunId) : [],
+        ),
+        'live_review_not_before' => $tacticalConfig['live_review_not_before'] ?? null,
+    ],
     'errors' => $errors,
 ];
 
@@ -126,7 +165,7 @@ if (statusExportBoolOption((string) $options['git'])) {
 }
 
 if ($errors !== []) {
-    fwrite(STDERR, 'Paper status export failed Alpaca sync: ' . implode(' | ', $errors) . "\n");
+    fwrite(STDERR, 'Paper status export failed runtime health/sync: ' . implode(' | ', $errors) . "\n");
     exit(2);
 }
 
@@ -395,6 +434,273 @@ function statusExportSummarizePlan(?array $plan): ?array
     return $summary;
 }
 
+/** @param ?array<string,mixed> $run @return array<string,mixed>|null */
+function statusExportSanitizeTacticalRun(?array $run): ?array
+{
+    if ($run === null) {
+        return null;
+    }
+
+    return [
+        'run_id' => $run['run_id'] ?? null,
+        'profile' => $run['profile'] ?? null,
+        'status' => $run['status'] ?? null,
+        'initial_equity' => statusExportNumericOrNull($run['initial_equity'] ?? null),
+        'activated_at' => $run['activated_at'] ?? null,
+        'last_error_code' => $run['last_error_code'] ?? null,
+        'live_review_not_before' => $run['live_review_not_before'] ?? null,
+        'strategy_hash_short' => substr((string) ($run['strategy_hash'] ?? ''), 0, 12),
+        'runtime_hash_short' => substr((string) ($run['runtime_hash'] ?? ''), 0, 12),
+    ];
+}
+
+/** @param ?array<string,mixed> $heartbeat @return array<string,mixed>|null */
+function statusExportSanitizeTacticalHeartbeat(?array $heartbeat): ?array
+{
+    if ($heartbeat === null) {
+        return null;
+    }
+
+    return array_intersect_key($heartbeat, array_fill_keys([
+        'pid', 'started_at', 'heartbeat_at', 'submit', 'telegram', 'paper_only',
+        'account_guard_verified', 'last_signal_exit_code', 'last_signal_finished_at',
+        'last_executor_exit_code', 'last_executor_finished_at', 'last_executor_timed_out', 'error',
+    ], true));
+}
+
+/** @param ?array<string,mixed> $cycle @return array<string,mixed>|null */
+function statusExportSanitizeTacticalCycle(?array $cycle): ?array
+{
+    if ($cycle === null) {
+        return null;
+    }
+
+    return [
+        'generated_at' => $cycle['generated_at'] ?? null,
+        'run_id' => $cycle['run_id'] ?? null,
+        'profile' => $cycle['profile'] ?? null,
+        'dry_run' => $cycle['dry_run'] ?? null,
+        'paper_only' => $cycle['paper_only'] ?? null,
+        'account_guard' => is_array($cycle['account_guard'] ?? null) ? $cycle['account_guard'] : null,
+        'run_status' => $cycle['run_status'] ?? null,
+        'reconciliation_status' => $cycle['reconciliation_status'] ?? null,
+        'signal' => $cycle['signal'] ?? null,
+        'errors' => is_array($cycle['errors'] ?? null) ? $cycle['errors'] : [],
+    ];
+}
+
+/**
+ * A persisted tactical run means the submit daemon is an operational
+ * dependency, not an optional status decoration. Fail the status export when
+ * its lock/heartbeat/cycle can no longer prove one fresh successful pass.
+ *
+ * @param ?array<string,mixed> $run
+ * @param ?array<string,mixed> $heartbeat
+ * @param ?array<string,mixed> $cycle
+ * @param array<string,mixed> $tacticalConfig
+ * @param array<string,mixed> $notificationHealth
+ * @return array{expected:bool,ok:bool,max_age_seconds:int,checked_at:string,errors:list<string>}
+ */
+function statusExportTacticalRuntimeHealth(
+    ?array $run,
+    ?array $heartbeat,
+    ?array $cycle,
+    string $lockPath,
+    string $expectedRunId,
+    array $tacticalConfig,
+    array $notificationHealth,
+    DateTimeImmutable $now,
+): array {
+    $configuredInterval = max(1, (int) ($tacticalConfig['execution']['monitor_interval_seconds'] ?? 60));
+    $maxAge = max(180, $configuredInterval * 3);
+    $errors = [];
+    if ($run === null) {
+        return [
+            'expected' => false,
+            'ok' => true,
+            'max_age_seconds' => $maxAge,
+            'checked_at' => $now->format(DateTimeInterface::ATOM),
+            'errors' => [],
+        ];
+    }
+
+    $nowTimestamp = $now->getTimestamp();
+    $heartbeatPid = is_int($heartbeat['pid'] ?? null)
+        ? $heartbeat['pid']
+        : (is_string($heartbeat['pid'] ?? null) && ctype_digit($heartbeat['pid']) ? (int) $heartbeat['pid'] : 0);
+    $heartbeatAt = statusExportTimestamp($heartbeat['heartbeat_at'] ?? null);
+    $executorAt = statusExportTimestamp($heartbeat['last_executor_finished_at'] ?? null);
+
+    if ($heartbeat === null) {
+        $errors[] = 'tactical_heartbeat_missing';
+    } elseif ($heartbeatPid <= 0 || $heartbeatAt === null || $executorAt === null) {
+        $errors[] = 'tactical_heartbeat_invalid';
+    } else {
+        if ($heartbeatAt < $nowTimestamp - $maxAge || $heartbeatAt > $nowTimestamp + 5
+            || $executorAt < $nowTimestamp - $maxAge || $executorAt > $nowTimestamp + 5) {
+            $errors[] = 'tactical_heartbeat_stale';
+        }
+
+        $lockPid = statusExportLockPid($lockPath);
+        $launchdPid = statusExportHybridLaunchdPid();
+        if ($lockPid !== $heartbeatPid || $launchdPid !== $heartbeatPid || !statusExportLockIsHeld($lockPath)) {
+            $errors[] = 'tactical_heartbeat_pid_mismatch';
+        }
+
+        if (($heartbeat['submit'] ?? null) !== true
+            || ($heartbeat['paper_only'] ?? null) !== true
+            || ($heartbeat['account_guard_verified'] ?? null) !== true
+            || ($heartbeat['error'] ?? null) !== null
+            || (int) ($heartbeat['last_executor_exit_code'] ?? -1) !== 0
+            || ($heartbeat['last_executor_timed_out'] ?? null) !== false) {
+            $errors[] = 'tactical_heartbeat_failed';
+        }
+        if (array_key_exists('last_signal_exit_code', $heartbeat)
+            && $heartbeat['last_signal_exit_code'] !== null
+            && (int) $heartbeat['last_signal_exit_code'] !== 0) {
+            $errors[] = 'tactical_signal_refresh_failed';
+        }
+    }
+
+    $cycleAt = statusExportTimestamp($cycle['generated_at'] ?? null);
+    if ($cycle === null) {
+        $errors[] = 'tactical_cycle_missing';
+    } elseif ($cycleAt === null) {
+        $errors[] = 'tactical_cycle_invalid';
+    } else {
+        if ($cycleAt < $nowTimestamp - $maxAge || $cycleAt > $nowTimestamp + 5) {
+            $errors[] = 'tactical_cycle_stale';
+        }
+        if (!hash_equals($expectedRunId, (string) ($cycle['run_id'] ?? ''))
+            || !hash_equals((string) ($tacticalConfig['profile'] ?? ''), (string) ($cycle['profile'] ?? ''))
+            || !hash_equals((string) ($run['status'] ?? ''), (string) ($cycle['run_status'] ?? ''))
+            || ($executorAt !== null && ($cycleAt > $executorAt + 5 || $cycleAt < $executorAt - 300))) {
+            $errors[] = 'tactical_cycle_mismatch';
+        }
+
+        $guard = is_array($cycle['account_guard'] ?? null) ? $cycle['account_guard'] : [];
+        if (($cycle['dry_run'] ?? null) !== false
+            || ($cycle['paper_only'] ?? null) !== true
+            || !is_array($cycle['errors'] ?? null)
+            || $cycle['errors'] !== []
+            || ($guard['account_reference_match'] ?? false) !== true
+            || ($guard['multiplier_match'] ?? false) !== true
+            || ($guard['shorting_match'] ?? false) !== true
+            || ($guard['active'] ?? false) !== true
+            || ($guard['unblocked'] ?? false) !== true) {
+            $errors[] = 'tactical_cycle_failed';
+        }
+    }
+
+    if (($run['last_error_code'] ?? null) !== null && trim((string) $run['last_error_code']) !== '') {
+        $errors[] = 'tactical_run_failed';
+    }
+    foreach (($notificationHealth['errors'] ?? []) as $notificationError) {
+        if (is_string($notificationError) && $notificationError !== '') {
+            $errors[] = $notificationError;
+        }
+    }
+    $errors = array_values(array_unique($errors));
+
+    return [
+        'expected' => true,
+        'ok' => $errors === [],
+        'max_age_seconds' => $maxAge,
+        'checked_at' => $now->format(DateTimeInterface::ATOM),
+        'errors' => $errors,
+    ];
+}
+
+function statusExportTimestamp(mixed $value): ?int
+{
+    if (!is_string($value) || trim($value) === '') {
+        return null;
+    }
+    $timestamp = strtotime($value);
+
+    return $timestamp === false ? null : $timestamp;
+}
+
+function statusExportLockPid(string $path): ?int
+{
+    if (!is_file($path)) {
+        return null;
+    }
+    $value = trim((string) @file_get_contents($path));
+
+    return $value !== '' && ctype_digit($value) && (int) $value > 0 ? (int) $value : null;
+}
+
+function statusExportLockIsHeld(string $path): bool
+{
+    if (!is_file($path)) {
+        return false;
+    }
+    $handle = @fopen($path, 'r+');
+    if ($handle === false) {
+        return false;
+    }
+    $acquired = flock($handle, LOCK_EX | LOCK_NB);
+    if ($acquired) {
+        flock($handle, LOCK_UN);
+    }
+    fclose($handle);
+
+    return !$acquired;
+}
+
+function statusExportHybridLaunchdPid(): ?int
+{
+    $uid = function_exists('posix_getuid') ? posix_getuid() : (int) trim(statusExportRunCommand(['id', '-u'])['stdout']);
+    $result = statusExportRunCommand([
+        'launchctl',
+        'print',
+        'gui/' . $uid . '/com.fulltimetrading.hybrid-v4-paper',
+    ]);
+    if ($result['exit_code'] !== 0
+        || preg_match('/^\s*pid\s*=\s*([0-9]+)\s*$/m', $result['stdout'], $matches) !== 1) {
+        return null;
+    }
+
+    return (int) $matches[1] > 0 ? (int) $matches[1] : null;
+}
+
+/** @param array<string,array<string,mixed>> $sleeves @return list<array<string,mixed>> */
+function statusExportSanitizeTacticalSleeves(array $sleeves): array
+{
+    $rows = [];
+    foreach ($sleeves as $id => $row) {
+        $rows[] = [
+            'sleeve_id' => $id,
+            'allocation' => statusExportNumericOrNull($row['allocation'] ?? null),
+            'cash' => statusExportNumericOrNull($row['cash'] ?? null),
+            'initial_equity' => statusExportNumericOrNull($row['initial_equity'] ?? null),
+            'last_signal_date' => $row['last_signal_date'] ?? null,
+            'last_session' => $row['last_session'] ?? null,
+        ];
+    }
+
+    return $rows;
+}
+
+/** @param array<string,mixed> $intent @return array<string,mixed> */
+function statusExportSanitizeTacticalIntent(array $intent): array
+{
+    return [
+        'decision_id_short' => substr((string) ($intent['decision_id'] ?? ''), 0, 12),
+        'sleeve_id' => $intent['sleeve_id'] ?? null,
+        'signal_date' => $intent['signal_date'] ?? null,
+        'scheduled_session' => $intent['scheduled_session'] ?? null,
+        'symbol' => $intent['symbol'] ?? null,
+        'side' => $intent['side'] ?? null,
+        'requested_qty' => statusExportNumericOrNull($intent['requested_qty'] ?? null),
+        'filled_qty' => statusExportNumericOrNull($intent['cumulative_filled_qty'] ?? null),
+        'status' => $intent['status'] ?? null,
+        'client_order_id' => $intent['client_order_id'] ?? null,
+        'updated_at' => $intent['updated_at'] ?? null,
+    ];
+}
+
 /** @param array<string, mixed> $payload */
 function statusExportMarkdown(array $payload): string
 {
@@ -403,6 +709,7 @@ function statusExportMarkdown(array $payload): string
     $positions = is_array($payload['alpaca']['positions'] ?? null) ? $payload['alpaca']['positions'] : [];
     $orders = is_array($payload['alpaca']['open_orders'] ?? null) ? $payload['alpaca']['open_orders'] : [];
     $actions = is_array($payload['bot']['recent_actions'] ?? null) ? array_slice($payload['bot']['recent_actions'], 0, 8) : [];
+    $tactical = is_array($payload['tactical'] ?? null) ? $payload['tactical'] : [];
 
     $lines = [];
     $lines[] = '# FTT Paper Status';
@@ -427,6 +734,24 @@ function statusExportMarkdown(array $payload): string
     $lines[] = '- Equity: `$' . number_format((float) ($account['equity'] ?? 0.0), 2) . '`';
     $lines[] = '- Cash: `$' . number_format((float) ($account['cash'] ?? 0.0), 2) . '`';
     $lines[] = '- Buying power: `$' . number_format((float) ($account['buying_power'] ?? 0.0), 2) . '`';
+    $lines[] = '- Hybrid-v4 runtime: `' . (string) ($tactical['run']['status'] ?? 'not_initialized') . '`';
+    $hybridHealth = ($tactical['health']['expected'] ?? false) !== true
+        ? 'not_initialized'
+        : (($tactical['health']['ok'] ?? false) === true ? 'healthy' : 'failed');
+    $lines[] = '- Hybrid-v4 health: `' . $hybridHealth . '`';
+    $hybridErrors = is_array($tactical['health']['errors'] ?? null) ? $tactical['health']['errors'] : [];
+    if ($hybridErrors !== []) {
+        $lines[] = '- Hybrid-v4 health errors: `' . implode(', ', array_map('strval', $hybridErrors)) . '`';
+    }
+    $notificationHealth = is_array($tactical['notifications'] ?? null) ? $tactical['notifications'] : [];
+    $lines[] = sprintf(
+        '- Telegram outbox: `%d pending, %d failed pending, %d delivered`',
+        (int) ($notificationHealth['pending_count'] ?? 0),
+        (int) ($notificationHealth['failed_pending_count'] ?? 0),
+        (int) ($notificationHealth['delivered_count'] ?? 0),
+    );
+    $lines[] = '- Hybrid reconciliation: `' . (string) ($tactical['cycle']['reconciliation_status'] ?? 'not_started') . '`';
+    $lines[] = '- Live review not before: `' . (string) ($tactical['live_review_not_before'] ?? 'unknown') . '`';
     $lines[] = '';
     $lines[] = '## Positions';
     if ($positions === []) {

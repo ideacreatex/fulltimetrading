@@ -6,6 +6,7 @@ declare(strict_types=1);
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Notifications\TelegramNotifier;
 use FulltimeTrading\Storage\SqliteRepository;
+use FulltimeTrading\Storage\TacticalPaperRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\ProcessLock;
 use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
@@ -14,6 +15,7 @@ use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
 use FulltimeTrading\Trading\PaperMonitorDecisionGuard;
 use FulltimeTrading\Trading\PaperPositionLifecycle;
 use FulltimeTrading\Trading\PaperReviewAlertGuard;
+use FulltimeTrading\Trading\TacticalLegacyOwnershipGuard;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -101,6 +103,65 @@ try {
     ]);
     throw $e;
 }
+
+// Once the hybrid runtime has activated from a proven-flat handoff, its
+// symbol quantities belong to the sleeve ledger. The legacy author monitor
+// must never create stops or sell orders against those aggregate positions.
+$tacticalOwnedSymbols = [];
+try {
+    $tacticalConfig = require __DIR__ . '/../config/tactical_paper.php';
+    $tacticalRepo = new TacticalPaperRepository((string) $config->get('database_path'));
+    $tacticalRepo->migrate();
+    $tacticalRunId = (string) ($tacticalConfig['run_id'] ?? '');
+    $tacticalRun = $tacticalRunId !== '' ? $tacticalRepo->run($tacticalRunId) : null;
+    if (TacticalLegacyOwnershipGuard::requiresProtection($tacticalRun)) {
+        $tacticalProfile = require __DIR__ . '/../config/tactical_rotation.php';
+        $protectedSymbols = array_merge(
+            array_keys($tacticalRepo->expectedBrokerPositions($tacticalRunId)),
+            array_map('strval', (array) ($tacticalProfile['universe'] ?? [])),
+            [(string) ($tacticalProfile['benchmark'] ?? '')],
+            [(string) ($tacticalProfile['signal_market_filter']['symbol'] ?? '')],
+            [(string) ($tacticalProfile['market_context']['symbol'] ?? '')],
+        );
+        $tacticalOwnedSymbols = [];
+        foreach ($protectedSymbols as $protectedSymbol) {
+            $protectedSymbol = strtoupper(trim($protectedSymbol));
+            if ($protectedSymbol !== '') {
+                $tacticalOwnedSymbols[$protectedSymbol] = true;
+            }
+        }
+        foreach ($tacticalRepo->activeIntents($tacticalRunId) as $intent) {
+            $intentSymbol = strtoupper((string) ($intent['symbol'] ?? ''));
+            if ($intentSymbol !== '') {
+                $tacticalOwnedSymbols[$intentSymbol] = true;
+            }
+        }
+    }
+} catch (Throwable $e) {
+    // Ownership must be proven before the legacy monitor is allowed to make
+    // any decision. Treating a broken tactical ledger as "no tactical
+    // positions" could make this process sell a hybrid-owned position.
+    $repo->logPaperAction([
+        'created_at' => $now->format(DateTimeInterface::ATOM),
+        'action' => 'tactical_ownership_guard_error',
+        'severity' => 'error',
+        'dry_run' => $dryRun,
+        'reason' => 'Legacy monitor aborted because tactical ownership could not be verified: ' . $e->getMessage(),
+    ]);
+    throw new RuntimeException(
+        'Legacy monitor fail-closed: tactical ownership could not be verified.',
+        0,
+        $e,
+    );
+}
+$tacticalSkippedPositions = array_values(array_filter(
+    $positions,
+    static fn (array $position): bool => isset($tacticalOwnedSymbols[strtoupper((string) ($position['symbol'] ?? ''))]),
+));
+$positions = array_values(array_filter(
+    $positions,
+    static fn (array $position): bool => !isset($tacticalOwnedSymbols[strtoupper((string) ($position['symbol'] ?? ''))]),
+));
 
 $isMarketOpen = (bool) ($clock['is_open'] ?? false);
 $canSubmit = $isMarketOpen && $submitAllowed;
@@ -641,6 +702,13 @@ $payload = [
     'market_open' => $isMarketOpen,
     'paper_account' => summarizeAccount($account),
     'positions_count' => count($positions),
+    'tactical_positions_skipped' => array_map(
+        static fn (array $position): array => [
+            'symbol' => strtoupper((string) ($position['symbol'] ?? '')),
+            'qty' => (float) ($position['qty'] ?? 0.0),
+        ],
+        $tacticalSkippedPositions,
+    ),
     'open_orders_count' => count($openOrders),
     'partial_pct' => $partialPct,
     'break_even_pct' => $breakEvenPct,

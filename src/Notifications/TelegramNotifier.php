@@ -42,13 +42,34 @@ final readonly class TelegramNotifier
             ],
         );
 
-        if ($response['status'] < 200 || $response['status'] >= 300) {
-            throw new \RuntimeException('Telegram sendMessage failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
+        return self::validateSendMessageResponse($response);
+    }
+
+    /**
+     * Telegram delivery is acknowledged only by its structured success
+     * response. A transport-level 2xx with malformed JSON or ok=false must
+     * stay in the durable retry outbox.
+     *
+     * @param array{status:int,body:string} $response
+     * @return array<string,mixed>
+     */
+    public static function validateSendMessageResponse(array $response): array
+    {
+        $status = (int) ($response['status'] ?? 0);
+        if ($status < 200 || $status >= 300) {
+            throw new \RuntimeException('Telegram sendMessage failed with HTTP ' . $status . '.');
         }
 
-        $payload = json_decode($response['body'], true);
+        $payload = json_decode((string) ($response['body'] ?? ''), true);
+        $messageId = is_array($payload['result'] ?? null) ? ($payload['result']['message_id'] ?? null) : null;
+        if (!is_array($payload)
+            || ($payload['ok'] ?? null) !== true
+            || (!is_int($messageId) && !(is_string($messageId) && ctype_digit($messageId)))
+            || (int) $messageId <= 0) {
+            throw new \RuntimeException('Telegram sendMessage response did not confirm delivery.');
+        }
 
-        return is_array($payload) ? $payload : ['ok' => false, 'raw' => $response['body']];
+        return $payload;
     }
 
     private function truncate(string $text): string

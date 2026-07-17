@@ -268,6 +268,15 @@ php tools/stress_trade_costs.php \
 
 Расширенный stock-rotation поиск затем нашёл профиль [`causal-stock-rotation-hybrid-v4`](docs/CAUSAL_STOCK_ROTATION_HYBRID_V4_2026-07-16.md): при 20 bps train 2021–23 CAGR `116.98%`, validation 2024–25 `109.23%`, full `126.95%`, total `+9158.90%`, DD `−30.23%`; обязательный stress 30 bps также проходит (`108.83% / 101.60% / 118.42%`, total `+7391.45%`, DD `−30.48%`). Full-результат распределён по `255` положительным holding episodes и `19` тикерам, доля лучшего эпизода при stress — `14.60%`, а `8/20` leave-one-out вариантов проходят оба cost gates. Поэтому `selected=true` означает historical qualification; `production_approved=false`, `order_submission_enabled=false` и требуется paper-forward shadow.
 
+Отдельный execution-контур этого профиля допускается только на Alpaca paper и
+описан в [`docs/HYBRID_V4_PAPER_RUNBOOK.md`](docs/HYBRID_V4_PAPER_RUNBOOK.md).
+Research-флаг `order_submission_enabled=false` остаётся неизменным: заявки
+разрешает только изолированный guarded paper runtime с точной проверкой
+профиля, хешей данных и реализации. Пока в счёте остаются позиции старого
+алгоритма, старый daemon работает только на выход, а hybrid-v4 ждёт полностью
+пустой счёт и не догоняет историческую PANW. Ни один контур не содержит
+автоматического переключения на live.
+
 Воспроизведение frozen профиля:
 
 ```bash

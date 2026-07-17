@@ -6,7 +6,7 @@ namespace FulltimeTrading\Trading;
 
 use FulltimeTrading\Data\HttpClient;
 
-final readonly class AlpacaPaperClient
+final readonly class AlpacaPaperClient implements TacticalOrderGateway
 {
     public function __construct(
         private HttpClient $http,
@@ -32,7 +32,7 @@ final readonly class AlpacaPaperClient
     /** @return array<string, mixed> */
     public function account(): array
     {
-        $response = $this->http->get(rtrim($this->baseUrl, '/') . '/account', $this->headers(), null, false);
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/account');
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper account request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -48,7 +48,7 @@ final readonly class AlpacaPaperClient
     /** @return list<array<string, mixed>> */
     public function positions(): array
     {
-        $response = $this->http->get(rtrim($this->baseUrl, '/') . '/positions', $this->headers(), null, false);
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/positions');
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper positions request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -64,7 +64,7 @@ final readonly class AlpacaPaperClient
     /** @return list<array<string, mixed>> */
     public function openOrders(): array
     {
-        $response = $this->http->get(rtrim($this->baseUrl, '/') . '/orders?status=open&nested=false', $this->headers(), null, false);
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/orders?status=open&nested=false');
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper orders request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -80,7 +80,7 @@ final readonly class AlpacaPaperClient
     /** @return array<string, mixed>|null */
     public function order(string $orderId): ?array
     {
-        $response = $this->http->get(rtrim($this->baseUrl, '/') . '/orders/' . rawurlencode($orderId), $this->headers(), null, false);
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/orders/' . rawurlencode($orderId));
 
         return $this->orderFromResponse($response, 'order id');
     }
@@ -89,7 +89,7 @@ final readonly class AlpacaPaperClient
     public function orderByClientOrderId(string $clientOrderId): ?array
     {
         $url = rtrim($this->baseUrl, '/') . '/orders:by_client_order_id?client_order_id=' . rawurlencode($clientOrderId);
-        $response = $this->http->get($url, $this->headers(), null, false);
+        $response = $this->getWithRetry($url);
 
         return $this->orderFromResponse($response, 'client order id');
     }
@@ -97,7 +97,7 @@ final readonly class AlpacaPaperClient
     /** @return array<string, mixed> */
     public function clock(): array
     {
-        $response = $this->http->get(rtrim($this->baseUrl, '/') . '/clock', $this->headers(), null, false);
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/clock');
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper clock request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -119,7 +119,7 @@ final readonly class AlpacaPaperClient
             }
         }
         $url = rtrim($this->baseUrl, '/') . '/calendar?start=' . rawurlencode($start) . '&end=' . rawurlencode($end);
-        $response = $this->http->get($url, $this->headers(), null, false);
+        $response = $this->getWithRetry($url);
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper calendar request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -139,12 +139,7 @@ final readonly class AlpacaPaperClient
         if (!preg_match('/^[A-Z][A-Z0-9.\-]{0,14}$/', $symbol)) {
             throw new \InvalidArgumentException('Invalid Alpaca asset symbol.');
         }
-        $response = $this->http->get(
-            rtrim($this->baseUrl, '/') . '/assets/' . rawurlencode($symbol),
-            $this->headers(),
-            null,
-            false,
-        );
+        $response = $this->getWithRetry(rtrim($this->baseUrl, '/') . '/assets/' . rawurlencode($symbol));
         if ($response['status'] < 200 || $response['status'] >= 300) {
             throw new \RuntimeException('Alpaca paper asset request failed with HTTP ' . $response['status'] . ': ' . substr($response['body'], 0, 500));
         }
@@ -206,6 +201,28 @@ final readonly class AlpacaPaperClient
         }
 
         return $payload;
+    }
+
+    /** @return array{status:int,body:string} */
+    private function getWithRetry(string $url): array
+    {
+        $lastError = null;
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            try {
+                $response = $this->http->get($url, $this->headers(), null, false);
+                if ($response['status'] !== 429 && $response['status'] < 500) {
+                    return $response;
+                }
+                $lastError = new \RuntimeException('Retryable Alpaca HTTP ' . $response['status']);
+            } catch (\Throwable $e) {
+                $lastError = $e;
+            }
+            if ($attempt < 2) {
+                usleep((200000 * (2 ** $attempt)) + random_int(0, 100000));
+            }
+        }
+
+        throw new \RuntimeException('Alpaca paper read failed after bounded retries.', 0, $lastError);
     }
 
     /** @return array<string, string> */

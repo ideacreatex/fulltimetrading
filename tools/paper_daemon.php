@@ -3,6 +3,9 @@
 
 declare(strict_types=1);
 
+use FulltimeTrading\Storage\TacticalPaperRepository;
+use FulltimeTrading\Support\Config;
+
 require __DIR__ . '/../bootstrap.php';
 
 $options = [
@@ -52,6 +55,7 @@ $statePath = (string) $options['state'];
 $heartbeatPath = (string) $options['heartbeat'];
 $logPath = (string) $options['log'];
 $cycleFingerprint = cycleFingerprint($options);
+$legacyEntryGate = legacyEntryGate();
 ensureDir(dirname($statePath));
 ensureDir(dirname($heartbeatPath));
 ensureDir(dirname($logPath));
@@ -70,6 +74,8 @@ if (boolOption((string) $options['submit'])) {
             'profile' => (string) $options['profile'],
             'cycle_fingerprint' => $cycleFingerprint,
             'account_guard_verified' => false,
+            'legacy_entries_allowed' => $legacyEntryGate['allowed'],
+            'legacy_entry_gate_reason' => $legacyEntryGate['reason'],
             'last_monitor_exit_code' => -1,
         ]);
         fwrite(STDERR, "Alpaca paper account guard failed; submit monitor was not started.\n");
@@ -90,6 +96,8 @@ do {
         'profile' => (string) $options['profile'],
         'cycle_fingerprint' => $cycleFingerprint,
         'account_guard_verified' => $accountGuardVerified,
+        'legacy_entries_allowed' => $legacyEntryGate['allowed'],
+        'legacy_entry_gate_reason' => $legacyEntryGate['reason'],
     ]);
 
     $state = readJson($statePath);
@@ -105,6 +113,8 @@ do {
         'profile' => (string) $options['profile'],
         'cycle_fingerprint' => $cycleFingerprint,
         'account_guard_verified' => $accountGuardVerified,
+        'legacy_entries_allowed' => $legacyEntryGate['allowed'],
+        'legacy_entry_gate_reason' => $legacyEntryGate['reason'],
         'last_monitor_started_at' => $monitor['started_at'] ?? null,
         'last_monitor_finished_at' => $monitor['finished_at'] ?? null,
         'last_monitor_exit_code' => (int) ($monitor['exit_code'] ?? -1),
@@ -112,7 +122,11 @@ do {
 
     // A skipped/failed protection pass is not a valid prerequisite for opening
     // new risk. Retry the monitor on the next loop before running the daily cycle.
-    if ((int) ($monitor['exit_code'] ?? -1) === 0 && shouldRunCycle($state, $options, $cycleFingerprint)) {
+    if (
+        $legacyEntryGate['allowed'] === true
+        && (int) ($monitor['exit_code'] ?? -1) === 0
+        && shouldRunCycle($state, $options, $cycleFingerprint)
+    ) {
         $cycle = runCommand(cycleCommand($options), dirname(__DIR__));
         logLine($logPath, ['event' => 'paper_cycle', 'result' => $cycle]);
         echo shortResult('paper-cycle', $cycle) . "\n";
@@ -172,6 +186,45 @@ function accountGuardCommand(): array
         __DIR__ . '/../bin/trade',
         'alpaca-account',
     ];
+}
+
+/** @return array{allowed:bool,reason:string} */
+function legacyEntryGate(): array
+{
+    $paperPath = __DIR__ . '/../config/tactical_paper.php';
+    if (!is_file($paperPath)) {
+        return ['allowed' => true, 'reason' => 'tactical_handoff_not_configured'];
+    }
+
+    try {
+        $paper = require $paperPath;
+        if (!is_array($paper) || ($paper['enabled'] ?? false) !== true) {
+            return ['allowed' => true, 'reason' => 'tactical_handoff_disabled'];
+        }
+
+        $runId = trim((string) ($paper['run_id'] ?? ''));
+        if ($runId === '') {
+            return ['allowed' => false, 'reason' => 'tactical_handoff_invalid_run_id'];
+        }
+
+        $config = Config::fromFile(__DIR__ . '/../config/config.php');
+        $repo = new TacticalPaperRepository((string) $config->get('database_path'));
+        $repo->migrate();
+        $run = $repo->run($runId);
+        $status = is_array($run) ? (string) ($run['status'] ?? 'unknown') : 'not_initialized';
+
+        // Once a tactical handoff is configured, the legacy daemon is exits
+        // only. This prevents the daily author cycle from opening fresh risk
+        // while existing TECL/TQQQ are being managed to a proven-flat handoff.
+        return ['allowed' => false, 'reason' => 'tactical_handoff_' . $status];
+    } catch (Throwable $e) {
+        // A broken handoff ledger may never be interpreted as permission to
+        // open legacy positions. The risk monitor still runs and retries.
+        return [
+            'allowed' => false,
+            'reason' => 'tactical_handoff_guard_error_' . substr(hash('sha256', $e->getMessage()), 0, 12),
+        ];
+    }
 }
 
 /** @param array<string, mixed> $state @param array<string, string> $options */

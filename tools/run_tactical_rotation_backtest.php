@@ -8,11 +8,16 @@ use FulltimeTrading\Backtest\CausalTacticalRotationEnsembleBacktester;
 use FulltimeTrading\Backtest\TacticalRotationQualification;
 use FulltimeTrading\Data\AlpacaBarsProvider;
 use FulltimeTrading\Data\CachedMarketDataProvider;
+use FulltimeTrading\Data\FrozenSipIexDailyBarsProvider;
 use FulltimeTrading\Data\HttpClient;
+use FulltimeTrading\Data\VerifiedCacheSnapshotMarketDataProvider;
 use FulltimeTrading\Domain\Bar;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Trading\AlpacaPaperClient;
+use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
+use FulltimeTrading\Trading\TacticalImplementationIdentity;
 use FulltimeTrading\Trading\TacticalRotationShadowContext;
+use FulltimeTrading\Trading\TacticalSignalArtifactGuard;
 
 require dirname(__DIR__) . '/bootstrap.php';
 
@@ -27,6 +32,9 @@ $options = getopt('', [
     'output:',
     'shadow-output:',
     'cache-namespace:',
+    'frozen-sip-cutoff:',
+    'frozen-sip-sha256:',
+    'iex-cache-namespace:',
     'include-curve',
     'include-robustness',
 ]);
@@ -34,6 +42,8 @@ $options = getopt('', [
 $root = dirname(__DIR__);
 $appConfig = Config::fromFile($root . '/config/config.php');
 $profile = require $root . '/config/tactical_rotation.php';
+$paperRuntime = require $root . '/config/tactical_paper.php';
+$paperData = (array) ($paperRuntime['data'] ?? []);
 if (($profile['production_approved'] ?? true) !== false
     || ($profile['order_submission_enabled'] ?? true) !== false
     || ($profile['paper_shadow_enabled'] ?? false) !== true) {
@@ -49,10 +59,8 @@ $validationStart = (string) (
 $holdoutStart = (string) ($options['holdout-start'] ?? $profile['validation']['holdout_start']);
 $newYork = new DateTimeZone('America/New_York');
 $nowNewYork = new DateTimeImmutable('now', $newYork);
-$today = $nowNewYork->format('Y-m-d');
-$latestClosedDate = (int) $nowNewYork->format('G') >= 17
-    ? $today
-    : $nowNewYork->modify('-1 day')->format('Y-m-d');
+$latestClosedDate = PaperDailyReportFreshnessGuard::latestExpectedClosedBarDate($nowNewYork)
+    ->format('Y-m-d');
 $end = (string) ($options['end'] ?? $latestClosedDate);
 if ($end > $latestClosedDate) {
     throw new RuntimeException('The replay end exceeds the latest conservatively closed New York daily bar.');
@@ -68,19 +76,45 @@ if ($costs === []) {
 
 $symbols = profileSymbols($profile);
 sort($symbols, SORT_STRING);
-$cacheNamespace = (string) ($options['cache-namespace'] ?? 'alpaca-causal-tactical-rotation-v1-sip-split-1day');
-$provider = new CachedMarketDataProvider(
-    new AlpacaBarsProvider(
-        new HttpClient(),
-        (string) $appConfig->get('data.alpaca.base_url', 'https://data.alpaca.markets'),
+$cachePath = (string) $appConfig->get('cache_path');
+$frozenSipNamespace = (string) ($options['cache-namespace'] ?? $paperData['cache_namespace'] ?? '');
+$frozenSipCutoff = (string) ($options['frozen-sip-cutoff'] ?? $paperData['historical_cutoff'] ?? '');
+$frozenSipSha256 = strtolower((string) (
+    $options['frozen-sip-sha256']
+    ?? $paperData['historical_snapshot_sha256']
+    ?? ''
+));
+$iexCacheNamespace = (string) (
+    $options['iex-cache-namespace']
+    ?? $paperData['fresh_cache_namespace']
+    ?? ''
+);
+$provider = new FrozenSipIexDailyBarsProvider(
+    new VerifiedCacheSnapshotMarketDataProvider(
+        $cachePath,
+        $frozenSipNamespace,
+        $frozenSipSha256,
+        'Alpaca',
         'sip',
         'split',
-        10000,
     ),
-    (string) $appConfig->get('cache_path'),
-    $cacheNamespace,
+    new CachedMarketDataProvider(
+        new AlpacaBarsProvider(
+            new HttpClient(),
+            (string) $appConfig->get('data.alpaca.base_url', 'https://data.alpaca.markets'),
+            'iex',
+            'split',
+            10000,
+        ),
+        $cachePath,
+        $iexCacheNamespace,
+    ),
+    $frozenSipCutoff,
+    $iexCacheNamespace,
+    (array) ($paperData['cross_feed_audit'] ?? []),
 );
 $barsBySymbol = $provider->getBars($symbols, '1Day', $dataStart, $end);
+$marketDataProvenance = $provider->provenance();
 $coverage = [];
 foreach ($symbols as $symbol) {
     $bars = $barsBySymbol[$symbol] ?? [];
@@ -148,17 +182,27 @@ $stressKey = rtrim(rtrim(sprintf('%.4F', (float) $profile['validation']['require
 $selected = isset($runs[$baseKey], $runs[$stressKey])
     && $runs[$baseKey]['qualifies'] === true
     && $runs[$stressKey]['qualifies'] === true;
-$targets = resultTargets((array) ($baseSnapshot ?? []));
-$executionContexts = paperExecutionContexts(
+$targets = attachSizingReferenceCloses(
+    resultTargets((array) ($baseSnapshot ?? [])),
+    $barsBySymbol,
+    $newYork,
+);
+$executionSnapshot = paperExecutionContexts(
     $targets,
     $appConfig,
     $nowNewYork,
     $selected,
 );
+$executionContexts = $executionSnapshot['contexts'];
+$implementation = TacticalImplementationIdentity::current($root, $profile);
 $paperShadow = [
+    'schema' => 1,
     'generated_at' => (new DateTimeImmutable())->format(DATE_ATOM),
     'profile' => (string) $profile['profile'],
+    'causal_contract' => 'completed close D ranks symbols; target can execute only at open D+1',
     'as_of' => $baseSnapshot['features_as_of'] ?? $end,
+    'intended_session' => $executionSnapshot['intended_session'],
+    'implementation' => $implementation,
     'targets' => $targets,
     'execution_contexts' => $executionContexts,
     'validation_selected' => $selected,
@@ -166,7 +210,9 @@ $paperShadow = [
     'paper_shadow_enabled' => (bool) $profile['paper_shadow_enabled'],
     'order_submission_enabled' => false,
     'order_submission_block_reason' => (string) $profile['order_submission_block_reason'],
+    'data_provenance' => $marketDataProvenance,
 ];
+$paperShadow['decision_sha256'] = TacticalSignalArtifactGuard::decisionSha256($paperShadow);
 $robustness = isset($options['include-robustness'])
     ? robustnessAudit(
         $profile,
@@ -184,15 +230,19 @@ $artifact = [
     'profile' => (string) $profile['profile'],
     'causal_contract' => 'completed close D ranks symbols; target can execute only at open D+1',
     'data' => [
-        'provider' => 'Alpaca',
-        'feed' => 'sip',
+        'provider' => 'Alpaca frozen SIP plus completed IEX',
+        'feed' => 'sip_through_cutoff_then_iex',
         'adjustment' => 'split',
         'timeframe' => '1Day',
-        'cache_namespace' => $cacheNamespace,
+        'frozen_sip_cache_namespace' => $frozenSipNamespace,
+        'recent_iex_cache_namespace' => $iexCacheNamespace,
+        'frozen_sip_cutoff' => $frozenSipCutoff,
+        'frozen_sip_sha256' => $frozenSipSha256,
         'start' => $dataStart,
         'end' => $end,
         'coverage' => $coverage,
         'canonical_sha256' => canonicalBarsHash($barsBySymbol),
+        'provenance' => $marketDataProvenance,
     ],
     'periods' => [
         'trade_start' => $tradeStart,
@@ -203,7 +253,7 @@ $artifact = [
         'end' => $end,
     ],
     'strategy' => array_diff_key($profile, ['validation' => true]),
-    'implementation' => implementationIdentity($root, $profile),
+    'implementation' => $implementation,
     'validation' => $profile['validation'],
     'cost_stress' => $runs,
     'selected' => $selected,
@@ -354,6 +404,56 @@ function resultTargets(array $result): array
     return [];
 }
 
+/**
+ * Freeze sizing to the exact completed close that produced each executable
+ * target. A non-null target without that same-session close is not safe to
+ * hand to a later paper executor.
+ *
+ * @param array<string,array<string,mixed>> $targets
+ * @param array<string,list<Bar>> $barsBySymbol
+ * @return array<string,array<string,mixed>>
+ */
+function attachSizingReferenceCloses(
+    array $targets,
+    array $barsBySymbol,
+    DateTimeZone $newYork,
+): array {
+    $closes = [];
+    foreach ($barsBySymbol as $symbol => $bars) {
+        $symbol = strtoupper((string) $symbol);
+        foreach ($bars as $bar) {
+            $session = $bar->time->setTimezone($newYork)->format('Y-m-d');
+            if (isset($closes[$symbol][$session])) {
+                throw new RuntimeException('Duplicate sizing-reference session for ' . $symbol . ' on ' . $session . '.');
+            }
+            $closes[$symbol][$session] = $bar->close;
+        }
+    }
+
+    foreach ($targets as $name => $target) {
+        $target['sizing_reference_close'] = null;
+        $target['sizing_reference_session'] = null;
+        $symbol = strtoupper(trim((string) ($target['symbol'] ?? '')));
+        if ($symbol !== '') {
+            $signalDate = (string) ($target['signal_date'] ?? '');
+            $close = $closes[$symbol][$signalDate] ?? null;
+            if (!is_float($close) || !is_finite($close) || $close <= 0.0) {
+                throw new RuntimeException(sprintf(
+                    'Target %s lacks a positive sizing-reference close for %s on %s.',
+                    (string) $name,
+                    $symbol,
+                    $signalDate !== '' ? $signalDate : 'missing',
+                ));
+            }
+            $target['sizing_reference_close'] = $close;
+            $target['sizing_reference_session'] = $signalDate;
+        }
+        $targets[$name] = $target;
+    }
+
+    return $targets;
+}
+
 /** @param array<string,list<Bar>> $barsBySymbol */
 function canonicalBarsHash(array $barsBySymbol): string
 {
@@ -449,8 +549,8 @@ function writeJson(string $path, array $payload): void
  * is fail-closed: the historical report remains usable, but the shadow cannot
  * be mistaken for a current order instruction.
  *
- * @param array<string,mixed> $target
- * @return array<string,mixed>
+ * @param array<string,array<string,mixed>> $targets
+ * @return array{contexts:array<string,array<string,mixed>>,intended_session:?string}
  */
 function paperExecutionContexts(
     array $targets,
@@ -461,20 +561,49 @@ function paperExecutionContexts(
 {
     $calendar = null;
     $asset = null;
+    $intendedSession = null;
+    $signalDates = array_values(array_unique(array_filter(array_map(
+        static fn (array $target): string => (string) ($target['signal_date'] ?? ''),
+        $targets,
+    ), static fn (string $date): bool => $date !== '')));
+    if (count($signalDates) > 1) {
+        throw new RuntimeException('Paper shadow targets disagree on their signal date.');
+    }
+    $signalDate = $signalDates[0] ?? null;
+
     if ((getenv('APCA_PAPER_API_KEY_ID') ?: '') !== '' && (getenv('APCA_PAPER_API_SECRET_KEY') ?: '') !== '') {
         try {
             $client = new AlpacaPaperClient(
                 new HttpClient(),
                 (string) $appConfig->get('trading.alpaca.paper_base_url', 'https://paper-api.alpaca.markets/v2'),
             );
-            $calendar = $client->calendar(...);
             $asset = $client->asset(...);
+            if ($signalDate !== null && preg_match('/^\d{4}-\d{2}-\d{2}$/D', $signalDate) === 1) {
+                try {
+                    $start = (new DateTimeImmutable($signalDate))->modify('+1 day')->format('Y-m-d');
+                    $calendarEnd = (new DateTimeImmutable($signalDate))->modify('+14 days')->format('Y-m-d');
+                    $calendarRows = $client->calendar($start, $calendarEnd);
+                    $calendar = static fn (string $ignoredStart, string $ignoredEnd): array => $calendarRows;
+                    $candidateDates = [];
+                    foreach ($calendarRows as $row) {
+                        $date = is_array($row) ? (string) ($row['date'] ?? '') : '';
+                        if ($date > $signalDate) {
+                            $candidateDates[] = $date;
+                        }
+                    }
+                    sort($candidateDates, SORT_STRING);
+                    $intendedSession = $candidateDates[0] ?? null;
+                } catch (Throwable) {
+                    $calendar = static function (string $ignoredStart, string $ignoredEnd): array {
+                        throw new RuntimeException('Alpaca calendar lookup failed.');
+                    };
+                }
+            } else {
+                $calendar = $client->calendar(...);
+            }
         } catch (Throwable) {
-            return array_fill_keys(array_keys($targets), [
-                'status' => 'blocked_broker_check_failed',
-                'order_eligible' => false,
-                'no_chase' => true,
-            ]);
+            $calendar = null;
+            $asset = null;
         }
     }
 
@@ -484,37 +613,9 @@ function paperExecutionContexts(
         $contexts[$name] = $resolver->resolve((array) $target, $nowNewYork, $validationSelected);
     }
 
-    return $contexts;
-}
-
-/** @param array<string,mixed> $profile @return array<string,mixed> */
-function implementationIdentity(string $root, array $profile): array
-{
-    $paths = [
-        'config/tactical_rotation.php',
-        'src/Backtest/CausalTacticalRotationBacktester.php',
-        'src/Backtest/CausalTacticalRotationEnsembleBacktester.php',
-        'src/Backtest/TacticalRotationQualification.php',
-        'src/Trading/TacticalRotationShadowContext.php',
-        'tools/run_tactical_rotation_backtest.php',
-    ];
-    $files = [];
-    foreach ($paths as $relative) {
-        $hash = hash_file('sha256', $root . '/' . $relative);
-        if (!is_string($hash)) {
-            throw new RuntimeException('Unable to hash implementation file: ' . $relative);
-        }
-        $files[$relative] = $hash;
-    }
-
     return [
-        'files_sha256' => $files,
-        'profile_sha256' => hash('sha256', json_encode($profile, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)),
-        'combined_sha256' => hash('sha256', implode("\n", array_map(
-            static fn (string $path, string $hash): string => $path . '=' . $hash,
-            array_keys($files),
-            array_values($files),
-        ))),
+        'contexts' => $contexts,
+        'intended_session' => $intendedSession,
     ];
 }
 

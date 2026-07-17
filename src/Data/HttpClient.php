@@ -25,6 +25,7 @@ final class HttpClient
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => $followRedirects,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_HTTPHEADER => $headerLines,
             CURLOPT_USERAGENT => 'Mozilla/5.0 fulltime-trading-bot/0.1',
@@ -66,6 +67,7 @@ final class HttpClient
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => $followRedirects,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_HTTPHEADER => $headerLines,
             CURLOPT_POST => true,
@@ -109,6 +111,7 @@ final class HttpClient
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => $followRedirects,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_HTTPHEADER => $headerLines,
             CURLOPT_POST => true,
@@ -151,6 +154,7 @@ final class HttpClient
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => $followRedirects,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 60,
             CURLOPT_HTTPHEADER => $headerLines,
             CURLOPT_CUSTOMREQUEST => 'DELETE',

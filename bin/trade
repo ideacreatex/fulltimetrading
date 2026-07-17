@@ -673,6 +673,9 @@ Usage:
   php bin/trade paper-monitor [--report=var/reports/daily/alpaca_selected_best_partial_live_signal_report.json] [--submit=false] [--telegram=true]
   php bin/trade paper-status [--limit=20]
   php bin/trade paper-status-export [--git=false] [--push=false]
+  php bin/trade tactical-paper-executor [--submit=false] [--telegram=true]
+  php bin/trade tactical-paper-daemon [--submit=false] [--telegram=true] [--interval-seconds=60]
+  php bin/trade tactical-paper-month-report [--telegram=false]
   php bin/trade import-dashboard --file=dashboard.csv [--session=regular]
   php bin/trade import-indicators --file=indicators.csv
   php bin/trade import-history --file=history.csv [--source=fstock|tradingview] [--session=regular]
@@ -764,6 +767,21 @@ try {
 
     if ($command === 'paper-status-export') {
         require __DIR__ . '/../tools/paper_status_export.php';
+        exit(0);
+    }
+
+    if ($command === 'tactical-paper-executor') {
+        require __DIR__ . '/../tools/tactical_rotation_paper_executor.php';
+        exit(0);
+    }
+
+    if ($command === 'tactical-paper-daemon') {
+        require __DIR__ . '/../tools/tactical_rotation_paper_daemon.php';
+        exit(0);
+    }
+
+    if ($command === 'tactical-paper-month-report') {
+        require __DIR__ . '/../tools/tactical_paper_month_report.php';
         exit(0);
     }
 
