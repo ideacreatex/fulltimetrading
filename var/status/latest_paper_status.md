@@ -1,14 +1,14 @@
 # FTT Paper Status
 
-- Generated: `2026-07-21T14:37:26+00:00`
+- Generated: `2026-07-21T14:39:31+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$26,080.29`
+- Equity: `$26,009.85`
 - Cash: `$1,905.99`
-- Buying power: `$15,474.18`
+- Buying power: `$15,447.78`
 - Hybrid-v4 runtime: `transition`
 - Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 8 delivered`
@@ -20,18 +20,18 @@
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$189.58`, value `$12512.10`, P/L `$-2305.26` (`-15.56%`), today `+6.59%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$70.67`, value `$11660.55`, P/L `$-770.55` (`-6.20%`), today `+4.46%`
+- `TECL` qty `66`, avg `$224.51`, price `$188.91`, value `$12468.06`, P/L `$-2349.30` (`-15.86%`), today `+6.21%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$70.53`, value `$11637.45`, P/L `$-793.65` (`-6.38%`), today `+4.26%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
+- `2026-07-21T14:39:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-21T14:38:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:37:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:36:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:35:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:35:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:34:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
 - `2026-07-21T14:33:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-21T14:32:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-21T14:30:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
