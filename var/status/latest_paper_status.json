@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-07-21T20:12:26+00:00",
+    "generated_at": "2026-07-21T20:27:34+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "f7c9b54",
+        "commit": "4d50be4",
         "dirty": false
     },
     "runtime": {
@@ -24,7 +24,7 @@
     },
     "alpaca": {
         "clock": {
-            "timestamp": "2026-07-21T16:12:27.717978103-04:00",
+            "timestamp": "2026-07-21T16:27:35.220237162-04:00",
             "is_open": false,
             "next_open": "2026-07-22T09:30:00-04:00",
             "next_close": "2026-07-22T16:00:00-04:00"
@@ -35,8 +35,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 1905.99,
-            "equity": 26389.66,
-            "buying_power": 15571.51,
+            "equity": 26467.89,
+            "buying_power": 15563.28,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -51,24 +51,24 @@
                 "side": "long",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "current_price": 192.79,
-                "market_value": 12724.14,
+                "current_price": 194.1,
+                "market_value": 12810.6,
                 "cost_basis": 14817.36003,
-                "unrealized_pl": -2093.22003,
-                "unrealized_plpc": -0.14127,
-                "change_today": 0.08394
+                "unrealized_pl": -2006.76003,
+                "unrealized_plpc": -0.13543,
+                "change_today": 0.09131
             },
             {
                 "symbol": "TQQQ",
                 "side": "long",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "current_price": 71.2699,
-                "market_value": 11759.5335,
+                "current_price": 71.22,
+                "market_value": 11751.3,
                 "cost_basis": 12431.1,
-                "unrealized_pl": -671.5665,
-                "unrealized_plpc": -0.05402,
-                "change_today": 0.05351
+                "unrealized_pl": -679.8,
+                "unrealized_plpc": -0.05469,
+                "change_today": 0.05277
             }
         ],
         "open_orders": []
@@ -80,7 +80,7 @@
                 "status": "open",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "market_price": 192.79,
+                "market_price": 194.1,
                 "entry_price": 211.6568,
                 "stop_price": 178.9308,
                 "break_even_trigger_price": 215.89,
@@ -88,14 +88,14 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-21T20:12:05+00:00"
+                "last_event_at": "2026-07-21T20:26:40+00:00"
             },
             {
                 "symbol": "TQQQ",
                 "status": "open",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "market_price": 71.251,
+                "market_price": 71.2,
                 "entry_price": 75.34,
                 "stop_price": 69.2,
                 "break_even_trigger_price": 76.8468,
@@ -103,7 +103,7 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-21T20:12:05+00:00"
+                "last_event_at": "2026-07-21T20:26:40+00:00"
             },
             {
                 "symbol": "USD",
@@ -406,6 +406,174 @@
         ],
         "recent_actions": [
             {
+                "id": 10268,
+                "created_at": "2026-07-21T20:26:40+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10267,
+                "created_at": "2026-07-21T20:25:37+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10266,
+                "created_at": "2026-07-21T20:24:35+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10265,
+                "created_at": "2026-07-21T20:23:33+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10264,
+                "created_at": "2026-07-21T20:22:31+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10263,
+                "created_at": "2026-07-21T20:21:28+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10262,
+                "created_at": "2026-07-21T20:20:26+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10261,
+                "created_at": "2026-07-21T20:19:24+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10260,
+                "created_at": "2026-07-21T20:18:20+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10259,
+                "created_at": "2026-07-21T20:17:18+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10258,
+                "created_at": "2026-07-21T20:16:15+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10257,
+                "created_at": "2026-07-21T20:15:13+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10256,
+                "created_at": "2026-07-21T20:14:11+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 10255,
+                "created_at": "2026-07-21T20:13:08+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
                 "id": 10254,
                 "created_at": "2026-07-21T20:12:05+00:00",
                 "symbol": null,
@@ -476,174 +644,6 @@
                 "order_id_last4": null,
                 "client_order_id": null,
                 "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10248,
-                "created_at": "2026-07-21T20:05:50+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10247,
-                "created_at": "2026-07-21T20:04:48+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10246,
-                "created_at": "2026-07-21T20:03:46+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10245,
-                "created_at": "2026-07-21T20:02:43+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10244,
-                "created_at": "2026-07-21T20:01:41+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10243,
-                "created_at": "2026-07-21T20:00:39+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10242,
-                "created_at": "2026-07-21T19:59:36+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10241,
-                "created_at": "2026-07-21T19:58:33+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10240,
-                "created_at": "2026-07-21T19:57:29+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10239,
-                "created_at": "2026-07-21T19:56:26+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10238,
-                "created_at": "2026-07-21T19:55:24+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10237,
-                "created_at": "2026-07-21T19:54:22+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10236,
-                "created_at": "2026-07-21T19:53:19+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 10235,
-                "created_at": "2026-07-21T19:52:17+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
             }
         ]
     },
@@ -692,7 +692,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-07-21T20:12:05+00:00",
+        "generated_at": "2026-07-21T20:26:40+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": false,
@@ -726,7 +726,7 @@
             "expected": true,
             "ok": true,
             "max_age_seconds": 180,
-            "checked_at": "2026-07-21T20:12:26+00:00",
+            "checked_at": "2026-07-21T20:27:34+00:00",
             "errors": []
         },
         "notifications": {
@@ -734,8 +734,8 @@
             "ok": true,
             "pending_count": 0,
             "failed_pending_count": 0,
-            "delivered_count": 8,
-            "last_delivered_at": "2026-07-21T14:35:56+00:00",
+            "delivered_count": 9,
+            "last_delivered_at": "2026-07-21T20:20:37+00:00",
             "required": {
                 "signal": true,
                 "transition": true,
@@ -747,20 +747,20 @@
         "heartbeat": {
             "pid": 55506,
             "started_at": "2026-07-21T14:38:11+00:00",
-            "heartbeat_at": "2026-07-21T20:12:24+00:00",
+            "heartbeat_at": "2026-07-21T20:27:31+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
-            "last_signal_exit_code": null,
-            "last_signal_finished_at": null,
+            "last_signal_exit_code": 0,
+            "last_signal_finished_at": "2026-07-21T20:20:33+00:00",
             "last_executor_exit_code": 0,
-            "last_executor_finished_at": "2026-07-21T20:12:24+00:00",
+            "last_executor_finished_at": "2026-07-21T20:27:31+00:00",
             "last_executor_timed_out": false,
             "error": null
         },
         "cycle": {
-            "generated_at": "2026-07-21T16:12:22-04:00",
+            "generated_at": "2026-07-21T16:27:29-04:00",
             "run_id": "hybrid-v4-paper-2026-07-17",
             "profile": "causal-stock-rotation-hybrid-v4",
             "dry_run": false,
@@ -776,20 +776,20 @@
             "reconciliation_status": "legacy_positions_in_control",
             "report_snapshot_fresh": true,
             "signal": {
-                "as_of": "2026-07-20",
-                "generated_at": "2026-07-20T20:20:27+00:00",
-                "intended_session": "2026-07-21",
+                "as_of": "2026-07-21",
+                "generated_at": "2026-07-21T20:20:32+00:00",
+                "intended_session": "2026-07-22",
                 "validation_selected": true,
-                "decision_sha256": "bd6b703a291132341e6f99c17fb7c4d0dddfe2d922d20b3f1f4fc012a80ac760",
+                "decision_sha256": "9a3368481d4ead58d5e287e0ab1fbbc6c4f261fcba64ce2f83e19636c7daeb05",
                 "targets": {
                     "dynamic_loo10": {
                         "action": "hold",
                         "symbol": null,
                         "gross": 0,
                         "current_symbol": "PANW",
-                        "current_gross": 0.7037880919489891,
+                        "current_gross": 0.6998697828632773,
                         "ranked_symbol": "PANW",
-                        "ranked_gross": 0.6882721818572265,
+                        "ranked_gross": 0.6809730088023906,
                         "cooldown_left": 0,
                         "cooldown_after_next_open_tick": 0,
                         "drawdown_rearm_pending": false,
@@ -807,9 +807,9 @@
                         "current_symbol": null,
                         "current_gross": 0,
                         "ranked_symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
-                        "cooldown_after_next_open_tick": 42,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
+                        "cooldown_after_next_open_tick": 41,
                         "drawdown_rearm_pending": true,
                         "risk_exit_pending": false,
                         "allocation": 0.13333333333333333,
@@ -825,9 +825,9 @@
                         "current_symbol": null,
                         "current_gross": 0,
                         "ranked_symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
-                        "cooldown_after_next_open_tick": 42,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
+                        "cooldown_after_next_open_tick": 41,
                         "drawdown_rearm_pending": true,
                         "risk_exit_pending": false,
                         "allocation": 0.13333333333333333,
@@ -843,9 +843,9 @@
                         "current_symbol": null,
                         "current_gross": 0,
                         "ranked_symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
-                        "cooldown_after_next_open_tick": 42,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
+                        "cooldown_after_next_open_tick": 41,
                         "drawdown_rearm_pending": true,
                         "risk_exit_pending": false,
                         "allocation": 0.13333333333333333,
@@ -885,7 +885,7 @@
                         ],
                         "timeframe": "1Day",
                         "start": "2020-01-01",
-                        "end": "2026-07-20"
+                        "end": "2026-07-21"
                     },
                     "boundary": {
                         "frozen_sip_cutoff_inclusive": "2026-07-15",
@@ -1304,238 +1304,238 @@
                                 ],
                                 "timeframe": "1Day",
                                 "start": "2026-07-16",
-                                "end": "2026-07-20"
+                                "end": "2026-07-21"
                             },
                             "coverage": {
                                 "AAPL": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "AMD": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "AMZN": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "ANET": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "AVGO": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "COIN": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "CRWD": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "DELL": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "GOOGL": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "META": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "MRVL": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "MSFT": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "MSTR": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "MU": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "NVDA": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "PANW": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "PLTR": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "QQQ": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "SMCI": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "SPY": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "TSLA": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 },
                                 "WDC": {
-                                    "bars": 3,
+                                    "bars": 4,
                                     "first_session": "2026-07-16",
-                                    "last_session": "2026-07-20"
+                                    "last_session": "2026-07-21"
                                 }
                             },
-                            "canonical_sha256": "6fee5db4efc25e3e7b50d4d3f37cfeb476a52f4356abc59d73ba0775dc6eb9fc"
+                            "canonical_sha256": "5c654b6b5a6cfa4e706274a733bc081431cb513ad4b666b4a28528851c84b6b3"
                         }
                     },
                     "merged": {
-                        "effective_completed_session": "2026-07-20",
+                        "effective_completed_session": "2026-07-21",
                         "coverage": {
                             "AAPL": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "AMD": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "AMZN": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "ANET": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "AVGO": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "COIN": {
-                                "bars": 1322,
+                                "bars": 1323,
                                 "first_session": "2021-04-14",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "CRWD": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "DELL": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "GOOGL": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "META": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "MRVL": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "MSFT": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "MSTR": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "MU": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "NVDA": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "PANW": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "PLTR": {
-                                "bars": 1456,
+                                "bars": 1457,
                                 "first_session": "2020-09-30",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "QQQ": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "SMCI": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "SPY": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "TSLA": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             },
                             "WDC": {
-                                "bars": 1644,
+                                "bars": 1645,
                                 "first_session": "2020-01-02",
-                                "last_session": "2026-07-20"
+                                "last_session": "2026-07-21"
                             }
                         },
-                        "canonical_sha256": "f4bbd3bb606457551cce6e896bada8b824419278ecd3bb69f35231c96d961bd9"
+                        "canonical_sha256": "738e11303bb168d84117deb6e9c34da848625b0c1de9c0c6ad39526867eac9d5"
                     }
                 }
             },
@@ -1557,38 +1557,38 @@
                     {
                         "sleeve_id": "dynamic_loo10",
                         "symbol": "PANW",
-                        "ranked_gross": 0.6882721818572265,
+                        "ranked_gross": 0.6809730088023906,
                         "cooldown_left": 0,
                         "watch_only": true
                     },
                     {
                         "sleeve_id": "qqq200_full",
                         "symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
                         "watch_only": true
                     },
                     {
                         "sleeve_id": "spy200_full",
                         "symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
                         "watch_only": true
                     },
                     {
                         "sleeve_id": "qqq150_ex_crypto",
                         "symbol": "PANW",
-                        "ranked_gross": 0.7436314089693924,
-                        "cooldown_left": 43,
+                        "ranked_gross": 0.7357451475656082,
+                        "cooldown_left": 42,
                         "watch_only": true
                     }
                 ],
                 "execution_window_status": null
             },
             "notification_schedule": {
-                "close_status_key": "portfolio-close:d1d8ddc9925b:2026-07-20:bd6b703a291132341e6f99c17fb7c4d0dddfe2d922d20b3f1f4fc012a80ac760:v3",
-                "close_status_session": "2026-07-20",
-                "close_status_catch_up": true,
+                "close_status_key": "portfolio-close:d1d8ddc9925b:2026-07-21:9a3368481d4ead58d5e287e0ab1fbbc6c4f261fcba64ce2f83e19636c7daeb05:v3",
+                "close_status_session": "2026-07-21",
+                "close_status_catch_up": false,
                 "open_status_key": "portfolio-open:d1d8ddc9925b:2026-07-21:v3",
                 "open_status_required_key": "portfolio-open:d1d8ddc9925b:2026-07-21:v3",
                 "open_status_session": "2026-07-21",
