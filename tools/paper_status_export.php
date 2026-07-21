@@ -484,7 +484,14 @@ function statusExportSanitizeTacticalCycle(?array $cycle): ?array
         'account_guard' => is_array($cycle['account_guard'] ?? null) ? $cycle['account_guard'] : null,
         'run_status' => $cycle['run_status'] ?? null,
         'reconciliation_status' => $cycle['reconciliation_status'] ?? null,
+        'report_snapshot_fresh' => $cycle['report_snapshot_fresh'] ?? null,
         'signal' => $cycle['signal'] ?? null,
+        'entry_eligibility' => is_array($cycle['entry_eligibility'] ?? null)
+            ? $cycle['entry_eligibility']
+            : null,
+        'notification_schedule' => is_array($cycle['notification_schedule'] ?? null)
+            ? $cycle['notification_schedule']
+            : null,
         'errors' => is_array($cycle['errors'] ?? null) ? $cycle['errors'] : [],
     ];
 }
@@ -581,6 +588,7 @@ function statusExportTacticalRuntimeHealth(
         $guard = is_array($cycle['account_guard'] ?? null) ? $cycle['account_guard'] : [];
         if (($cycle['dry_run'] ?? null) !== false
             || ($cycle['paper_only'] ?? null) !== true
+            || ($cycle['report_snapshot_fresh'] ?? null) !== true
             || !is_array($cycle['errors'] ?? null)
             || $cycle['errors'] !== []
             || ($guard['account_reference_match'] ?? false) !== true
@@ -751,6 +759,27 @@ function statusExportMarkdown(array $payload): string
         (int) ($notificationHealth['delivered_count'] ?? 0),
     );
     $lines[] = '- Hybrid reconciliation: `' . (string) ($tactical['cycle']['reconciliation_status'] ?? 'not_started') . '`';
+    $entryEligibility = is_array($tactical['cycle']['entry_eligibility'] ?? null)
+        ? $tactical['cycle']['entry_eligibility']
+        : [];
+    $lines[] = '- Hybrid entry/add now: `'
+        . (($entryEligibility['allowed_now'] ?? false) === true ? 'allowed for bot' : 'blocked') . '`';
+    $entryReasons = [];
+    foreach ((array) ($entryEligibility['blocked_reasons'] ?? []) as $reason) {
+        if (is_array($reason) && trim((string) ($reason['text'] ?? '')) !== '') {
+            $entryReasons[] = (string) $reason['text'];
+        }
+    }
+    if ($entryReasons !== []) {
+        $lines[] = '- Hybrid entry/add reasons: `' . implode(' | ', $entryReasons) . '`';
+    }
+    $notificationSchedule = is_array($tactical['cycle']['notification_schedule'] ?? null)
+        ? $tactical['cycle']['notification_schedule']
+        : [];
+    $lines[] = '- Telegram opening report key: `'
+        . (string) ($notificationSchedule['open_status_required_key'] ?? 'not_due') . '`';
+    $lines[] = '- Telegram close report key: `'
+        . (string) ($notificationSchedule['close_status_key'] ?? 'not_due') . '`';
     $lines[] = '- Live review not before: `' . (string) ($tactical['live_review_not_before'] ?? 'unknown') . '`';
     $lines[] = '';
     $lines[] = '## Positions';
@@ -762,12 +791,15 @@ function statusExportMarkdown(array $payload): string
                 continue;
             }
             $lines[] = sprintf(
-                '- `%s` qty `%s`, price `$%.2f`, value `$%.2f`, P/L `$%.2f`',
+                '- `%s` qty `%s`, avg `$%.2f`, price `$%.2f`, value `$%.2f`, P/L `$%.2f` (`%+.2f%%`), today `%+.2f%%`',
                 (string) ($position['symbol'] ?? ''),
                 (string) ($position['qty'] ?? '0'),
+                (float) ($position['avg_entry_price'] ?? 0.0),
                 (float) ($position['current_price'] ?? 0.0),
                 (float) ($position['market_value'] ?? 0.0),
                 (float) ($position['unrealized_pl'] ?? 0.0),
+                100.0 * (float) ($position['unrealized_plpc'] ?? 0.0),
+                100.0 * (float) ($position['change_today'] ?? 0.0),
             );
         }
     }

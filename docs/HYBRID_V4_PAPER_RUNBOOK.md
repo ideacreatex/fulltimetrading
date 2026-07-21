@@ -70,6 +70,37 @@ not lose the event; the daemon retries it without duplicating a delivered key.
 Bot API delivery is acknowledged only when Telegram returns `ok=true` and a
 message ID. Runtime status is unhealthy while any outbox row is undelivered,
 including a failed attempt hidden behind its retry cooldown.
+The acknowledged Telegram `message_id` is persisted in the outbox payload.
+This is logical exactly-once by durable key, not a claim of physical
+exactly-once: a process crash after Telegram accepts a request but before the
+SQLite acknowledgement can still cause one rare retry duplicate because Bot
+API `sendMessage` has no idempotency key.
+
+The same daemon sends two detailed operator reports:
+
+- at 09:35 New York on every broker-confirmed open session, after the opening
+  prints have settled enough to show the actual Alpaca portfolio;
+- after the completed-close signal refresh (normally from 16:20 New York),
+  with the next-session model plan.
+
+The opening key includes a one-way paper-account scope and broker session date,
+so repeated 15-second cycles do not duplicate it and another paper account
+cannot inherit the delivery. The close key also includes the validated decision
+hash, so an old compact `signal:` row cannot suppress the detailed report. If
+the computer or internet recovers later, the opening report is delivered with
+the same key. After the bell it is explicitly labelled as a catch-up/current
+snapshot rather than pretending to preserve the missed 09:35 prices. Both
+reports show actual Alpaca positions and open orders, account equity/cash,
+portfolio load, average/current prices and P/L, then separately show model
+state and entry/add eligibility. `Buying power` is broker capacity, not
+strategy permission. A ranked symbol such as PANW is watch-only unless a due
+action, active/reconciled runtime and valid order window all agree.
+
+During the legacy handoff, the current unarmed TECL/TQQQ swing stops are shown
+as mental daily-close stops. If break-even arms under the configured hard-BE
+policy, the report switches that row to `hard intraday monitor-stop`. Neither
+mode is a standing stop order at Alpaca: the legacy monitor submits a market
+exit after the relevant close or intraday trigger is confirmed.
 
 ## Operations
 
@@ -78,6 +109,9 @@ php bin/trade tactical-paper-executor --submit=false --telegram=false
 php bin/trade tactical-paper-month-report
 bin/install-hybrid-launchd --status
 tail -f var/log/tactical_paper_daemon.log
+php tests/tactical_portfolio_notification_schedule.php
+php tests/tactical_portfolio_status_message.php
+php tests/tactical_notification_health_guard.php
 ```
 
 The dedicated LaunchAgent is `com.fulltimetrading.hybrid-v4-paper`. It uses

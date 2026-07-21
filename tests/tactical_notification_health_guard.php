@@ -32,6 +32,11 @@ $cycle = [
         'positions' => [['symbol' => 'TECL', 'qty' => 66]],
         'open_orders' => [],
     ],
+    'notification_schedule' => [
+        'close_status_key' => 'portfolio-close:accountscope:2026-07-16:' . str_repeat('c', 64) . ':v3',
+        'open_status_key' => null,
+        'open_status_required_key' => 'portfolio-open:accountscope:2026-07-17:v3',
+    ],
 ];
 
 try {
@@ -45,10 +50,11 @@ try {
     ]);
 
     $health = TacticalNotificationHealthGuard::assess($database, $runId, $cycle);
-    notificationHealthExpect(!$health['ok'], 'Missing required signal and transition deliveries must fail closed.');
+    notificationHealthExpect(!$health['ok'], 'Missing required signal, transition and open-status deliveries must fail closed.');
     notificationHealthExpect(
         in_array('tactical_notification_signal_missing', $health['errors'], true)
-        && in_array('tactical_notification_transition_missing', $health['errors'], true),
+        && in_array('tactical_notification_transition_missing', $health['errors'], true)
+        && in_array('tactical_notification_open_status_missing', $health['errors'], true),
         'Missing delivery reasons must be explicit.',
     );
 
@@ -73,19 +79,52 @@ try {
     );
 
     $repo->markNotificationDelivered('signal:2026-07-16:transition');
+    $health = TacticalNotificationHealthGuard::assess($database, $runId, $cycle);
+    notificationHealthExpect(
+        in_array('tactical_notification_signal_missing', $health['errors'], true),
+        'A delivered legacy compact signal key must not satisfy the versioned close report.',
+    );
+    $closeKey = (string) $cycle['notification_schedule']['close_status_key'];
+    $repo->queueNotification($closeKey, 'detailed close status');
+    $repo->markNotificationAttempted($closeKey);
+    $repo->markNotificationDelivered($closeKey);
     $repo->queueNotification('transition:manifest-a', 'transition');
     $repo->markNotificationAttempted('transition:manifest-a');
     $repo->markNotificationDelivered('transition:manifest-a');
     $health = TacticalNotificationHealthGuard::assess($database, $runId, $cycle);
-    notificationHealthExpect($health['ok'], 'Delivered signal and transition with no backlog must be healthy.');
     notificationHealthExpect(
-        $health['required'] === ['signal' => true, 'transition' => true, 'activation' => false],
+        !$health['ok'] && in_array('tactical_notification_open_status_missing', $health['errors'], true),
+        'A scheduled opening status must be delivered before notification health becomes green.',
+    );
+    $openKey = (string) $cycle['notification_schedule']['open_status_required_key'];
+    $repo->queueNotification($openKey, 'opening status');
+    $repo->markNotificationAttempted($openKey);
+    $repo->markNotificationDelivered($openKey, 4321);
+    $payloadCheck = new PDO('sqlite:' . $database);
+    $payloadStatement = $payloadCheck->prepare(
+        'SELECT payload FROM tactical_paper_notification WHERE notification_key=:key'
+    );
+    $payloadStatement->execute([':key' => $openKey]);
+    $deliveredPayload = json_decode((string) $payloadStatement->fetchColumn(), true);
+    notificationHealthExpect(
+        ($deliveredPayload['telegram_message_id'] ?? null) === 4321,
+        'The acknowledged Telegram message id must remain auditable in the outbox.',
+    );
+    $health = TacticalNotificationHealthGuard::assess($database, $runId, $cycle);
+    notificationHealthExpect($health['ok'], 'All required deliveries with no backlog must be healthy.');
+    notificationHealthExpect(
+        $health['required'] === [
+            'signal' => true,
+            'transition' => true,
+            'activation' => false,
+            'open_status' => true,
+        ],
         'Required delivery types must follow the current cycle.',
     );
 
     // Executor dedupe returns early for an already delivered key. Health must
     // accept the persisted delivery without demanding a fresh event row.
-    $repo->queueNotification('signal:2026-07-16:transition', 'duplicate ignored');
+    $repo->queueNotification($closeKey, 'duplicate ignored');
     notificationHealthExpect(
         TacticalNotificationHealthGuard::assess($database, $runId, $cycle)['ok'],
         'An already delivered deduplicated notification must remain verified.',

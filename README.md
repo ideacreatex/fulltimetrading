@@ -588,6 +588,9 @@ php tests/alpaca_paper_client_guard.php
 php tests/paper_daily_report_freshness.php
 php tests/backtester_execution_semantics.php
 php tests/paper_entry_validation_guard.php
+php tests/tactical_portfolio_notification_schedule.php
+php tests/tactical_portfolio_status_message.php
+php tests/tactical_notification_health_guard.php
 ```
 
 Синтаксис всех PHP-файлов:

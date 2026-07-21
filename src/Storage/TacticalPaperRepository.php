@@ -889,13 +889,29 @@ SQL);
         ]);
     }
 
-    public function markNotificationDelivered(string $key): void
+    public function markNotificationDelivered(string $key, ?int $telegramMessageId = null): void
     {
+        $payloadStatement = $this->pdo->prepare(
+            'SELECT payload FROM tactical_paper_notification WHERE notification_key=:key'
+        );
+        $payloadStatement->execute([':key' => $key]);
+        $payloadRaw = $payloadStatement->fetchColumn();
+        $payload = is_string($payloadRaw) ? json_decode($payloadRaw, true) : [];
+        $payload = is_array($payload) ? $payload : [];
+        if ($telegramMessageId !== null && $telegramMessageId > 0) {
+            $payload['telegram_message_id'] = $telegramMessageId;
+        }
         $stmt = $this->pdo->prepare(
-            'UPDATE tactical_paper_notification SET status=:status,delivered_at=:delivered_at,next_attempt_at=NULL
+            'UPDATE tactical_paper_notification SET status=:status,delivered_at=:delivered_at,
+                next_attempt_at=NULL,payload=:payload
              WHERE notification_key=:key AND delivered_at IS NULL'
         );
-        $stmt->execute([':status' => 'delivered', ':delivered_at' => self::now(), ':key' => $key]);
+        $stmt->execute([
+            ':status' => 'delivered',
+            ':delivered_at' => self::now(),
+            ':payload' => self::json($payload),
+            ':key' => $key,
+        ]);
     }
 
     /** @param array<string,mixed> $intent */

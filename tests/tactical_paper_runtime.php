@@ -25,6 +25,19 @@ function tacticalSame(mixed $expected, mixed $actual, string $message): void
     }
 }
 
+function tacticalSetPersistedIntentUpdatedAt(string $database, string $decisionId, string $updatedAt): void
+{
+    $pdo = new PDO('sqlite:' . $database);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $statement = $pdo->prepare(
+        'UPDATE tactical_paper_intent SET updated_at=:updated_at WHERE decision_id=:decision_id'
+    );
+    $statement->execute([':updated_at' => $updatedAt, ':decision_id' => $decisionId]);
+    if ($statement->rowCount() !== 1) {
+        throw new RuntimeException('Unable to set deterministic ambiguous retry timestamp fixture.');
+    }
+}
+
 final class TacticalTestOrderGateway implements TacticalOrderGateway
 {
     public int $lookupCount = 0;
@@ -655,10 +668,12 @@ try {
     $ambiguousIntent = $repo->createIntent($ambiguousIntent);
     tacticalExpect($repo->markSubmitting((string) $ambiguousIntent['decision_id']), 'Ambiguous retry fixture must claim its first POST attempt.');
     $repo->markAmbiguous((string) $ambiguousIntent['decision_id'], 'simulated_timeout');
-    $ambiguousIntent = array_replace(
-        $repo->intent((string) $ambiguousIntent['decision_id']),
-        ['updated_at' => '2026-07-20T09:00:00-04:00'],
+    tacticalSetPersistedIntentUpdatedAt(
+        $db,
+        (string) $ambiguousIntent['decision_id'],
+        '2026-07-20T09:00:00-04:00',
     );
+    $ambiguousIntent = $repo->intent((string) $ambiguousIntent['decision_id']);
     $absentGateway = new TacticalTestOrderGateway([null, null], null, true);
     $ambiguousReconciler = new TacticalAmbiguousIntentReconciler();
     $ambiguousRetryWindow = $window->resolve(
@@ -685,11 +700,16 @@ try {
         'Ambiguous retry must reuse the exact deterministic client order ID.',
     );
     tacticalSame(2, (int) $retry['intent']['attempt_count'], 'Persisted attempt count must bound restart retries.');
+    tacticalSetPersistedIntentUpdatedAt(
+        $db,
+        (string) $ambiguousIntent['decision_id'],
+        '2026-07-20T09:00:00-04:00',
+    );
     $exhaustedGateway = new TacticalTestOrderGateway([null], null, true);
     $exhausted = $ambiguousReconciler->reconcile(
         $repo,
         $exhaustedGateway,
-        array_replace($retry['intent'], ['updated_at' => '2026-07-20T09:00:00-04:00']),
+        $repo->intent((string) $ambiguousIntent['decision_id']),
         new DateTimeImmutable('2026-07-20 09:05:00', $timezone),
         $window->resolve(
             '2026-07-20',

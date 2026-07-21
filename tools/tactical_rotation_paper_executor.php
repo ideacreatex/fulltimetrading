@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Notifications\TelegramNotifier;
+use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Storage\TacticalPaperRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\ProcessLock;
@@ -13,6 +14,8 @@ use FulltimeTrading\Trading\AlpacaPaperClient;
 use FulltimeTrading\Trading\TacticalAmbiguousIntentReconciler;
 use FulltimeTrading\Trading\TacticalExecutionStateGuard;
 use FulltimeTrading\Trading\TacticalImplementationIdentity;
+use FulltimeTrading\Trading\TacticalPortfolioNotificationSchedule;
+use FulltimeTrading\Trading\TacticalPortfolioStatusMessage;
 use FulltimeTrading\Trading\TacticalRotationExecutionWindow;
 use FulltimeTrading\Trading\TacticalRotationPaperPlanner;
 use FulltimeTrading\Trading\TacticalSignalArtifactGuard;
@@ -77,6 +80,7 @@ foreach ((array) ($profile['sleeves'] ?? []) as $sleeveId => $definition) {
 $runtimeFiles = [
     $root . '/config/tactical_paper.php',
     $root . '/tools/tactical_rotation_paper_executor.php',
+    $root . '/src/Storage/SqliteRepository.php',
     $root . '/src/Storage/TacticalPaperRepository.php',
     $root . '/src/Trading/TacticalRotationExecutionWindow.php',
     $root . '/src/Trading/TacticalRotationPaperPlanner.php',
@@ -86,6 +90,9 @@ $runtimeFiles = [
     $root . '/src/Trading/TacticalImplementationIdentity.php',
     $root . '/src/Trading/TacticalSignalArtifactGuard.php',
     $root . '/src/Trading/TacticalNotificationHealthGuard.php',
+    $root . '/src/Trading/TacticalPortfolioNotificationSchedule.php',
+    $root . '/src/Trading/TacticalPortfolioStatusMessage.php',
+    $root . '/src/Trading/PaperMonitorDecisionGuard.php',
     $root . '/src/Trading/TacticalTransitionNotificationKey.php',
     $root . '/src/Trading/TacticalLegacyOwnershipGuard.php',
     $root . '/src/Notifications/TelegramNotifier.php',
@@ -123,6 +130,9 @@ $databasePath = trim((string) $options['db']) !== ''
     : (string) $config->get('database_path');
 $repo = new TacticalPaperRepository($databasePath);
 $repo->migrate();
+$legacyRepo = new SqliteRepository($databasePath);
+$legacyRepo->migrate();
+$legacyStates = $legacyRepo->loadPaperPositionStates();
 $run = $repo->ensureRun($identity, $allocations);
 $http = new HttpClient();
 $client = new AlpacaPaperClient(
@@ -145,9 +155,6 @@ try {
     $repo->setRunError((string) $paper['run_id'], 'broker_snapshot_failed');
     throw $e;
 }
-
-$signalMessage = tacticalSignalMessage($signalSummary, (string) $run['status']);
-tacticalNotify($repo, $notifier, 'signal:' . $signalSummary['as_of'] . ':' . (string) $run['status'], $signalMessage, $events);
 
 // Every broker order created by this runtime is recoverable solely from the
 // deterministic client ID. Reconciliation always precedes new risk.
@@ -202,6 +209,8 @@ $run = $repo->run((string) $paper['run_id']) ?? $run;
 $reconciliationStatus = 'transition';
 $terminalIncomplete = $repo->terminalIncompleteIntents((string) $paper['run_id']);
 $executionState = null;
+$executionWindow = null;
+$executableLegs = [];
 
 if ((string) $run['status'] === 'transition') {
     if ($brokerPositions === [] && $openOrders === []) {
@@ -297,6 +306,7 @@ if ((string) $run['status'] === 'transition') {
                 $now,
             );
             $reconciliationStatus = (string) $planResult['status'];
+            $executionWindow = (array) ($planResult['window'] ?? []);
             foreach ($planResult['checkpoints'] as $checkpoint) {
                 $repo->recordSleeveCheckpoint(
                     (string) $paper['run_id'],
@@ -393,6 +403,20 @@ if ((string) $run['status'] === 'transition') {
 foreach ($submitted as $intent) {
     tacticalNotifyIntentStatus($repo, $notifier, $intent, $events);
 }
+$reportSnapshotFresh = true;
+if ($submitted !== [] || $ambiguousRecoveryObserved) {
+    try {
+        $account = $client->account();
+        $guard = AlpacaPaperAccountGuard::validateConfigured($account);
+        $clock = $client->clock();
+        $brokerPositions = $client->positions();
+        $openOrders = $client->openOrders();
+        $events[] = ['type' => 'post_execution_broker_snapshot_refreshed'];
+    } catch (Throwable $e) {
+        $reportSnapshotFresh = false;
+        $errors[] = 'post_execution_broker_snapshot_failed:' . substr(hash('sha256', $e->getMessage()), 0, 12);
+    }
+}
 if ($errors !== []) {
     $repo->setRunError((string) $paper['run_id'], $errors[0]);
     tacticalNotify(
@@ -404,6 +428,92 @@ if ($errors !== []) {
     );
 } else {
     $repo->setRunError((string) $paper['run_id'], null);
+}
+
+$currentRun = $repo->run((string) $paper['run_id']) ?? $run;
+$activeIntents = $repo->activeIntents((string) $paper['run_id']);
+$sleeveSummary = tacticalSanitizeSleeves($repo, (string) $paper['run_id'], $brokerPositions);
+$recentIntentSummary = array_map(
+    'tacticalSanitizeIntent',
+    array_slice($repo->intents((string) $paper['run_id']), 0, 20),
+);
+$entryEligibility = TacticalPortfolioStatusMessage::entryEligibility(
+    $currentRun,
+    $reconciliationStatus,
+    $signalSummary,
+    array_merge($activeIntents, $submitted),
+    array_values(array_unique($errors)),
+    $brokerPositions,
+    $now,
+    $executionWindow,
+    $executableLegs,
+    $sleeveSummary,
+);
+$stopPolicy = tacticalStopPolicy($config, $root);
+$closeStatusSchedule = $reportSnapshotFresh
+    ? TacticalPortfolioNotificationSchedule::closeStatus($clock, $account, $signalSummary, $now)
+    : null;
+if ($closeStatusSchedule !== null) {
+    tacticalNotify(
+        $repo,
+        $notifier,
+        $closeStatusSchedule['key'],
+        TacticalPortfolioStatusMessage::build(
+            'close',
+            $now,
+            $account,
+            $brokerPositions,
+            $openOrders,
+            $legacyStates,
+            $currentRun,
+            $reconciliationStatus,
+            $signalSummary,
+            $sleeveSummary,
+            $entryEligibility,
+            array_values(array_unique($errors)),
+            $clock,
+            $stopPolicy,
+            $closeStatusSchedule,
+        ),
+        $events,
+    );
+}
+$openStatusSchedule = $reportSnapshotFresh
+    ? TacticalPortfolioNotificationSchedule::openStatus(
+        $clock,
+        $account,
+        $now,
+        TacticalPortfolioNotificationSchedule::OPEN_REPORT_AFTER,
+        $signalSummary,
+    )
+    : null;
+$requiredOpenStatusKey = $reportSnapshotFresh
+    ? TacticalPortfolioNotificationSchedule::requiredOpenKey($clock, $account, $signalSummary, $now)
+    : null;
+if ($openStatusSchedule !== null) {
+    tacticalNotify(
+        $repo,
+        $notifier,
+        $openStatusSchedule['key'],
+        TacticalPortfolioStatusMessage::build(
+            'open',
+            $now,
+            $account,
+            $brokerPositions,
+            $openOrders,
+            $legacyStates,
+            $currentRun,
+            $reconciliationStatus,
+            $signalSummary,
+            $sleeveSummary,
+            $entryEligibility,
+            array_values(array_unique($errors)),
+            $clock,
+            $stopPolicy,
+            $openStatusSchedule,
+        ),
+        $events,
+    );
 }
 tacticalFlushNotifications($repo, $notifier, $events);
 
@@ -418,6 +528,7 @@ $repo->saveSnapshot((string) $paper['run_id'], [
     'payload' => [
         'dry_run' => $dryRun,
         'errors' => $errors,
+        'report_snapshot_fresh' => $reportSnapshotFresh,
         'execution_state' => $executionState,
         'terminal_incomplete_count' => count($terminalIncomplete),
     ],
@@ -431,14 +542,18 @@ $payload = [
     'dry_run' => $dryRun,
     'paper_only' => true,
     'account_guard' => $guard,
-    'run_status' => ($repo->run((string) $paper['run_id']))['status'] ?? null,
+    'run_status' => $currentRun['status'] ?? null,
     'reconciliation_status' => $reconciliationStatus,
     'execution_state' => $executionState,
+    'report_snapshot_fresh' => $reportSnapshotFresh,
     'signal' => $signalSummary,
     'broker' => [
         'equity' => (float) ($account['equity'] ?? 0.0),
+        'last_equity' => (float) ($account['last_equity'] ?? 0.0),
         'cash' => (float) ($account['cash'] ?? 0.0),
         'buying_power' => (float) ($account['buying_power'] ?? 0.0),
+        'long_market_value' => (float) ($account['long_market_value'] ?? 0.0),
+        'short_market_value' => (float) ($account['short_market_value'] ?? 0.0),
         'positions' => tacticalBrokerManifest($brokerPositions, [])['positions'],
         'open_orders' => tacticalBrokerManifest([], $openOrders)['open_orders'],
         'clock' => [
@@ -448,8 +563,18 @@ $payload = [
             'next_close' => $clock['next_close'] ?? null,
         ],
     ],
-    'sleeves' => tacticalSanitizeSleeves($repo, (string) $paper['run_id'], $brokerPositions),
-    'recent_intents' => array_map('tacticalSanitizeIntent', array_slice($repo->intents((string) $paper['run_id']), 0, 20)),
+    'sleeves' => $sleeveSummary,
+    'recent_intents' => $recentIntentSummary,
+    'entry_eligibility' => $entryEligibility,
+    'notification_schedule' => [
+        'close_status_key' => $closeStatusSchedule['key'] ?? null,
+        'close_status_session' => $closeStatusSchedule['session_date'] ?? null,
+        'close_status_catch_up' => $closeStatusSchedule['catch_up'] ?? null,
+        'open_status_key' => $openStatusSchedule['key'] ?? null,
+        'open_status_required_key' => $requiredOpenStatusKey,
+        'open_status_session' => $openStatusSchedule['session_date'] ?? null,
+        'open_status_catch_up' => $openStatusSchedule['catch_up'] ?? null,
+    ],
     'events' => $events,
     'errors' => array_values(array_unique($errors)),
     'live_review_not_before' => $paper['live_review_not_before'],
@@ -749,17 +874,32 @@ function tacticalSignalSummary(array $artifact, array $sleeveIds): ?array
         return null;
     }
     $rows = [];
+    $contexts = is_array($artifact['execution_contexts'] ?? null)
+        ? $artifact['execution_contexts']
+        : [];
     foreach ($sleeveIds as $id) {
         $target = $targets[$id] ?? null;
         if (!is_array($target)) {
             return null;
         }
+        $context = is_array($contexts[$id] ?? null) ? $contexts[$id] : [];
         $rows[$id] = [
             'action' => $target['action'] ?? null,
             'symbol' => $target['symbol'] ?? null,
             'gross' => isset($target['gross']) ? (float) $target['gross'] : null,
             'current_symbol' => $target['current_symbol'] ?? null,
+            'current_gross' => isset($target['current_gross']) ? (float) $target['current_gross'] : null,
+            'ranked_symbol' => $target['ranked_symbol'] ?? null,
+            'ranked_gross' => isset($target['ranked_gross']) ? (float) $target['ranked_gross'] : null,
+            'cooldown_left' => (int) ($target['circuit_cooldown_left'] ?? 0),
+            'cooldown_after_next_open_tick' => (int) ($target['cooldown_after_next_open_tick'] ?? 0),
+            'drawdown_rearm_pending' => (bool) ($target['drawdown_rearm_pending'] ?? false),
+            'risk_exit_pending' => (bool) ($target['risk_exit_pending'] ?? false),
+            'allocation' => isset($target['allocation']) ? (float) $target['allocation'] : null,
             'due' => (bool) ($target['rebalance_due_next_session'] ?? false),
+            'execution_status' => $context['status'] ?? null,
+            'no_chase' => (bool) ($context['no_chase'] ?? true),
+            'shadow_order_eligible' => (bool) ($context['order_eligible'] ?? false),
         ];
     }
 
@@ -768,30 +908,10 @@ function tacticalSignalSummary(array $artifact, array $sleeveIds): ?array
         'generated_at' => $artifact['generated_at'] ?? null,
         'intended_session' => $artifact['intended_session'] ?? null,
         'validation_selected' => (bool) ($artifact['validation_selected'] ?? false),
+        'decision_sha256' => $artifact['decision_sha256'] ?? null,
         'targets' => $rows,
         'data_provenance' => $artifact['data_provenance'] ?? null,
     ];
-}
-
-function tacticalSignalMessage(array $summary, string $runStatus): string
-{
-    $lines = [
-        '📊 Hybrid-v4 paper signal',
-        'Close as-of: ' . (string) $summary['as_of'],
-        'Next session: ' . (string) ($summary['intended_session'] ?? 'broker calendar check'),
-        'Runtime: ' . $runStatus,
-    ];
-    foreach ($summary['targets'] as $id => $target) {
-        $lines[] = sprintf(
-            '%s: %s%s%s',
-            $id,
-            (string) ($target['action'] ?? 'unknown'),
-            $target['symbol'] ? ' ' . $target['symbol'] : '',
-            $target['gross'] ? sprintf(' %.1f%% gross', 100 * (float) $target['gross']) : '',
-        );
-    }
-
-    return implode("\n", $lines);
 }
 
 function tacticalTransitionMessage(array $account, array $manifest): string
@@ -816,6 +936,11 @@ function tacticalNotify(
     string $message,
     array &$events,
 ): void {
+    // A diagnostic `--telegram=false` run must not freeze a snapshot in the
+    // operational outbox for a later production daemon to send.
+    if ($notifier === null) {
+        return;
+    }
     if ($repo->notificationDelivered($key)) {
         return;
     }
@@ -835,9 +960,10 @@ function tacticalFlushNotifications(
         $key = (string) $notification['notification_key'];
         $repo->markNotificationAttempted($key, 300);
         try {
-            $notifier->sendMessage((string) $notification['message']);
-            $repo->markNotificationDelivered($key);
-            $events[] = ['type' => 'telegram_delivered', 'key' => $key];
+            $response = $notifier->sendMessage((string) $notification['message']);
+            $messageId = (int) ($response['result']['message_id'] ?? 0);
+            $repo->markNotificationDelivered($key, $messageId > 0 ? $messageId : null);
+            $events[] = ['type' => 'telegram_delivered', 'key' => $key, 'message_id' => $messageId];
         } catch (Throwable $e) {
             $events[] = [
                 'type' => 'telegram_retry_pending',
@@ -881,6 +1007,8 @@ function tacticalBrokerManifest(array $positions, array $orders): array
             'current_price' => (float) ($row['current_price'] ?? 0.0),
             'market_value' => (float) ($row['market_value'] ?? 0.0),
             'unrealized_pl' => (float) ($row['unrealized_pl'] ?? 0.0),
+            'unrealized_plpc' => (float) ($row['unrealized_plpc'] ?? 0.0),
+            'change_today' => (float) ($row['change_today'] ?? 0.0),
         ], $positions),
         'open_orders' => array_map(static fn (array $row): array => [
             'client_order_id' => $row['client_order_id'] ?? null,
@@ -1000,4 +1128,33 @@ function tacticalWriteJson(string $path, array $payload): void
 function tacticalBool(string $value): bool
 {
     return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+}
+
+/** @return array<string,mixed> */
+function tacticalStopPolicy(Config $config, string $root): array
+{
+    $fallback = [
+        'swing_stop_mode' => (string) $config->get('strategy.club_rules.default_swing_stop_mode', 'mental'),
+        'break_even_stop_mode' => (string) $config->get('strategy.club_rules.break_even_stop_mode', 'hard'),
+        'mental_stop_exit_on_close' => (bool) $config->get('strategy.club_rules.mental_stop_exit_on_close', true),
+        'hybrid_hard_stop_symbols' => array_values((array) $config->get('strategy.club_rules.hybrid_hard_stop_symbols', [])),
+    ];
+    $monitor = tacticalReadJson(rtrim($root, '/') . '/var/reports/daily/latest_paper_monitor.json');
+    $policy = is_array($monitor['stop_policy'] ?? null) ? $monitor['stop_policy'] : [];
+    $swingMode = strtolower((string) ($policy['swing_stop_mode'] ?? ''));
+    $breakEvenMode = strtolower((string) ($policy['break_even_stop_mode'] ?? ''));
+    if (!in_array($swingMode, ['hard', 'mental', 'hybrid'], true)
+        || !in_array($breakEvenMode, ['hard', 'close'], true)
+        || !array_key_exists('mental_stop_exit_on_close', $policy)
+        || !is_bool($policy['mental_stop_exit_on_close'])
+        || !is_array($policy['hybrid_hard_stop_symbols'] ?? null)) {
+        return $fallback;
+    }
+
+    return [
+        'swing_stop_mode' => $swingMode,
+        'break_even_stop_mode' => $breakEvenMode,
+        'mental_stop_exit_on_close' => $policy['mental_stop_exit_on_close'],
+        'hybrid_hard_stop_symbols' => array_values($policy['hybrid_hard_stop_symbols']),
+    ];
 }

@@ -24,7 +24,7 @@ final class TacticalNotificationHealthGuard
      *   failed_pending_count:int,
      *   delivered_count:int,
      *   last_delivered_at:?string,
-     *   required:array{signal:bool,transition:bool,activation:bool},
+     *   required:array{signal:bool,transition:bool,activation:bool,open_status:bool},
      *   errors:list<string>
      * }
      */
@@ -37,7 +37,7 @@ final class TacticalNotificationHealthGuard
             'failed_pending_count' => 0,
             'delivered_count' => 0,
             'last_delivered_at' => null,
-            'required' => ['signal' => false, 'transition' => false, 'activation' => false],
+            'required' => ['signal' => false, 'transition' => false, 'activation' => false, 'open_status' => false],
             'errors' => [],
         ];
         if ($runId === '' || !is_file($databasePath)) {
@@ -73,7 +73,7 @@ final class TacticalNotificationHealthGuard
             $pending = (int) ($summary['pending_count'] ?? 0);
             $failedPending = (int) ($summary['failed_pending_count'] ?? 0);
             $delivered = (int) ($summary['delivered_count'] ?? 0);
-            $required = ['signal' => false, 'transition' => false, 'activation' => false];
+            $required = ['signal' => false, 'transition' => false, 'activation' => false, 'open_status' => false];
             $errors = [];
             if ($pending > 0) {
                 $errors[] = 'tactical_notification_backlog';
@@ -85,7 +85,10 @@ final class TacticalNotificationHealthGuard
             if ($cycle !== null) {
                 $signalAsOf = trim((string) ($cycle['signal']['as_of'] ?? ''));
                 $required['signal'] = $signalAsOf !== '';
-                if (!$required['signal'] || !self::deliveredWithPrefix($pdo, 'signal:' . $signalAsOf . ':')) {
+                $closeStatusKey = trim((string) ($cycle['notification_schedule']['close_status_key'] ?? ''));
+                if (!$required['signal']
+                    || $closeStatusKey === ''
+                    || !self::deliveredExact($pdo, $closeStatusKey)) {
                     $errors[] = 'tactical_notification_signal_missing';
                 }
 
@@ -107,6 +110,16 @@ final class TacticalNotificationHealthGuard
                 );
                 if ($required['activation'] && !self::deliveredWithPrefix($pdo, 'activated:')) {
                     $errors[] = 'tactical_notification_activation_missing';
+                }
+
+                $openStatusKey = trim((string) (
+                    $cycle['notification_schedule']['open_status_required_key']
+                        ?? $cycle['notification_schedule']['open_status_key']
+                        ?? ''
+                ));
+                $required['open_status'] = $openStatusKey !== '';
+                if ($required['open_status'] && !self::deliveredExact($pdo, $openStatusKey)) {
+                    $errors[] = 'tactical_notification_open_status_missing';
                 }
             }
 
@@ -147,6 +160,18 @@ final class TacticalNotificationHealthGuard
         $statement->bindValue(':length', strlen($prefix), PDO::PARAM_INT);
         $statement->bindValue(':prefix', $prefix);
         $statement->execute();
+
+        return $statement->fetchColumn() !== false;
+    }
+
+    private static function deliveredExact(PDO $pdo, string $key): bool
+    {
+        $statement = $pdo->prepare(
+            'SELECT 1 FROM tactical_paper_notification
+             WHERE notification_key=:key AND delivered_at IS NOT NULL AND status=\'delivered\'
+             LIMIT 1'
+        );
+        $statement->execute([':key' => $key]);
 
         return $statement->fetchColumn() !== false;
     }
