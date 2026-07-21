@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-07-21T13:48:21+00:00",
+    "generated_at": "2026-07-21T14:37:26+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "66ddf17",
+        "commit": "09a0123",
         "dirty": false
     },
     "runtime": {
@@ -24,7 +24,7 @@
     },
     "alpaca": {
         "clock": {
-            "timestamp": "2026-07-21T09:48:22.596692879-04:00",
+            "timestamp": "2026-07-21T10:37:27.194171567-04:00",
             "is_open": true,
             "next_open": "2026-07-22T09:30:00-04:00",
             "next_close": "2026-07-21T16:00:00-04:00"
@@ -35,8 +35,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 1905.99,
-            "equity": 25886.05,
-            "buying_power": 15351.7,
+            "equity": 26080.29,
+            "buying_power": 15474.18,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -51,24 +51,24 @@
                 "side": "long",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "current_price": 188.49,
-                "market_value": 12440.34,
+                "current_price": 189.5773,
+                "market_value": 12512.1018,
                 "cost_basis": 14817.36003,
-                "unrealized_pl": -2377.02003,
-                "unrealized_plpc": -0.16042,
-                "change_today": 0.05977
+                "unrealized_pl": -2305.25823,
+                "unrealized_plpc": -0.15558,
+                "change_today": 0.06588
             },
             {
                 "symbol": "TQQQ",
                 "side": "long",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "current_price": 69.935,
-                "market_value": 11539.275,
+                "current_price": 70.67,
+                "market_value": 11660.55,
                 "cost_basis": 12431.1,
-                "unrealized_pl": -891.825,
-                "unrealized_plpc": -0.07174,
-                "change_today": 0.03378
+                "unrealized_pl": -770.55,
+                "unrealized_plpc": -0.06199,
+                "change_today": 0.04464
             }
         ],
         "open_orders": []
@@ -80,7 +80,7 @@
                 "status": "open",
                 "qty": 66,
                 "avg_entry_price": 224.505455,
-                "market_price": 188.49,
+                "market_price": 189.5773,
                 "entry_price": 211.6568,
                 "stop_price": 178.9308,
                 "break_even_trigger_price": 215.89,
@@ -88,14 +88,14 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-21T13:47:20+00:00"
+                "last_event_at": "2026-07-21T14:37:21+00:00"
             },
             {
                 "symbol": "TQQQ",
                 "status": "open",
                 "qty": 165,
                 "avg_entry_price": 75.34,
-                "market_price": 70.03,
+                "market_price": 70.695,
                 "entry_price": 75.34,
                 "stop_price": 69.2,
                 "break_even_trigger_price": 76.8468,
@@ -103,7 +103,7 @@
                 "break_even_armed": false,
                 "partial_done": false,
                 "last_action": "sync_open",
-                "last_event_at": "2026-07-21T13:47:20+00:00"
+                "last_event_at": "2026-07-21T14:37:21+00:00"
             },
             {
                 "symbol": "USD",
@@ -406,8 +406,8 @@
         ],
         "recent_actions": [
             {
-                "id": 9887,
-                "created_at": "2026-07-21T13:47:20+00:00",
+                "id": 9934,
+                "created_at": "2026-07-21T14:37:21+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -418,8 +418,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9886,
-                "created_at": "2026-07-21T13:45:58+00:00",
+                "id": 9933,
+                "created_at": "2026-07-21T14:36:33+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -430,8 +430,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9885,
-                "created_at": "2026-07-21T13:44:55+00:00",
+                "id": 9932,
+                "created_at": "2026-07-21T14:35:31+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -442,8 +442,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9884,
-                "created_at": "2026-07-21T13:43:53+00:00",
+                "id": 9931,
+                "created_at": "2026-07-21T14:35:16+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -454,8 +454,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9883,
-                "created_at": "2026-07-21T13:42:51+00:00",
+                "id": 9930,
+                "created_at": "2026-07-21T14:34:12+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -466,8 +466,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9882,
-                "created_at": "2026-07-21T13:41:48+00:00",
+                "id": 9929,
+                "created_at": "2026-07-21T14:33:06+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -478,8 +478,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9881,
-                "created_at": "2026-07-21T13:40:46+00:00",
+                "id": 9928,
+                "created_at": "2026-07-21T14:32:01+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -490,8 +490,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9880,
-                "created_at": "2026-07-21T13:39:44+00:00",
+                "id": 9927,
+                "created_at": "2026-07-21T14:30:58+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -502,8 +502,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9879,
-                "created_at": "2026-07-21T13:38:42+00:00",
+                "id": 9926,
+                "created_at": "2026-07-21T14:29:54+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -514,8 +514,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9878,
-                "created_at": "2026-07-21T13:37:39+00:00",
+                "id": 9925,
+                "created_at": "2026-07-21T14:28:49+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -526,8 +526,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9877,
-                "created_at": "2026-07-21T13:36:37+00:00",
+                "id": 9924,
+                "created_at": "2026-07-21T14:27:46+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -538,8 +538,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9876,
-                "created_at": "2026-07-21T13:35:35+00:00",
+                "id": 9923,
+                "created_at": "2026-07-21T14:26:44+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -550,8 +550,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9875,
-                "created_at": "2026-07-21T13:34:32+00:00",
+                "id": 9922,
+                "created_at": "2026-07-21T14:25:41+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -562,8 +562,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9874,
-                "created_at": "2026-07-21T13:33:29+00:00",
+                "id": 9921,
+                "created_at": "2026-07-21T14:24:36+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -574,8 +574,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9873,
-                "created_at": "2026-07-21T13:32:26+00:00",
+                "id": 9920,
+                "created_at": "2026-07-21T14:23:32+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -586,8 +586,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9872,
-                "created_at": "2026-07-21T13:31:24+00:00",
+                "id": 9919,
+                "created_at": "2026-07-21T14:22:29+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -598,8 +598,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9871,
-                "created_at": "2026-07-21T13:30:21+00:00",
+                "id": 9918,
+                "created_at": "2026-07-21T14:21:26+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -610,8 +610,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9870,
-                "created_at": "2026-07-21T13:29:18+00:00",
+                "id": 9917,
+                "created_at": "2026-07-21T14:20:23+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -622,8 +622,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9869,
-                "created_at": "2026-07-21T13:28:15+00:00",
+                "id": 9916,
+                "created_at": "2026-07-21T14:19:14+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -634,8 +634,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 9868,
-                "created_at": "2026-07-21T13:27:12+00:00",
+                "id": 9915,
+                "created_at": "2026-07-21T14:18:11+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -692,7 +692,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-07-21T13:47:20+00:00",
+        "generated_at": "2026-07-21T14:37:21+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": true,
@@ -720,13 +720,13 @@
             "last_error_code": null,
             "live_review_not_before": "2026-08-17",
             "strategy_hash_short": "0e29673e0c4c",
-            "runtime_hash_short": "9547b4ac94bb"
+            "runtime_hash_short": "9f69686ee0c1"
         },
         "health": {
             "expected": true,
             "ok": true,
             "max_age_seconds": 180,
-            "checked_at": "2026-07-21T13:48:21+00:00",
+            "checked_at": "2026-07-21T14:37:26+00:00",
             "errors": []
         },
         "notifications": {
@@ -734,32 +734,33 @@
             "ok": true,
             "pending_count": 0,
             "failed_pending_count": 0,
-            "delivered_count": 6,
-            "last_delivered_at": "2026-07-20T20:20:31+00:00",
+            "delivered_count": 8,
+            "last_delivered_at": "2026-07-21T14:35:56+00:00",
             "required": {
                 "signal": true,
                 "transition": true,
-                "activation": false
+                "activation": false,
+                "open_status": true
             },
             "errors": []
         },
         "heartbeat": {
-            "pid": 6142,
-            "started_at": "2026-07-17T03:38:10+00:00",
-            "heartbeat_at": "2026-07-21T13:48:09+00:00",
+            "pid": 53010,
+            "started_at": "2026-07-21T14:35:51+00:00",
+            "heartbeat_at": "2026-07-21T14:37:22+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
-            "last_signal_exit_code": 0,
-            "last_signal_finished_at": "2026-07-20T20:20:28+00:00",
+            "last_signal_exit_code": null,
+            "last_signal_finished_at": null,
             "last_executor_exit_code": 0,
-            "last_executor_finished_at": "2026-07-21T13:48:09+00:00",
+            "last_executor_finished_at": "2026-07-21T14:37:22+00:00",
             "last_executor_timed_out": false,
             "error": null
         },
         "cycle": {
-            "generated_at": "2026-07-21T09:48:07-04:00",
+            "generated_at": "2026-07-21T10:37:15-04:00",
             "run_id": "hybrid-v4-paper-2026-07-17",
             "profile": "causal-stock-rotation-hybrid-v4",
             "dry_run": false,
@@ -773,39 +774,85 @@
             },
             "run_status": "transition",
             "reconciliation_status": "legacy_positions_in_control",
+            "report_snapshot_fresh": true,
             "signal": {
                 "as_of": "2026-07-20",
                 "generated_at": "2026-07-20T20:20:27+00:00",
                 "intended_session": "2026-07-21",
                 "validation_selected": true,
+                "decision_sha256": "bd6b703a291132341e6f99c17fb7c4d0dddfe2d922d20b3f1f4fc012a80ac760",
                 "targets": {
                     "dynamic_loo10": {
                         "action": "hold",
                         "symbol": null,
                         "gross": 0,
                         "current_symbol": "PANW",
-                        "due": false
+                        "current_gross": 0.7037880919489891,
+                        "ranked_symbol": "PANW",
+                        "ranked_gross": 0.6882721818572265,
+                        "cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "drawdown_rearm_pending": false,
+                        "risk_exit_pending": false,
+                        "allocation": 0.6,
+                        "due": false,
+                        "execution_status": "hold_no_trade",
+                        "no_chase": true,
+                        "shadow_order_eligible": false
                     },
                     "qqq200_full": {
                         "action": "hold",
                         "symbol": null,
                         "gross": 0,
                         "current_symbol": null,
-                        "due": false
+                        "current_gross": 0,
+                        "ranked_symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "cooldown_after_next_open_tick": 42,
+                        "drawdown_rearm_pending": true,
+                        "risk_exit_pending": false,
+                        "allocation": 0.13333333333333333,
+                        "due": false,
+                        "execution_status": "hold_no_trade",
+                        "no_chase": true,
+                        "shadow_order_eligible": false
                     },
                     "spy200_full": {
                         "action": "hold",
                         "symbol": null,
                         "gross": 0,
                         "current_symbol": null,
-                        "due": false
+                        "current_gross": 0,
+                        "ranked_symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "cooldown_after_next_open_tick": 42,
+                        "drawdown_rearm_pending": true,
+                        "risk_exit_pending": false,
+                        "allocation": 0.13333333333333333,
+                        "due": false,
+                        "execution_status": "hold_no_trade",
+                        "no_chase": true,
+                        "shadow_order_eligible": false
                     },
                     "qqq150_ex_crypto": {
                         "action": "hold",
                         "symbol": null,
                         "gross": 0,
                         "current_symbol": null,
-                        "due": false
+                        "current_gross": 0,
+                        "ranked_symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "cooldown_after_next_open_tick": 42,
+                        "drawdown_rearm_pending": true,
+                        "risk_exit_pending": false,
+                        "allocation": 0.13333333333333333,
+                        "due": false,
+                        "execution_status": "hold_no_trade",
+                        "no_chase": true,
+                        "shadow_order_eligible": false
                     }
                 },
                 "data_provenance": {
@@ -1491,6 +1538,61 @@
                         "canonical_sha256": "f4bbd3bb606457551cce6e896bada8b824419278ecd3bb69f35231c96d961bd9"
                     }
                 }
+            },
+            "entry_eligibility": {
+                "allowed_now": false,
+                "actions": [],
+                "executable_buy_legs": [],
+                "blocked_reasons": [
+                    {
+                        "code": "run_transition",
+                        "text": "переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ)"
+                    },
+                    {
+                        "code": "no_actionable_signal",
+                        "text": "сигнал HOLD: нового входа или докупки нет"
+                    }
+                ],
+                "candidates": [
+                    {
+                        "sleeve_id": "dynamic_loo10",
+                        "symbol": "PANW",
+                        "ranked_gross": 0.6882721818572265,
+                        "cooldown_left": 0,
+                        "watch_only": true
+                    },
+                    {
+                        "sleeve_id": "qqq200_full",
+                        "symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "watch_only": true
+                    },
+                    {
+                        "sleeve_id": "spy200_full",
+                        "symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "watch_only": true
+                    },
+                    {
+                        "sleeve_id": "qqq150_ex_crypto",
+                        "symbol": "PANW",
+                        "ranked_gross": 0.7436314089693924,
+                        "cooldown_left": 43,
+                        "watch_only": true
+                    }
+                ],
+                "execution_window_status": null
+            },
+            "notification_schedule": {
+                "close_status_key": "portfolio-close:d1d8ddc9925b:2026-07-20:bd6b703a291132341e6f99c17fb7c4d0dddfe2d922d20b3f1f4fc012a80ac760:v3",
+                "close_status_session": "2026-07-20",
+                "close_status_catch_up": true,
+                "open_status_key": "portfolio-open:d1d8ddc9925b:2026-07-21:v3",
+                "open_status_required_key": "portfolio-open:d1d8ddc9925b:2026-07-21:v3",
+                "open_status_session": "2026-07-21",
+                "open_status_catch_up": true
             },
             "errors": []
         },
