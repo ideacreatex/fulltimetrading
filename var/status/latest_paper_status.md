@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-07-23T12:46:28+00:00`
+- Generated: `2026-07-23T13:01:34+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `failed`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-07-23T12:46:06` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:45:05` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:44:05` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:43:04` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:42:03` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:41:02` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:40:02` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-07-23T12:39:01` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T13:01:19` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T13:00:18` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:59:17` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:58:17` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:57:16` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:56:15` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:55:14` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-07-23T12:54:13` `-` `monitor_error`: details_redacted_use_local_logs
