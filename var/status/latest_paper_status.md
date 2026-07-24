@@ -1,37 +1,37 @@
 # FTT Paper Status
 
-- Generated: `2026-07-24T20:16:38+00:00`
+- Generated: `2026-07-24T20:31:45+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$24,184.29`
+- Equity: `$24,213.00`
 - Cash: `$1,905.99`
-- Buying power: `$14,388.48`
+- Buying power: `$14,373.63`
 - Hybrid-v4 runtime: `transition`
 - Hybrid-v4 health: `healthy`
-- Telegram outbox: `0 pending, 0 failed pending, 14 delivered`
+- Telegram outbox: `0 pending, 0 failed pending, 15 delivered`
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ) | сигнал HOLD: нового входа или докупки нет`
 - Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-07-24:v3`
-- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-07-23:c2712a21494d9998e815d68f0e4230372f72fad11a5be5a618a2639328f2065a:v3`
+- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-07-24:76a927a9d33e80110f544afc3eff286be1da8ef0fe854272e05d2eded714fa9c:v3`
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$177.30`, value `$11701.80`, P/L `$-3115.56` (`-21.03%`), today `-4.42%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$64.10`, value `$10576.50`, P/L `$-1854.60` (`-14.92%`), today `-3.32%`
+- `TECL` qty `66`, avg `$224.51`, price `$177.96`, value `$11745.36`, P/L `$-3072.00` (`-20.73%`), today `-4.06%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$64.00`, value `$10560.17`, P/L `$-1870.93` (`-15.05%`), today `-3.47%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-07-24T20:15:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:14:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:13:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:12:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:11:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:10:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:09:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-24T20:08:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:31:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:30:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:29:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:28:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:27:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:26:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:25:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-24T20:24:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
