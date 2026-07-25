@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-07-25T03:50:15+00:00`
+- Generated: `2026-07-25T04:05:22+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -15,7 +15,7 @@
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ) | сигнал HOLD: нового входа или докупки нет`
-- Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-07-24:v3`
+- Telegram opening report key: `not_due`
 - Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-07-24:76a927a9d33e80110f544afc3eff286be1da8ef0fe854272e05d2eded714fa9c:v3`
 - Live review not before: `2026-08-17`
 
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-07-25T03:49:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:48:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:47:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:46:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:45:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:44:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:43:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-25T03:42:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T04:05:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T04:04:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T04:03:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T04:02:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T04:00:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T03:59:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T03:58:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-25T03:57:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
