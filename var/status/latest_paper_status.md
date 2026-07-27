@@ -1,14 +1,14 @@
 # FTT Paper Status
 
-- Generated: `2026-07-27T19:50:38+00:00`
-- Market open: `yes`
+- Generated: `2026-07-27T20:05:45+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$23,722.54`
+- Equity: `$23,752.98`
 - Cash: `$1,905.99`
-- Buying power: `$14,251.45`
+- Buying power: `$14,268.03`
 - Hybrid-v4 runtime: `transition`
 - Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 16 delivered`
@@ -20,18 +20,18 @@
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$172.38`, value `$11377.08`, P/L `$-3440.28` (`-23.22%`), today `-2.64%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$63.27`, value `$10439.55`, P/L `$-1991.55` (`-16.02%`), today `-1.14%`
+- `TECL` qty `66`, avg `$224.51`, price `$172.59`, value `$11390.94`, P/L `$-3426.42` (`-23.12%`), today `-2.53%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$63.39`, value `$10459.35`, P/L `$-1971.75` (`-15.86%`), today `-0.95%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-07-27T19:50:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:49:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:48:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:47:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:46:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:45:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:44:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-07-27T19:43:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T20:05:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T20:04:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T20:03:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T20:02:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T20:01:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T19:59:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T19:58:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-07-27T19:57:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
