@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-08T11:58:44+00:00`
+- Generated: `2026-08-08T12:14:32+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$16,099.53`
 - Hybrid-v4 runtime: `transition`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_stale, tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch`
 - Telegram outbox: `0 pending, 0 failed pending, 18 delivered`
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
@@ -28,11 +28,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-08T11:58:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:56:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:54:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:53:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:51:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:50:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:49:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-08T11:48:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:14:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:13:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:12:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:11:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:10:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:09:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:08:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-08T12:07:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
