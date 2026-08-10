@@ -1,38 +1,37 @@
 # FTT Paper Status
 
-- Generated: `2026-08-10T10:08:49+00:00`
+- Generated: `2026-08-10T10:24:00+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$28,520.49`
+- Equity: `$28,494.09`
 - Cash: `$1,905.99`
-- Buying power: `$16,236.48`
+- Buying power: `$16,243.08`
 - Hybrid-v4 runtime: `transition`
-- Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch`
-- Telegram outbox: `0 pending, 0 failed pending, 18 delivered`
+- Hybrid-v4 health: `healthy`
+- Telegram outbox: `0 pending, 0 failed pending, 19 delivered`
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
-- Hybrid entry/add reasons: `переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ)`
-- Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-07-28:v3`
-- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-07-27:b8917cc2513dfe5ae5af17814704712299c2b97d1c6c18cf548001150d9fdcb7:v3`
+- Hybrid entry/add reasons: `переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ) | frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет | сигнал HOLD: нового входа или докупки нет`
+- Telegram opening report key: `not_due`
+- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-08-07:6a517f4495a5dc3e7921a04de13d2c88d389a9c9312c34e8496f9bf3f774ab6c:v3`
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$215.00`, value `$14190.00`, P/L `$-627.36` (`-4.23%`), today `+1.59%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$75.30`, value `$12424.50`, P/L `$-6.60` (`-0.05%`), today `+1.11%`
+- `TECL` qty `66`, avg `$224.51`, price `$214.50`, value `$14157.00`, P/L `$-660.36` (`-4.46%`), today `+1.35%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$75.34`, value `$12431.10`, P/L `$0.00` (`+0.00%`), today `+1.17%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-08-10T10:08:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:07:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:06:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:05:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:04:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:03:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:01:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-10T10:00:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:23:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:22:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:21:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:20:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:19:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:18:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:17:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-10T10:16:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
