@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-13T01:55:38+00:00`
+- Generated: `2026-08-13T02:10:45+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -20,18 +20,18 @@
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$214.05`, value `$14127.30`, P/L `$-690.06` (`-4.66%`), today `+4.44%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$74.70`, value `$12325.50`, P/L `$-105.60` (`-0.85%`), today `+2.25%`
+- `TECL` qty `66`, avg `$224.51`, price `$214.05`, value `$14127.30`, P/L `$-690.06` (`-4.66%`), today `+0.00%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$74.70`, value `$12325.50`, P/L `$-105.60` (`-0.85%`), today `+0.13%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-08-13T01:55:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:54:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:53:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:52:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:51:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:49:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:48:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T01:47:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:10:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:09:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:08:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:07:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:06:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:05:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:04:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T02:03:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
