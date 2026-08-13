@@ -1,17 +1,16 @@
 # FTT Paper Status
 
-- Generated: `2026-08-13T19:49:17+00:00`
-- Market open: `yes`
+- Generated: `2026-08-13T20:04:24+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$29,193.69`
+- Equity: `$29,207.22`
 - Cash: `$1,905.99`
-- Buying power: `$16,548.33`
+- Buying power: `$16,554.93`
 - Hybrid-v4 runtime: `transition`
-- Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_cycle_mismatch`
+- Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 27 delivered`
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
@@ -21,18 +20,18 @@
 - Live review not before: `2026-08-17`
 
 ## Positions
-- `TECL` qty `66`, avg `$224.51`, price `$220.47`, value `$14551.35`, P/L `$-266.01` (`-1.80%`), today `+3.00%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$77.19`, value `$12737.17`, P/L `$306.07` (`+2.46%`), today `+3.48%`
+- `TECL` qty `66`, avg `$224.51`, price `$220.58`, value `$14558.28`, P/L `$-259.08` (`-1.75%`), today `+3.05%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$77.23`, value `$12742.95`, P/L `$311.85` (`+2.51%`), today `+3.52%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-08-13T19:48:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:47:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:46:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:45:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:44:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:43:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:42:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-13T19:40:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T20:03:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T20:02:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T20:01:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T20:00:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T19:59:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T19:58:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T19:57:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-13T19:56:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
