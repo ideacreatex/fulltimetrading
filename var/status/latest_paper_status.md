@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-16T07:02:44+00:00`
+- Generated: `2026-08-16T07:17:51+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -10,7 +10,8 @@
 - Cash: `$1,905.99`
 - Buying power: `$16,482.33`
 - Hybrid-v4 runtime: `transition`
-- Hybrid-v4 health: `healthy`
+- Hybrid-v4 health: `failed`
+- Hybrid-v4 health errors: `tactical_cycle_mismatch`
 - Telegram outbox: `0 pending, 0 failed pending, 30 delivered`
 - Hybrid reconciliation: `legacy_positions_in_control`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +28,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-16T07:02:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T07:01:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T07:00:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T06:59:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T06:58:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T06:57:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T06:55:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-16T06:54:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:17:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:16:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:15:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:14:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:13:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:12:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:11:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-16T07:10:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
