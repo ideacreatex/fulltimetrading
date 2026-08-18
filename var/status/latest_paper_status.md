@@ -1,14 +1,14 @@
 # FTT Paper Status
 
-- Generated: `2026-08-18T01:38:26+00:00`
+- Generated: `2026-08-18T01:53:33+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$28,937.28`
+- Equity: `$28,818.48`
 - Cash: `$1,905.99`
-- Buying power: `$16,403.13`
+- Buying power: `$16,284.33`
 - Hybrid-v4 runtime: `transition`
 - Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 32 delivered`
@@ -21,17 +21,17 @@
 
 ## Positions
 - `TECL` qty `66`, avg `$224.51`, price `$218.79`, value `$14440.14`, P/L `$-377.22` (`-2.55%`), today `+0.52%`
-- `TQQQ` qty `165`, avg `$75.34`, price `$76.37`, value `$12601.05`, P/L `$169.95` (`+1.37%`), today `-0.55%`
+- `TQQQ` qty `165`, avg `$75.34`, price `$75.59`, value `$12472.35`, P/L `$41.25` (`+0.33%`), today `-1.56%`
 
 ## Open Orders
 - none
 
 ## Recent Actions
-- `2026-08-18T01:38:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:37:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:36:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:35:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:34:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:33:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:32:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-18T01:30:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:52:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:51:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:50:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:49:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:48:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:47:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:46:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-18T01:45:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
