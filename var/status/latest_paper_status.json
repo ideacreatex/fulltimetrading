@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-08-18T13:29:14+00:00",
+    "generated_at": "2026-08-18T13:44:22+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "5a7a6d9c",
+        "commit": "a3242072",
         "dirty": true
     },
     "runtime": {
@@ -24,9 +24,9 @@
     },
     "alpaca": {
         "clock": {
-            "timestamp": "2026-08-18T09:29:15.948737682-04:00",
-            "is_open": false,
-            "next_open": "2026-08-18T09:30:00-04:00",
+            "timestamp": "2026-08-18T09:44:23.598488205-04:00",
+            "is_open": true,
+            "next_open": "2026-08-19T09:30:00-04:00",
             "next_close": "2026-08-18T16:00:00-04:00"
         },
         "account": {
@@ -34,9 +34,9 @@
             "account_number_statusExportLast4": "SV1U",
             "status": "ACTIVE",
             "currency": "USD",
-            "cash": 1905.99,
-            "equity": 27548.64,
-            "buying_power": 15927.93,
+            "cash": 27568.25,
+            "equity": 27568.25,
+            "buying_power": 55136.5,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -45,65 +45,40 @@
             "account_blocked": false,
             "shorting_enabled": true
         },
-        "positions": [
-            {
-                "symbol": "TECL",
-                "side": "long",
-                "qty": 66,
-                "avg_entry_price": 224.505455,
-                "current_price": 204.95,
-                "market_value": 13526.7,
-                "cost_basis": 14817.36003,
-                "unrealized_pl": -1290.66003,
-                "unrealized_plpc": -0.0871,
-                "change_today": -0.06373
-            },
-            {
-                "symbol": "TQQQ",
-                "side": "long",
-                "qty": 165,
-                "avg_entry_price": 75.34,
-                "current_price": 73.43,
-                "market_value": 12115.95,
-                "cost_basis": 12431.1,
-                "unrealized_pl": -315.15,
-                "unrealized_plpc": -0.02535,
-                "change_today": -0.03887
-            }
-        ],
+        "positions": [],
         "open_orders": []
     },
     "bot": {
         "states": [
             {
                 "symbol": "TECL",
-                "status": "open",
-                "qty": 66,
+                "status": "closed",
+                "qty": 0,
                 "avg_entry_price": 224.505455,
-                "market_price": 204.95,
+                "market_price": 205.07,
                 "entry_price": 211.6568,
                 "stop_price": 211.6568,
                 "break_even_trigger_price": 215.89,
                 "target_price": 277.109,
                 "break_even_armed": true,
                 "partial_done": false,
-                "last_action": "close_stop_pending",
-                "last_event_at": "2026-08-18T13:28:29+00:00"
+                "last_action": "sync_closed",
+                "last_event_at": "2026-08-18T13:35:47+00:00"
             },
             {
                 "symbol": "TQQQ",
-                "status": "open",
-                "qty": 165,
+                "status": "closed",
+                "qty": 0,
                 "avg_entry_price": 75.34,
-                "market_price": 73.4,
+                "market_price": 73.08,
                 "entry_price": 75.34,
                 "stop_price": 75.34,
                 "break_even_trigger_price": 76.8468,
                 "target_price": 87.6389,
                 "break_even_armed": true,
                 "partial_done": false,
-                "last_action": "close_stop_pending",
-                "last_event_at": "2026-08-18T13:28:29+00:00"
+                "last_action": "sync_closed",
+                "last_event_at": "2026-08-18T13:35:47+00:00"
             },
             {
                 "symbol": "USD",
@@ -124,18 +99,32 @@
         "recent_orders_scope": "local_order_history_not_current_open_orders",
         "recent_orders": [
             {
+                "client_order_id": "fttmonex_TQQQ_20260818024029_a14f6ff84e",
+                "symbol": "TQQQ",
+                "side": "sell",
+                "type": "market",
+                "qty": 165,
+                "limit_price": null,
+                "status": "pending_new",
+                "submitted": true,
+                "order_id_last4": "2360",
+                "planned_at": "2026-08-18T02:40:29+00:00",
+                "submitted_at": "2026-08-18T13:30:34+00:00",
+                "updated_at": "2026-08-18T13:30:34+00:00"
+            },
+            {
                 "client_order_id": "fttmonex_TECL_20260818080218_a188f422b0",
                 "symbol": "TECL",
                 "side": "sell",
                 "type": "market",
                 "qty": 66,
                 "limit_price": null,
-                "status": "blocked_market_closed",
-                "submitted": false,
-                "order_id_last4": null,
+                "status": "pending_new",
+                "submitted": true,
+                "order_id_last4": "77b1",
                 "planned_at": "2026-08-18T08:02:18+00:00",
-                "submitted_at": null,
-                "updated_at": "2026-08-18T08:02:18+00:00"
+                "submitted_at": "2026-08-18T13:30:34+00:00",
+                "updated_at": "2026-08-18T13:30:34+00:00"
             },
             {
                 "client_order_id": "fttmonex_TECL_20260818055227_a1532acc9f",
@@ -150,20 +139,6 @@
                 "planned_at": "2026-08-18T05:52:27+00:00",
                 "submitted_at": null,
                 "updated_at": "2026-08-18T05:52:27+00:00"
-            },
-            {
-                "client_order_id": "fttmonex_TQQQ_20260818024029_a14f6ff84e",
-                "symbol": "TQQQ",
-                "side": "sell",
-                "type": "market",
-                "qty": 165,
-                "limit_price": null,
-                "status": "blocked_market_closed",
-                "submitted": false,
-                "order_id_last4": null,
-                "planned_at": "2026-08-18T02:40:29+00:00",
-                "submitted_at": null,
-                "updated_at": "2026-08-18T02:40:29+00:00"
             },
             {
                 "client_order_id": "fttmonex_TQQQ_20260818022148_a128a4254e",
@@ -406,6 +381,210 @@
         ],
         "recent_actions": [
             {
+                "id": 48653,
+                "created_at": "2026-08-18T13:44:07+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48652,
+                "created_at": "2026-08-18T13:43:04+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48651,
+                "created_at": "2026-08-18T13:42:02+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48650,
+                "created_at": "2026-08-18T13:41:00+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48649,
+                "created_at": "2026-08-18T13:39:57+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48648,
+                "created_at": "2026-08-18T13:38:55+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48647,
+                "created_at": "2026-08-18T13:37:53+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48646,
+                "created_at": "2026-08-18T13:36:50+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48645,
+                "created_at": "2026-08-18T13:35:47+00:00",
+                "symbol": "TQQQ",
+                "action": "sync_closed",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48644,
+                "created_at": "2026-08-18T13:35:47+00:00",
+                "symbol": "TECL",
+                "action": "sync_closed",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48643,
+                "created_at": "2026-08-18T13:34:45+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48642,
+                "created_at": "2026-08-18T13:33:42+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48641,
+                "created_at": "2026-08-18T13:32:40+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48640,
+                "created_at": "2026-08-18T13:31:38+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48639,
+                "created_at": "2026-08-18T13:30:34+00:00",
+                "symbol": "TQQQ",
+                "action": "close_stop",
+                "severity": "warning",
+                "dry_run": false,
+                "submitted": true,
+                "order_id_last4": "2360",
+                "client_order_id": "fttmonex_TQQQ_20260818024029_a14f6ff84e",
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48638,
+                "created_at": "2026-08-18T13:30:34+00:00",
+                "symbol": "TECL",
+                "action": "close_stop",
+                "severity": "warning",
+                "dry_run": false,
+                "submitted": true,
+                "order_id_last4": "77b1",
+                "client_order_id": "fttmonex_TECL_20260818080218_a188f422b0",
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 48637,
+                "created_at": "2026-08-18T13:29:32+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
                 "id": 48636,
                 "created_at": "2026-08-18T13:28:29+00:00",
                 "symbol": null,
@@ -432,210 +611,6 @@
             {
                 "id": 48634,
                 "created_at": "2026-08-18T13:26:25+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48633,
-                "created_at": "2026-08-18T13:25:23+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48632,
-                "created_at": "2026-08-18T13:24:20+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48631,
-                "created_at": "2026-08-18T13:23:18+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48630,
-                "created_at": "2026-08-18T13:22:16+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48629,
-                "created_at": "2026-08-18T13:21:14+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48628,
-                "created_at": "2026-08-18T13:20:11+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48627,
-                "created_at": "2026-08-18T13:19:09+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48626,
-                "created_at": "2026-08-18T13:18:07+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48625,
-                "created_at": "2026-08-18T13:17:05+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48624,
-                "created_at": "2026-08-18T13:16:02+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48623,
-                "created_at": "2026-08-18T13:15:00+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48622,
-                "created_at": "2026-08-18T13:13:58+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48621,
-                "created_at": "2026-08-18T13:12:56+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48620,
-                "created_at": "2026-08-18T13:11:53+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48619,
-                "created_at": "2026-08-18T13:10:51+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48618,
-                "created_at": "2026-08-18T13:09:49+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 48617,
-                "created_at": "2026-08-18T13:08:46+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -692,14 +667,14 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-08-18T13:28:29+00:00",
+        "generated_at": "2026-08-18T13:44:07+00:00",
         "dry_run": false,
         "submit_allowed": true,
-        "market_open": false,
-        "positions_count": 2,
+        "market_open": true,
+        "positions_count": 0,
         "open_orders_count": 0,
         "actions": [],
-        "suppressed_actions_count": 2
+        "suppressed_actions_count": 0
     },
     "latest_plan": {
         "generated_at": "2026-07-16T13:35:36+00:00",
@@ -714,53 +689,57 @@
         "run": {
             "run_id": "hybrid-v4-paper-2026-07-17",
             "profile": "causal-stock-rotation-hybrid-v4",
-            "status": "transition",
-            "initial_equity": null,
-            "activated_at": null,
-            "last_error_code": null,
+            "status": "active",
+            "initial_equity": 27568.25,
+            "activated_at": "2026-08-18T13:37:53+00:00",
+            "last_error_code": "signal_plan_blocked:9b9de15ec1ae",
             "live_review_not_before": "2026-08-17",
             "strategy_hash_short": "0e29673e0c4c",
             "runtime_hash_short": "90fb0d483a18"
         },
         "health": {
             "expected": true,
-            "ok": true,
+            "ok": false,
             "max_age_seconds": 180,
-            "checked_at": "2026-08-18T13:29:14+00:00",
-            "errors": []
+            "checked_at": "2026-08-18T13:44:22+00:00",
+            "errors": [
+                "tactical_heartbeat_failed",
+                "tactical_cycle_failed",
+                "tactical_run_failed"
+            ]
         },
         "notifications": {
             "expected": true,
             "ok": true,
             "pending_count": 0,
             "failed_pending_count": 0,
-            "delivered_count": 32,
-            "last_delivered_at": "2026-08-17T20:20:38+00:00",
+            "delivered_count": 42,
+            "last_delivered_at": "2026-08-18T13:38:11+00:00",
             "required": {
                 "signal": true,
-                "transition": true,
+                "transition": false,
                 "activation": false,
-                "open_status": false
+                "open_status": true
             },
             "errors": []
         },
         "heartbeat": {
             "pid": 55506,
             "started_at": "2026-07-21T14:38:11+00:00",
-            "heartbeat_at": "2026-08-18T13:29:14+00:00",
+            "heartbeat_at": "2026-08-18T13:44:23+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
             "last_signal_exit_code": 0,
             "last_signal_finished_at": "2026-08-17T20:20:35+00:00",
-            "last_executor_exit_code": 0,
-            "last_executor_finished_at": "2026-08-18T13:29:14+00:00",
+            "last_executor_exit_code": 2,
+            "last_executor_finished_at": "2026-08-18T13:44:07+00:00",
             "last_executor_timed_out": false,
             "error": null
         },
         "cycle": {
-            "generated_at": "2026-08-18T09:29:12-04:00",
+            "generated_at": "2026-08-18T09:44:05-04:00",
             "run_id": "hybrid-v4-paper-2026-07-17",
             "profile": "causal-stock-rotation-hybrid-v4",
             "dry_run": false,
@@ -772,8 +751,8 @@
                 "active": true,
                 "unblocked": true
             },
-            "run_status": "transition",
-            "reconciliation_status": "legacy_positions_in_control",
+            "run_status": "active",
+            "reconciliation_status": "blocked_signal_or_plan",
             "report_snapshot_fresh": true,
             "signal": {
                 "as_of": "2026-08-17",
@@ -1545,12 +1524,12 @@
                 "executable_buy_legs": [],
                 "blocked_reasons": [
                     {
-                        "code": "run_transition",
-                        "text": "переход: текущие legacy-позиции ещё под прежними правилами (TECL, TQQQ)"
-                    },
-                    {
                         "code": "signal_validation_not_selected",
                         "text": "frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет"
+                    },
+                    {
+                        "code": "runtime_error",
+                        "text": "защитная блокировка: signal_plan_blocked:9b9de15ec1ae"
                     },
                     {
                         "code": "no_actionable_signal",
@@ -1593,43 +1572,45 @@
                 "close_status_key": "portfolio-close:d1d8ddc9925b:2026-08-17:5d130901da67776ce916b695bb8bb2c93b9e8eae6c31fd00e9d0023d175cd119:v3",
                 "close_status_session": "2026-08-17",
                 "close_status_catch_up": true,
-                "open_status_key": null,
-                "open_status_required_key": null,
-                "open_status_session": null,
-                "open_status_catch_up": null
+                "open_status_key": "portfolio-open:d1d8ddc9925b:2026-08-18:v3",
+                "open_status_required_key": "portfolio-open:d1d8ddc9925b:2026-08-18:v3",
+                "open_status_session": "2026-08-18",
+                "open_status_catch_up": false
             },
-            "errors": []
+            "errors": [
+                "signal_plan_blocked:9b9de15ec1ae"
+            ]
         },
         "sleeves": [
             {
                 "sleeve_id": "dynamic_loo10",
                 "allocation": 0.6,
-                "cash": 0,
-                "initial_equity": 0,
+                "cash": 16540.95,
+                "initial_equity": 16540.95,
                 "last_signal_date": null,
                 "last_session": null
             },
             {
                 "sleeve_id": "qqq150_ex_crypto",
                 "allocation": 0.13333333333333,
-                "cash": 0,
-                "initial_equity": 0,
+                "cash": 3675.7666666666,
+                "initial_equity": 3675.7666666666,
                 "last_signal_date": null,
                 "last_session": null
             },
             {
                 "sleeve_id": "qqq200_full",
                 "allocation": 0.13333333333333,
-                "cash": 0,
-                "initial_equity": 0,
+                "cash": 3675.7666666666,
+                "initial_equity": 3675.7666666666,
                 "last_signal_date": null,
                 "last_session": null
             },
             {
                 "sleeve_id": "spy200_full",
                 "allocation": 0.13333333333333,
-                "cash": 0,
-                "initial_equity": 0,
+                "cash": 3675.7666666668,
+                "initial_equity": 3675.7666666668,
                 "last_signal_date": null,
                 "last_session": null
             }
@@ -1638,5 +1619,9 @@
         "active_intents": [],
         "live_review_not_before": "2026-08-17"
     },
-    "errors": []
+    "errors": [
+        "tactical_heartbeat_failed",
+        "tactical_cycle_failed",
+        "tactical_run_failed"
+    ]
 }
