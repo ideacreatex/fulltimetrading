@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-19T01:50:26+00:00`
+- Generated: `2026-08-19T02:05:33+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -12,7 +12,7 @@
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
 - Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 55 delivered`
+- Telegram outbox: `0 pending, 0 failed pending, 56 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет | защитная блокировка: signal_plan_blocked:9b9de15ec1ae | сигнал HOLD: нового входа или докупки нет`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-19T01:49:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:48:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:47:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:46:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:45:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:44:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:43:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T01:42:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:05:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:04:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:03:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:02:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:01:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T02:00:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T01:59:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T01:58:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
