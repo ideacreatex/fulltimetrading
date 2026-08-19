@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-19T10:09:31+00:00`
+- Generated: `2026-08-19T10:24:38+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 64 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-19T10:09:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:08:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:07:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:05:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:04:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:03:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:02:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-19T10:01:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:23:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:22:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:21:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:20:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:19:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:18:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:17:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-19T10:16:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
