@@ -1,7 +1,7 @@
 # FTT Paper Status
 
-- Generated: `2026-08-20T13:23:08+00:00`
-- Market open: `no`
+- Generated: `2026-08-20T13:38:16+00:00`
+- Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-20T13:23:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:22:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:21:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:20:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:18:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:17:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:16:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-20T13:15:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:37:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:36:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:35:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:34:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:33:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:32:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:31:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-20T13:30:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
