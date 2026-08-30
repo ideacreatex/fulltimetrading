@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-30T04:52:04+00:00`
+- Generated: `2026-08-30T05:07:11+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 71 delivered`
 - Hybrid reconciliation: `blocked_runtime_identity_drift`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-30T04:51:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:50:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:49:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:48:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:47:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:46:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:45:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-30T04:44:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:06:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:05:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:04:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:03:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:02:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T05:00:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T04:59:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-30T04:58:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
