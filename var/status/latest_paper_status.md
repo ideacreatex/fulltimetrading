@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-08-31T15:08:32+00:00`
+- Generated: `2026-08-31T15:23:39+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 72 delivered`
 - Hybrid reconciliation: `blocked_runtime_identity_drift`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-08-31T15:07:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:06:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:05:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:04:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:03:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:02:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:01:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-08-31T15:00:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:23:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:22:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:21:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:20:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:19:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:18:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:17:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-08-31T15:16:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
