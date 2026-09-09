@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-09-09T14:08:25+00:00`
+- Generated: `2026-09-09T14:23:33+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 86 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-09T14:08:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:06:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:05:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:04:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:03:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:02:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:01:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-09T14:00:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:22:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:21:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:20:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:19:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:18:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:17:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:16:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-09T14:15:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
