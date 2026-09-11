@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-09-11T16:18:22+00:00`
+- Generated: `2026-09-11T16:33:40+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_stale, tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_stale, tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 91 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-11T16:17:46` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:16:34` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:15:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:14:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:13:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:12:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:11:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:10:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:33:28` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:32:15` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:31:03` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:29:51` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:28:38` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:27:26` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:26:13` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:25:01` `-` `monitor_error`: details_redacted_use_local_logs
