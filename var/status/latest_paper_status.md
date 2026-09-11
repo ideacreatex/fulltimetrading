@@ -1,7 +1,7 @@
 # FTT Paper Status
 
-- Generated: `2026-09-11T16:03:15+00:00`
-- Market open: `yes`
+- Generated: `2026-09-11T16:18:22+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_stale, tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 91 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-11T16:03:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:02:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T16:00:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T15:59:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T15:58:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T15:57:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T15:56:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T15:55:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:17:46` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:16:34` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:15:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:14:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:13:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:12:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:11:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T16:10:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
