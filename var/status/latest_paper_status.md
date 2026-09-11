@@ -1,7 +1,7 @@
 # FTT Paper Status
 
-- Generated: `2026-09-11T16:48:58+00:00`
-- Market open: `no`
+- Generated: `2026-09-11T17:04:15+00:00`
+- Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
@@ -11,7 +11,7 @@
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_stale, tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 91 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-11T16:48:04` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:46:51` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:45:39` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:44:26` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:43:11` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:41:58` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:40:46` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-11T16:39:33` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T17:03:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T17:02:43` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T17:01:28` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T17:00:15` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:59:02` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:57:50` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:56:37` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-11T16:55:22` `-` `monitor_error`: details_redacted_use_local_logs
