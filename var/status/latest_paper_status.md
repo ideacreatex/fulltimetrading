@@ -1,6 +1,6 @@
 # FTT Paper Status
 
-- Generated: `2026-09-11T20:05:46+00:00`
+- Generated: `2026-09-11T20:20:54+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -12,12 +12,12 @@
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `failed`
 - Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 91 delivered`
+- Telegram outbox: `0 pending, 0 failed pending, 93 delivered`
 - Hybrid reconciliation: `blocked_signal_or_plan`
 - Hybrid entry/add now: `blocked`
-- Hybrid entry/add reasons: `frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет | защитная блокировка: signal_plan_blocked:9b9de15ec1ae`
+- Hybrid entry/add reasons: `frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет | защитная блокировка: signal_plan_blocked:9b9de15ec1ae | сигнал HOLD: нового входа или докупки нет`
 - Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-09-11:v3`
-- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-09-10:456a915d96652cde7196e03958d6d9fc257a44ea34114d7edbff1b63a6e555b2:v3`
+- Telegram close report key: `portfolio-close:d1d8ddc9925b:2026-09-11:57abbdf321bf3413df7c30429c3922cab2522bf8b23f56e1dd673ee40f6504a6:v3`
 - Live review not before: `2026-10-08`
 
 ## Positions
@@ -27,11 +27,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-11T20:05:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T20:04:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T20:03:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T20:02:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T20:01:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T20:00:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T19:59:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-11T19:58:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:20:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:19:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:18:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:17:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:15:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:14:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:13:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-11T20:12:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
