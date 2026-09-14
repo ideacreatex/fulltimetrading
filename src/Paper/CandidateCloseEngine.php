@@ -81,6 +81,9 @@ final readonly class CandidateCloseEngine
             if ($held !== null) {
                 $scope = 'protection:' . $name . ':' . $held; $cp = $this->ledger->checkpoint($run, $scope); $p = $cp['payload'] ?? [];
                 if (isset($p['last_close_date']) && $p['last_close_date'] > $date) { throw new \RuntimeException('Stop close regression.'); }
+                if (($p['last_close_date'] ?? null) === $date && abs((float) $p['last_close'] - (float) $nominalCloses[$held]) > 1e-8) {
+                    throw new \RuntimeException('Previously observed protective close was revised.');
+                }
                 $cost = $positions[$name][$held]['cost_basis'] / $positions[$name][$held]['qty'];
                 $p['peak_close'] = max((float) ($p['peak_close'] ?? $cost), (float) $nominalCloses[$held]);
                 $p['last_close_date'] = $date; $p['last_close'] = (float) $nominalCloses[$held];

@@ -100,9 +100,44 @@ Rules: [Alpaca user protection](https://docs.alpaca.markets/us/docs/user-protect
 
 ## Remaining admission work
 
-Versioned release evidence, full command-level preflight, fresh external inputs,
-existing-LaunchAgent handoff and post-handoff checks remain mandatory. The new
-configuration is staged and disabled, not deployed. At 2026-09-14T22:24:48Z Cboe
-VVIX included September 14, but S5TW still ended September 11. Current-session
-activation must not use that older snapshot. Passing component tests or a
-retrospective economic preference review alone is not permission to deploy.
+The versioned release proof now passes 49 test programs, including the full CLI
+in an isolated repository with a broker substitute that cannot perform HTTP
+mutations. It rejects non-flat adoption, source corruption, changed runtime
+code and submission from a disabled configuration. A further 100 deterministic
+fault scenarios passed 1,306 assertions: delayed visibility after POST timeout,
+partial fills, rejection, cancellation acknowledgement delay, fill/cancel races,
+loss of source freshness, and process recreation between actions.
+
+`tools/verify_candidate_release.php` publishes a content-bound experimental
+paper manifest only when these checks, frozen-history parity, minute checks,
+economic criteria, full-data memory footprint and starting-capital sensitivity
+pass. It does not change strict historical validation or live permission.
+The native protective-close update can use verified Alpaca raw prices even
+while external entry indicators are unpublished.
+
+The actual paper equity of $27,567.66 was independently replayed in eight
+additional whole-share cases with the same data and cost assumptions:
+
+| Start / cost | Maximum CAGR | Candidate CAGR | Maximum drawdown | Candidate drawdown |
+| --- | ---: | ---: | ---: | ---: |
+| 2021-01-04 / 30 bps | 102.750% | 89.455% | -28.741% | -23.058% |
+| 2021-01-04 / 60 bps | 66.203% | 68.174% | -29.070% | -24.814% |
+| 2023-01-03 / 30 bps | 103.914% | 156.816% | -34.764% | -22.990% |
+| 2023-01-03 / 60 bps | 86.591% | 129.434% | -24.705% | -23.901% |
+
+Activation requires the reviewed actual starting equity, not an untested reset.
+These remain retrospective simulations, not executable return guarantees.
+
+The real-broker read-only preflight at 2026-09-14T22:50:52Z verified the account,
+$27,567.66 cash/equity and zero positions/orders, but correctly rejected the
+September 11 signal: `activation_requires_latest_complete_signal`. The latest
+signal builder again reported missing September 14 S5TW. Separate short-range
+requests ending September 15 and September 16 also returned September 11 as
+their latest row, so this is not simply an exclusive-end-date bug. Cboe VVIX
+already includes September 14. No old indicator value was relabeled or filled.
+
+Fresh external inputs, existing-LaunchAgent handoff and post-handoff checks
+remain mandatory. The configuration is staged and disabled, not deployed.
+The old four-sleeve run remains active; its month report shows seven elapsed
+days, five observed market dates and no trades. A successful software release
+proof is not a successful deployment or a passed forward-month gate.

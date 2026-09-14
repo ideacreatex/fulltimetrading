@@ -13,6 +13,29 @@ use FulltimeTrading\Research\PaperExecutionRotationBacktester;
 /** Validates both providers' dated input artifacts before building a signal. No freshness substitution. */
 final class CandidateDataSnapshot
 {
+    /** Independently usable by protective maintenance while an external indicator is unpublished. */
+    public static function rawCloses(string $root, string $date, array $symbols): array
+    {
+        CandidateOrder::date($date);
+        $dir = $root . '/var/reports/candidate_execution_data_' . str_replace('-', '', $date);
+        $protocol = self::read($dir . '/protocol.json'); $manifest = self::read($dir . '/raw_manifest.json');
+        if (($protocol['provider'] ?? null) !== 'Alpaca' || ($protocol['feed'] ?? null) !== 'sip' || ($protocol['end'] ?? null) !== $date
+            || !hash_equals($manifest['protocol_sha256'] ?? '', hash_file('sha256', $dir . '/protocol.json'))
+            || !hash_equals($manifest['sha256'] ?? '', hash_file('sha256', $dir . '/raw.json'))) {
+            throw new \RuntimeException('Candidate protective price provenance failed.');
+        }
+        $data = self::read($dir . '/raw.json'); $closes = [];
+        foreach ($symbols as $symbol) {
+            $series = $data[$symbol] ?? []; $last = $series === [] ? null : $series[array_key_last($series)];
+            if (!is_array($last) || (new \DateTimeImmutable($last['t']))->setTimezone(new \DateTimeZone('America/New_York'))->format('Y-m-d') !== $date
+                || !is_numeric($last['c'] ?? null) || !is_finite((float) $last['c']) || $last['c'] <= 0) {
+                throw new \RuntimeException('Candidate protective close missing: ' . $symbol);
+            }
+            $closes[$symbol] = (float) $last['c'];
+        }
+        return $closes;
+    }
+
     public static function verifyProvenance(string $root, array $provenance): void
     {
         $date = $provenance['date'] ?? ''; CandidateOrder::date($date);

@@ -51,9 +51,11 @@ try {
     $calendar = $client->calendar($now->modify('-15 days')->format('Y-m-d'), $now->modify('+15 days')->format('Y-m-d'));
     $session = CandidateSession::resolve($calendar, $client->clock(), $now);
     $positions = $client->positions(); $orders = $client->openOrders();
+    $snapshot = ['captured_at' => gmdate(DATE_ATOM), 'equity' => $account['equity'], 'cash' => $account['cash'],
+        'buying_power' => $account['buying_power'], 'positions' => $positions, 'open_orders' => $orders];
     $report['broker'] = ['equity' => (float) $account['equity'], 'cash' => (float) $account['cash'],
         'buying_power' => (float) $account['buying_power'], 'positions' => $positions, 'open_orders' => $orders];
-    if (($candidate['enabled'] ?? null) !== true || ($candidate['paper_only'] ?? null) !== true || ($candidate['live_enabled'] ?? null) !== false) {
+    if (($submit && ($candidate['enabled'] ?? null) !== true) || ($candidate['paper_only'] ?? null) !== true || ($candidate['live_enabled'] ?? null) !== false) {
         throw new RuntimeException('candidate_release_not_enabled');
     }
     $release = CandidateRelease::verify($root, $candidate);
@@ -107,6 +109,7 @@ try {
     if ($run['status'] === 'transition') {
         if (!$fresh) { throw new RuntimeException('activation_requires_latest_complete_signal'); }
         if ($positions !== [] || $orders !== []) { throw new RuntimeException('candidate_activation_requires_flat_account'); }
+        if (abs((float) $account['equity'] - (float) $release['capital_reviewed']) > .01) { throw new RuntimeException('candidate_starting_capital_not_reviewed'); }
         $fingerprint = hash('sha256', CandidateOrder::json([(string) ($account['id'] ?? ''), $account['equity'], $account['cash']]));
         $stable = !$submit || $ledger->views->observeFlatHandoff($runId, $fingerprint, 120);
         if ($stable) {
@@ -129,6 +132,26 @@ try {
                 $inputs['nominal_closes'], $inputs['confirmation'], $inputs['provenance']);
             $close = $engine->commit($prepared);
         } elseif (!$fresh) { $report['errors'][] = 'candidate_external_signal_stale'; }
+        if (!$fresh && $reconciliation['ok']) {
+            $updates = [];
+            foreach ($ledger->views->positions($runId) as $name => $bookPositions) {
+                foreach ($bookPositions as $symbol => $p) {
+                    $last = $ledger->checkpoint($runId, 'protection:' . $name . ':' . $symbol)['payload']['last_close_date'] ?? '';
+                    $observed = (new DateTimeImmutable($p['updated_at']))->setTimezone(new DateTimeZone('America/New_York'))->format('Y-m-d');
+                    if ($last < $session['signal_date'] && $observed <= $session['signal_date']) { $updates[$name][$symbol] = true; }
+                }
+            }
+            if ($updates !== []) {
+                try {
+                    $symbols = array_values(array_unique(array_merge(...array_map('array_keys', array_values($updates)))));
+                    $rawCloses = CandidateDataSnapshot::rawCloses($root, $session['signal_date'], $symbols);
+                    $protection = new \FulltimeTrading\Paper\CandidateProtection($ledger);
+                    foreach ($updates as $name => $symbols) {
+                        foreach ($symbols as $symbol => $_) { $protection->completedClose($runId, $name, $symbol, $session['signal_date'], $rawCloses[$symbol]); }
+                    }
+                } catch (Throwable) { $report['errors'][] = 'candidate_protective_close_unavailable'; }
+            }
+        }
         if ($close !== null) {
             $closeKey = 'portfolio-close:' . $runId . ':' . $close['date'];
             $report['notification_schedule']['close_status_key'] = $closeKey;
@@ -257,7 +280,8 @@ try {
         }
     }
     $report['entry_eligibility'] = ['allowed_now' => false, 'executable_buy_legs' => [],
-        'blocked_reasons' => [['code' => $report['errors'][0] ?? 'no_actionable_signal',
+        'blocked_reasons' => [['code' => $report['errors'][0] ?? (!empty($report['submitted']) ? 'orders_in_progress'
+            : ((isset($window) && !$window['opg_submit_allowed'] && !$window['rotation_reentry_allowed']) ? 'entry_window_not_open' : 'no_actionable_signal')),
             'text' => 'Отправка и исполнение проверяются отдельно от целей модели.']]];
     if ($ledger !== null && isset($snapshot, $runId)) {
         $ledger->views->saveSnapshot($runId, $snapshot + ['reconciliation_status' => $report['reconciliation_status'],

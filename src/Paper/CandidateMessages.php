@@ -15,7 +15,7 @@ final class CandidateMessages
         foreach ($close['plans'] as $name => $plan) {
             if ($plan['target_quantities'] === null) { continue; }
             ++$due; $q = $plan['target_quantities'];
-            $lines[] = $name . ': ' . ($q === [] ? 'цель: деньги' : 'цель: ' . reset($q) . ' шт. ' . array_key_first($q));
+            $lines[] = self::sleeveLabel($name) . ': ' . ($q === [] ? 'цель: деньги' : 'цель: ' . reset($q) . ' шт. ' . array_key_first($q));
         }
         if ($due === 0) { $lines[] = 'На следующую сессию плановых изменений нет.'; }
         $lines[] = sprintf('Счёт: $%.2f; деньги: $%.2f; P/L с активации: $%+.2f (%+.2f%%).',
@@ -33,7 +33,19 @@ final class CandidateMessages
         return sprintf("Брокер подтвердил %s %s.\nИсполнено ещё %.0f шт.; всего по заявке %.0f из %.0f. Средняя цена $%.4f.\nЧасть: %s. Тип: %s. PAPER, не live.",
             $intent['side'] === 'buy' ? 'покупку' : 'продажу', $intent['symbol'], $quantity - $previousQuantity,
             $quantity, $intent['requested_qty'], $intent['cumulative_fill_notional'] / $quantity,
-            $intent['sleeve_id'], $intent['leg'] === 'protective_stop' ? 'защитный стоп' : 'плановая заявка');
+            self::sleeveLabel($intent['sleeve_id']), $intent['leg'] === 'protective_stop' ? 'защитный стоп' : 'плановая заявка');
+    }
+
+    private static function sleeveLabel(string $name): string
+    {
+        $label = match (true) {
+            str_starts_with($name, 'dynamic_') => 'Динамическая часть',
+            str_starts_with($name, 'qqq200_') => 'Фильтр QQQ/200',
+            str_starts_with($name, 'spy200_') => 'Фильтр SPY/200',
+            str_starts_with($name, 'qqq150_') => 'Фильтр QQQ/150 без криптоакций',
+            default => $name,
+        };
+        return preg_match('/_phase([0-2])$/D', $name, $match) ? $label . ', очередь ' . ((int) $match[1] + 1) . '/3' : $label;
     }
 
     public static function error(array $codes): string
