@@ -40,6 +40,7 @@ $repo->migrate();
 $tacticalConfig = require __DIR__ . '/../config/tactical_paper.php';
 $tacticalRepo = new TacticalPaperRepository((string) $config->get('database_path'));
 $tacticalRepo->migrate();
+$tacticalConfig = \FulltimeTrading\Paper\CandidateRuntimeSelection::select(dirname(__DIR__), $tacticalConfig, $tacticalRepo);
 $tacticalRunId = (string) ($tacticalConfig['run_id'] ?? '');
 
 $http = new HttpClient();

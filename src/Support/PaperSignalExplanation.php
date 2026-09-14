@@ -41,7 +41,10 @@ final class PaperSignalExplanation
         }
         if (!$brokerKnown) { $codes['broker_snapshot_unverified'] = true; }
         if (!$fresh || !$cycleFresh || !$sameRun) { $codes['snapshot_not_current'] = true; }
-        if (($signal['validation_selected'] ?? null) !== true) {
+        $experimentalPaper = ($run['profile'] ?? null) === 'maximum-stop12-costband2-whole-v1'
+            && ($cycle['profile'] ?? null) === $run['profile'] && ($signal['paper_admission'] ?? null) === true
+            && ($cycle['paper_only'] ?? null) === true && $sameRun;
+        if (($signal['validation_selected'] ?? null) !== true && !$experimentalPaper) {
             $codes[($signal['validation_selected'] ?? null) === false
                 ? 'signal_validation_not_selected' : 'qualification_unknown'] = true;
         }
@@ -98,6 +101,9 @@ final class PaperSignalExplanation
         $lines[] = ($run['status'] ?? null) === 'active'
             ? 'Статус ACTIVE: учёт стратегии активен, но это не разрешение покупать.'
             : 'Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.';
+        if ($experimentalPaper) {
+            $lines[] = 'Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.';
+        }
         $lines[] = '';
         $lines[] = $planAllowed ? 'Бот: план разрешён на момент снимка; это ещё не покупка.'
             : 'Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.';
@@ -217,6 +223,9 @@ final class PaperSignalExplanation
             in_array($code, ['snapshot_not_current', 'broker_snapshot_unverified'], true) => ['snapshot', 1,
                 'Свежесть данных, принадлежность запуска или paper-счёт не подтверждены.',
                 'Получить свежий проверенный снимок. Не делать вывод о нулевых позициях по отсутствующим данным.'],
+            $code === 'candidate_external_signal_stale' || str_starts_with($code, 'candidate_signal_invalid:') => ['source', 1,
+                'Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.',
+                'Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.'],
             $code === 'signal_validation_not_selected' || str_starts_with($code, 'signal_plan_blocked:') => ['qualification', 2,
                 'Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.',
                 'Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает.'],

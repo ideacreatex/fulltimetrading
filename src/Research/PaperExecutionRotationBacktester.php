@@ -38,6 +38,37 @@ final class PaperExecutionRotationBacktester
         return $this->config;
     }
 
+    /** Prepare causal close features once; selection uses the actual sleeve incumbent, not replay holdings. */
+    public function paperSignalContexts(array $bars, string $asOf): \Closure
+    {
+        \FulltimeTrading\Paper\CandidateOrder::date($asOf);
+        foreach ($bars as $symbol => $series) {
+            $bars[$symbol] = array_values(array_filter($series, static fn (Bar $bar): bool =>
+                $bar->time->setTimezone(new \DateTimeZone('America/New_York'))->format('Y-m-d') <= $asOf));
+        }
+        [$features, $indexed] = $this->buildFeatures($bars);
+        $dates = array_keys($indexed[$this->config['benchmark']]); sort($dates, SORT_STRING);
+        $previous = []; $last = null;
+        foreach ($dates as $date) { $previous[$date] = $last; $last = $date; }
+        if ($last !== $asOf) { throw new \RuntimeException('Paper context is missing the completed benchmark session.'); }
+        return function (string $date, ?string $incumbent) use ($asOf, $features, $indexed, $previous): array {
+            if ($date > $asOf || !array_key_exists($date, $previous)) { throw new \RuntimeException('Paper signal date is outside its causal snapshot.'); }
+            if ($this->config['external_daily_scale'] !== null && !array_key_exists($date, $this->config['external_daily_scale'])) {
+                throw new \RuntimeException('Missing paper external scale.');
+            }
+            $desired = $this->desiredWeights($date, $features, $incumbent);
+            $closes = $previousCloses = $volatility = [];
+            foreach ($indexed as $symbol => $series) {
+                if (isset($series[$date])) { $closes[$symbol] = $series[$date]->close; }
+                if ($previous[$date] !== null && isset($series[$previous[$date]])) { $previousCloses[$symbol] = $series[$previous[$date]]->close; }
+                $volatility[$symbol] = $features[$symbol][$date]['volatility'] ?? null;
+            }
+            return ['date' => $date, 'previous_session' => $previous[$date], 'desired' => $desired,
+                'reentry_conditions_met' => $this->canReleaseCooldown($date, $features, $desired, PHP_INT_MAX),
+                'closes' => $closes, 'previous_closes' => $previousCloses, 'volatility' => $volatility];
+        };
+    }
+
     /**
      * @param array<string, list<Bar>> $barsBySymbol
      * @return array{curve:list<array<string,mixed>>,next_target:array<string,mixed>,features_as_of:string}

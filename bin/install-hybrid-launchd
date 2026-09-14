@@ -14,6 +14,7 @@ repository. If the broker account is non-flat, the legacy protection daemon
 must be healthy before the hybrid daemon can be added.
 
 Environment overrides:
+  HYBRID_PAPER_MODE                    legacy (default) or candidate-v1; same existing LaunchAgent
   PROJECT_DIR                         Operational repository (default: this repository)
   PHP_BIN                             Absolute PHP executable (default: command -v php)
   STATUS_GIT_REMOTE                   Git remote containing the deployed branch (default: origin)
@@ -322,7 +323,20 @@ legacy_runtime_is_healthy() {
 }
 
 require_operational_repository
-EXPECTED_RUN_ID=$("$PHP_BIN" -r '$p=require $argv[1]; echo (string) ($p["run_id"] ?? "");' "$PROJECT_DIR/config/tactical_paper.php")
+HYBRID_PAPER_MODE=${HYBRID_PAPER_MODE:-legacy}
+CANDIDATE_FLAG=false
+RUNTIME_CONFIG="$PROJECT_DIR/config/tactical_paper.php"
+SIGNAL_SOURCE="$PROJECT_DIR/var/reports/daily/tactical_rotation_shadow.json"
+case "$HYBRID_PAPER_MODE" in
+    legacy) ;;
+    candidate-v1)
+        CANDIDATE_FLAG=true
+        RUNTIME_CONFIG="$PROJECT_DIR/config/paper_candidate.php"
+        SIGNAL_SOURCE="$PROJECT_DIR/var/reports/daily/candidate_signal.json"
+        ;;
+    *) die "unknown HYBRID_PAPER_MODE" ;;
+esac
+EXPECTED_RUN_ID=$("$PHP_BIN" -r '$p=require $argv[1]; echo (string) ($p["run_id"] ?? "");' "$RUNTIME_CONFIG")
 [ -n "$EXPECTED_RUN_ID" ] || die "tactical paper run_id is missing"
 
 GENERATED="$TMP_DIR/$LABEL.plist"
@@ -342,6 +356,7 @@ cat >"$GENERATED" <<EOF
   <array>
     <string>$PHP_XML</string><string>bin/trade</string><string>tactical-paper-daemon</string>
     <string>--submit=true</string><string>--telegram=true</string>
+    <string>--candidate=$CANDIDATE_FLAG</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
@@ -403,10 +418,11 @@ fi
 PREFLIGHT_VAR="$TMP_DIR/preflight-var"
 mkdir -p "$PREFLIGHT_VAR/db" "$PREFLIGHT_VAR/run" "$PREFLIGHT_VAR/reports"
 PREFLIGHT_ARTIFACT="$PREFLIGHT_VAR/reports/tactical_rotation_shadow.json"
-[ -s "$PROJECT_DIR/var/reports/daily/tactical_rotation_shadow.json" ] \
+[ -s "$SIGNAL_SOURCE" ] \
     || die "validated tactical signal artifact is missing from the operational repository"
-cp "$PROJECT_DIR/var/reports/daily/tactical_rotation_shadow.json" "$PREFLIGHT_ARTIFACT"
+cp "$SIGNAL_SOURCE" "$PREFLIGHT_ARTIFACT"
 "$PHP_BIN" "$PROJECT_DIR/bin/trade" tactical-paper-executor \
+    --candidate="$CANDIDATE_FLAG" \
     --submit=false \
     --telegram=false \
     --db="$PREFLIGHT_VAR/db/trading.sqlite" \

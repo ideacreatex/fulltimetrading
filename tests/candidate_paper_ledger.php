@@ -81,9 +81,11 @@ try {
     $check((int) $stop1['requested_qty'] === 3 && $stop1['payload']['body']['stop_price'] === '88.00', 'Protect only confirmed partial fills.');
     $repeat = $protection->plan('candidate-test', 'sleeve_0', 'AAA', '2026-09-14', '2026-09-15');
     $check($repeat['submit'] === $plan['submit'], 'Crash before stop POST recovers the same planned stop.');
-    $reconciler->submit($stop1['decision_id']);
+    $reject(fn () => $reconciler->submit($stop1['decision_id']), 'Alpaca rejects a stop while the opposite entry is still open.');
+    $check((int) $ledger->intent($stop1['decision_id'])['attempt_count'] === 0, 'Compatibility check runs before the durable POST claim.');
     $broker->update($i, 'filled', 10, 101.);
     $reconciler->refresh($i['decision_id']);
+    $reconciler->submit($stop1['decision_id']);
     $plan = $protection->plan('candidate-test', 'sleeve_0', 'AAA', '2026-09-14', '2026-09-15');
     $stop2 = $ledger->intent($plan['submit'][0]);
     $check((int) $stop2['requested_qty'] === 7 && $stop2['payload']['body']['stop_price'] === '88.00', 'Additional fills add protection without canceling the first tranche.');

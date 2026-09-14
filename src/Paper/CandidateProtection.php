@@ -31,13 +31,21 @@ final readonly class CandidateProtection
     }
 
     /** Returns intents to submit/cancel; no broker mutation occurs here. */
-    public function plan(string $run, string $sleeve, string $symbol, string $signalDate, string $session, bool $exitPending = false): array
+    public function plan(string $run, string $sleeve, string $symbol, string $signalDate, string $session, bool $exitPending = false, int $retainQuantity = 0): array
     {
         CandidateOrder::date($signalDate); CandidateOrder::date($session);
         $position = $this->ledger->position($run, $sleeve, $symbol);
         $owned = CandidateOrder::quantity($position['qty'], true);
+        if ($retainQuantity < 0 || $retainQuantity > $owned) { throw new \InvalidArgumentException('Invalid retained stop quantity.'); }
         $active = array_values(array_filter($this->ledger->active($run, $sleeve), static fn ($i): bool => $i['symbol'] === $symbol));
         $stops = array_values(array_filter($active, static fn ($i): bool => $i['leg'] === 'protective_stop'));
+        $latch = $this->ledger->checkpoint($run, 'stop_latch:' . $sleeve);
+        if ($exitPending || ($latch['payload']['pending'] ?? false) === true) {
+            // Stop election cancels outstanding entry risk, but remaining shares stay protected
+            // until the execution window permits a confirmed sequential exit.
+            $buys = array_values(array_filter($active, static fn ($i): bool => $i['side'] === 'buy'));
+            if ($buys !== []) { return ['status' => 'cancel_entry_before_exit', 'cancel' => array_column($buys, 'decision_id'), 'submit' => []]; }
+        }
         $scope = 'protection:' . $sleeve . ':' . $symbol;
         $checkpoint = $this->ledger->checkpoint($run, $scope);
         $state = $checkpoint['payload'] ?? [];
@@ -47,11 +55,12 @@ final readonly class CandidateProtection
             return ['status' => 'flat', 'cancel' => [], 'submit' => []];
         }
         if ($exitPending) {
-            $buys = array_values(array_filter($active, static fn ($i): bool => $i['side'] === 'buy'));
-            // Cancel the entry first: a late buy fill may otherwise recreate risk after the exit.
-            if ($buys !== []) { return ['status' => 'cancel_entry_before_exit', 'cancel' => array_column($buys, 'decision_id'), 'submit' => []]; }
-            return ['status' => $stops === [] ? 'exit_unreserved' : 'cancel_stops_before_exit',
-                'cancel' => array_column($stops, 'decision_id'), 'submit' => []];
+            $stopReserved = array_sum(array_map(static fn ($i): int => CandidateOrder::quantity($i['requested_qty'])
+                - CandidateOrder::quantity($i['cumulative_filled_qty'], true), $stops));
+            if ($stopReserved > $retainQuantity) {
+                return ['status' => 'cancel_stops_before_exit', 'cancel' => array_column($stops, 'decision_id'), 'submit' => []];
+            }
+            if ($retainQuantity === 0) { return ['status' => 'exit_unreserved', 'cancel' => [], 'submit' => []]; }
         }
         $peak = (float) ($state['peak_close'] ?? ((float) $position['cost_basis'] / $owned));
         if ($state === []) {
@@ -72,7 +81,10 @@ final readonly class CandidateProtection
             }
         }
         if ($reserved > $owned) { throw new \RuntimeException('Candidate protection reservations exceed ownership.'); }
-        $unreserved = $owned - $reserved;
+        $protectionReserved = array_sum(array_map(static fn ($i): int => CandidateOrder::quantity($i['requested_qty'])
+            - CandidateOrder::quantity($i['cumulative_filled_qty'], true), $stops));
+        $requiredProtection = $exitPending ? $retainQuantity : $owned;
+        $unreserved = min($owned - $reserved, max(0, $requiredProtection - $protectionReserved));
         if ($unreserved > 0) {
             $history = $this->ledger->orders($run, $sleeve);
             $sequence = count(array_filter($history, static fn ($i): bool => $i['leg'] === 'protective_stop')) + 1;
@@ -80,7 +92,7 @@ final readonly class CandidateProtection
                 'protective_stop', $symbol, $unreserved, 'gtc', (float) $stopPrice);
             $submit[] = $this->ledger->create($intent)['decision_id'];
         }
-        return ['status' => $protected === $owned && $cancel === [] ? 'protected' : 'protection_pending',
+        return ['status' => $protected === $requiredProtection && $cancel === [] ? ($exitPending ? 'exit_unreserved' : 'protected') : 'protection_pending',
             'owned_qty' => $owned, 'protected_qty' => $protected, 'stop_price' => $stopPrice, 'cancel' => $cancel, 'submit' => $submit];
     }
 }

@@ -6,6 +6,10 @@
 /var/log/*
 /var/reports/*
 /var/run/*
+/var/releases/*
+/var/*.sqlite
+# Large generated payloads stay local; already tracked protocols are unaffected.
+/docs/research_results/*.json
 !/var/cache/.gitkeep
 !/var/db/.gitkeep
 !/var/log/.gitkeep

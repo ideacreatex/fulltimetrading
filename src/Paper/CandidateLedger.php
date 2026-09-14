@@ -63,6 +63,13 @@ SQL);
                     if (!hash_equals($run[$field], $expected)) { throw new \RuntimeException('Candidate identity drift: ' . $field); }
                 }
                 $this->views->assertSleeveDefinitions($identity['run_id'], $allocations);
+                if (!empty($run['activated_at'])) {
+                    $boundary = (new \DateTimeImmutable($run['activated_at']))->modify('+31 days');
+                    if (new \DateTimeImmutable($run['live_review_not_before']) < $boundary) {
+                        $this->execute('UPDATE tactical_paper_run SET live_review_not_before=? WHERE run_id=?', [$boundary->format(DATE_ATOM), $identity['run_id']]);
+                        $run = $this->run($identity['run_id']);
+                    }
+                }
                 return $run;
             }
             $this->execute('INSERT INTO tactical_paper_run(run_id,profile,strategy_hash,runtime_hash,data_contract,status,live_review_not_before,created_at,updated_at)
@@ -105,6 +112,21 @@ SQL);
             if ($run['status'] !== 'active' && !($run['status'] === 'paused' && $intent['side'] === 'sell')) {
                 throw new \RuntimeException('Candidate run does not permit this intent.');
             }
+            if ($intent['side'] === 'buy') {
+                foreach ($this->active($intent['run_id']) as $open) {
+                    if (in_array($open['status'], ['submitting', 'ambiguous', 'pending_cancel'], true)
+                        || isset($open['payload']['cancel_request'])
+                        || ($open['sleeve_id'] === $intent['sleeve_id'] && $open['leg'] !== 'protective_stop')) {
+                        throw new \RuntimeException('Unresolved candidate execution blocks new risk.');
+                    }
+                }
+                $latch = $this->checkpoint($intent['run_id'], 'stop_latch:' . $intent['sleeve_id']);
+                if (($latch['payload']['pending'] ?? false) === true) { throw new \RuntimeException('Unconsumed stop event blocks new risk.'); }
+                foreach ($this->execute('SELECT symbol,qty FROM tactical_paper_position WHERE run_id=? AND sleeve_id=? AND qty>0',
+                    [$intent['run_id'], $intent['sleeve_id']])->fetchAll() as $position) {
+                    if ($position['symbol'] !== $intent['symbol']) { throw new \RuntimeException('Replacement entry requires confirmed prior exit.'); }
+                }
+            }
             if ($intent['side'] === 'sell') { $this->assertSellCapacity($intent); }
             $now = self::now();
             $this->execute('INSERT INTO tactical_paper_intent(decision_id,epoch_key,run_id,sleeve_id,signal_date,scheduled_session,
@@ -142,22 +164,31 @@ SQL);
     }
 
     /** Persist cancel intent before DELETE. A cancellation response is not a terminal fill/cancel observation. */
-    public function requestCancel(string $id, string $reason): bool
+    public function requestCancel(string $id, string $reason, bool $freshOpenObservation = false): bool
     {
-        if (!in_array($reason, ['close_stop_update', 'rebalance', 'circuit', 'entry_window_expired'], true)) {
+        if (!in_array($reason, ['close_stop_update', 'rebalance', 'circuit', 'entry_window_expired', 'partial_fill_protection', 'entry_batch'], true)) {
             throw new \InvalidArgumentException('Unrecognized cancellation reason.');
         }
-        return $this->transaction(function () use ($id, $reason): bool {
+        return $this->transaction(function () use ($id, $reason, $freshOpenObservation): bool {
             $i = $this->requireIntent($id);
             if (in_array($i['status'], CandidateOrder::TERMINAL, true)) { return false; }
             $payload = $i['payload'];
-            if (isset($payload['cancel_request'])) { return false; }
+            if (isset($payload['cancel_request'])) {
+                $request = $payload['cancel_request']; $attempt = (int) ($request['attempts'] ?? 1);
+                if (!$freshOpenObservation || $i['status'] === 'pending_cancel' || $attempt >= 3
+                    || time() - strtotime($request['last_attempt_at'] ?? $request['at']) < 30) { return false; }
+                $payload['cancel_request']['attempts'] = ++$attempt;
+                $payload['cancel_request']['last_attempt_at'] = self::now();
+                $this->execute('UPDATE tactical_paper_intent SET payload=?,updated_at=? WHERE decision_id=?', [CandidateOrder::json($payload), self::now(), $id]);
+                $this->event($i['run_id'], 'cancel:' . $id . ':' . $attempt, 'cancel_retried_after_open_observation', ['decision_id' => $id]);
+                return true;
+            }
             if ($i['status'] === 'planned' && (int) $i['attempt_count'] === 0) {
                 $this->execute('UPDATE tactical_paper_intent SET status=\'canceled\',updated_at=? WHERE decision_id=?', [self::now(), $id]);
                 return false;
             }
             if (trim((string) $i['order_id']) === '') { throw new \RuntimeException('Cannot cancel an unresolved broker submission.'); }
-            $payload['cancel_request'] = ['reason' => $reason, 'at' => self::now()];
+            $payload['cancel_request'] = ['reason' => $reason, 'at' => self::now(), 'last_attempt_at' => self::now(), 'attempts' => 1];
             $this->execute('UPDATE tactical_paper_intent SET payload=?,updated_at=? WHERE decision_id=?',
                 [CandidateOrder::json($payload), self::now(), $id]);
             $this->event($i['run_id'], 'cancel:' . $id, 'cancel_requested', ['decision_id' => $id, 'reason' => $reason]);
@@ -172,6 +203,9 @@ SQL);
             $i = $this->requireIntent($id); $this->assertRun($i['run_id']);
             if ((int) $i['attempt_count'] !== 1) { throw new \RuntimeException('Broker order observed without a persisted submission claim.'); }
             $body = $i['payload']['body'];
+            if (!in_array($order['order_class'] ?? 'simple', ['simple', ''], true) || !empty($order['legs']) || isset($order['notional'])) {
+                throw new \RuntimeException('Unexpected complex or notional candidate broker order.');
+            }
             foreach (['client_order_id', 'symbol', 'side', 'type', 'time_in_force', 'extended_hours'] as $field) {
                 if (($order[$field] ?? null) !== $body[$field]) { throw new \RuntimeException('Candidate broker body drift: ' . $field); }
             }
@@ -219,7 +253,9 @@ SQL);
                 submitted_at=COALESCE(submitted_at,?),updated_at=? WHERE decision_id=?',
                 [$orderId, $status, $qty, $notional, self::now(), self::now(), $id]);
             $expectedStopCancel = $i['leg'] === 'protective_stop' && $status === 'canceled' && isset($i['payload']['cancel_request']);
-            if (in_array($status, CandidateOrder::TERMINAL, true) && $qty < (int) $i['requested_qty'] && !$expectedStopCancel) {
+            $expectedEntryCancel = $i['side'] === 'buy' && $status === 'canceled'
+                && in_array($i['payload']['cancel_request']['reason'] ?? '', ['partial_fill_protection', 'entry_window_expired'], true);
+            if (in_array($status, CandidateOrder::TERMINAL, true) && $qty < (int) $i['requested_qty'] && !$expectedStopCancel && !$expectedEntryCancel) {
                 $this->execute('UPDATE tactical_paper_run SET status=\'paused\',last_error_code=?,updated_at=? WHERE run_id=?',
                     ['candidate_terminal_incomplete:' . substr($id, 0, 12), self::now(), $i['run_id']]);
             }
@@ -290,6 +326,43 @@ SQL);
         $this->execute('UPDATE tactical_paper_run SET status=\'paused\',last_error_code=?,updated_at=? WHERE run_id=?', [$reason, self::now(), $runId]);
     }
 
+    /** One transaction freezes all twelve risk books, stop latches, circuit and next-session quantities. */
+    public function commitClose(string $runId, string $date, string $session, array $bookVersions, array $updates, array $plans, array $provenance): array
+    {
+        CandidateOrder::date($date); CandidateOrder::date($session);
+        if ($session <= $date || count($bookVersions) !== 12 || array_diff_key($bookVersions, $plans) !== []
+            || array_diff_key($plans, $bookVersions) !== []) { throw new \InvalidArgumentException('Incomplete candidate close transaction.'); }
+        return $this->transaction(function () use ($runId, $date, $session, $bookVersions, $updates, $plans, $provenance): array {
+            $this->assertRun($runId);
+            $existing = $this->checkpoint($runId, 'close:' . $date);
+            $payload = ['date' => $date, 'scheduled_session' => $session, 'plans' => $plans, 'provenance' => $provenance];
+            if ($existing !== null) {
+                if (CandidateOrder::json($existing['payload']) !== CandidateOrder::json($payload)) { throw new \RuntimeException('Immutable candidate close drift.'); }
+                return $existing['payload'];
+            }
+            $rows = $this->execute('SELECT sleeve_id,version FROM tactical_paper_sleeve WHERE run_id=?', [$runId])->fetchAll();
+            if (count($rows) !== 12) { throw new \RuntimeException('Candidate sleeve set changed during close.'); }
+            foreach ($rows as $row) {
+                $id = $row['sleeve_id'];
+                if (($bookVersions[$id] ?? null) !== (int) $row['version'] || !isset($updates['sleeve:' . $id])
+                    || ($updates['sleeve:' . $id]['payload']['date'] ?? null) !== $date) {
+                    throw new \RuntimeException('Candidate close raced with fills or incomplete sleeve state.');
+                }
+            }
+            if (!isset($updates['circuit'])) { throw new \RuntimeException('Missing shared circuit checkpoint.'); }
+            foreach ($updates as $scope => $u) { $this->writeCheckpoint($runId, $scope, $u['version'], $u['payload']); }
+            foreach ($plans as $id => $plan) {
+                $this->execute('UPDATE tactical_paper_sleeve SET last_signal_date=?,last_session=?,payload=?,version=version+1,updated_at=?
+                    WHERE run_id=? AND sleeve_id=?', [$date, $session, CandidateOrder::json($plan), self::now(), $runId, $id]);
+            }
+            $this->writeCheckpoint($runId, 'close:' . $date, 0, $payload);
+            $latest = $this->checkpoint($runId, 'latest_close');
+            if ($latest !== null && $latest['payload']['date'] >= $date) { throw new \RuntimeException('Candidate close order regression.'); }
+            $this->writeCheckpoint($runId, 'latest_close', (int) ($latest['version'] ?? 0), $payload);
+            return $payload;
+        });
+    }
+
     private function assertSellCapacity(array $i, ?string $exclude = null): void
     {
         $owned = CandidateOrder::quantity($this->position($i['run_id'], $i['sleeve_id'], $i['symbol'])['qty'], true);
@@ -316,6 +389,11 @@ SQL);
             [$i['run_id'], $i['sleeve_id'], $i['symbol'], $newQty, $cost, self::now()]);
         $this->execute('UPDATE tactical_paper_sleeve SET cash=cash+?,version=version+1,updated_at=? WHERE run_id=? AND sleeve_id=?',
             [$cash, self::now(), $i['run_id'], $i['sleeve_id']]);
+        if ($i['leg'] === 'protective_stop') {
+            $scope = 'stop_latch:' . $i['sleeve_id']; $latch = $this->checkpoint($i['run_id'], $scope);
+            $this->writeCheckpoint($i['run_id'], $scope, (int) ($latch['version'] ?? 0), ['pending' => true,
+                'decision_id' => $i['decision_id'], 'observed_at' => self::now(), 'symbol' => $i['symbol']]);
+        }
         if ($newQty === 0) {
             $scope = 'protection:' . $i['sleeve_id'] . ':' . $i['symbol'];
             $checkpoint = $this->checkpoint($i['run_id'], $scope);

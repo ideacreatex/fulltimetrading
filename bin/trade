@@ -771,12 +771,14 @@ try {
     }
 
     if ($command === 'tactical-paper-executor') {
-        require __DIR__ . '/../tools/tactical_rotation_paper_executor.php';
+        require __DIR__ . '/../tools/' . (($options['candidate'] ?? 'false') === 'true'
+            ? 'candidate_paper_cycle.php' : 'tactical_rotation_paper_executor.php');
         exit(0);
     }
 
     if ($command === 'tactical-paper-daemon') {
-        require __DIR__ . '/../tools/tactical_rotation_paper_daemon.php';
+        require __DIR__ . '/../tools/' . (($options['candidate'] ?? 'false') === 'true'
+            ? 'candidate_paper_daemon.php' : 'tactical_rotation_paper_daemon.php');
         exit(0);
     }
 

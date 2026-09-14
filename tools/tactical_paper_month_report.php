@@ -26,11 +26,12 @@ foreach (array_slice($argv, 1) as $arg) {
 $root = dirname(__DIR__);
 $config = Config::fromFile($root . '/config/config.php');
 $paper = require $root . '/config/tactical_paper.php';
-$runId = (string) $paper['run_id'];
 $repo = new TacticalPaperRepository(
     trim((string) $options['db']) !== '' ? (string) $options['db'] : (string) $config->get('database_path'),
 );
 $repo->migrate();
+$paper = \FulltimeTrading\Paper\CandidateRuntimeSelection::select($root, $paper, $repo);
+$runId = (string) $paper['run_id'];
 $run = $repo->run($runId);
 $now = new DateTimeImmutable();
 
@@ -54,6 +55,8 @@ if ($run === null) {
     $latestEquity = $equities === [] ? $initialEquity : $equities[array_key_last($equities)];
     $return = $initialEquity > 0.0 ? $latestEquity / $initialEquity - 1.0 : 0.0;
     $activeIntents = $repo->activeIntents($runId);
+    $standingProtection = array_values(array_filter($activeIntents, [\FulltimeTrading\Paper\CandidateRuntimeSelection::class, 'isStandingProtection']));
+    $unresolvedIntents = array_values(array_filter($activeIntents, static fn ($i): bool => !\FulltimeTrading\Paper\CandidateRuntimeSelection::isStandingProtection($i)));
     $rejected = array_values(array_filter($intents, static fn (array $row): bool => in_array(
         strtolower((string) ($row['status'] ?? '')),
         ['rejected', 'expired'],
@@ -120,13 +123,13 @@ if ($run === null) {
     if ((string) $run['status'] !== 'active') {
         $failed[] = 'run_not_active';
     }
-    if ($now->format('Y-m-d') < (string) $paper['live_review_not_before']) {
+    if ($earliestCalendarReview === null || $now < $earliestCalendarReview) {
         $failed[] = 'observation_window_not_finished';
     }
     if ($elapsedDays < 31 || count($observed['market']) < 20) {
         $failed[] = 'insufficient_forward_observation';
     }
-    if ($activeIntents !== []) {
+    if ($unresolvedIntents !== []) {
         $failed[] = 'unresolved_order_intents';
     }
     if (trim((string) ($run['last_error_code'] ?? '')) !== '') {
@@ -175,6 +178,8 @@ if ($run === null) {
         'orders' => [
             'total_intents' => count($intents),
             'active_intents' => count($activeIntents),
+            'standing_protection_intents' => count($standingProtection),
+            'unresolved_intents' => count($unresolvedIntents),
             'rejected_or_expired' => count($rejected),
             'completed_exit_intents' => count($completedExitIntents),
             'completed_exit_episodes' => count($completedExitEpisodes),

@@ -11,7 +11,14 @@ use FulltimeTrading\Research\DailyDataAudit as D;
 require dirname(__DIR__) . '/bootstrap.php';
 $root = dirname(__DIR__);
 $end = $argv[1] ?? '2026-09-14';
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/D', $end)) { throw new InvalidArgumentException('Canonical end date required.'); }
+\FulltimeTrading\Paper\CandidateOrder::date($end);
+$runtime = \FulltimeTrading\Support\Config::fromFile($root . '/config/config.php');
+$paper = new \FulltimeTrading\Trading\AlpacaPaperClient(new HttpClient(),
+    getenv('APCA_PAPER_BASE_URL') ?: (string) $runtime->get('trading.alpaca.paper_base_url'));
+$sessions = $paper->calendar($end, $end);
+if (count($sessions) !== 1 || ($sessions[0]['date'] ?? null) !== $end) { throw new RuntimeException('Execution data end must be an Alpaca market session.'); }
+$closedAt = new DateTimeImmutable($end . ' ' . $sessions[0]['close'], new DateTimeZone('America/New_York'));
+if (time() < $closedAt->getTimestamp() + 20 * 60) { throw new RuntimeException('Refusing incomplete/recent daily bars before close plus twenty minutes.'); }
 $profile = require $root . '/config/tactical_rotation.php';
 $symbols = array_values(array_unique(array_merge($profile['universe'], ['SPY', 'QQQ', 'SVXY'])));
 sort($symbols, SORT_STRING);
@@ -28,6 +35,9 @@ foreach ($manifest['adjustments'] as $adjustment) {
     if (file_exists($file) && file_exists($out . '/' . $adjustment . '_manifest.json')) {
         $saved = $read($out . '/' . $adjustment . '_manifest.json');
         if (hash_file('sha256', $file) !== $saved['sha256']) { throw new RuntimeException('Frozen price file changed.'); }
+        if ((new DateTimeImmutable($saved['captured_at']))->getTimestamp() < $closedAt->getTimestamp() + 20 * 60) {
+            throw new RuntimeException('Cached daily history was captured before its final session completed.');
+        }
         echo $adjustment, " verified cache\n"; continue;
     }
     // Delayed SIP rejects a future/recent end even when the daily session has closed.
