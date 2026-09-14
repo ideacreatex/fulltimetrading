@@ -96,6 +96,7 @@ final class CausalTacticalRotationEnsembleBacktester
         string $tradeStart,
         string $tradeEndInclusive,
         float $initialEquity = 30000.0,
+        bool $allowSignalSeedOnly = false,
     ): array {
         if (!is_finite($initialEquity) || $initialEquity <= 0.0) {
             throw new \InvalidArgumentException('Initial ensemble equity must be finite and positive.');
@@ -122,6 +123,7 @@ final class CausalTacticalRotationEnsembleBacktester
                 $tradeStart,
                 $tradeEndInclusive,
                 $sleeveInitialEquity,
+                $allowSignalSeedOnly,
             );
             if (($child['next_target']['shadow_only'] ?? false) !== true) {
                 throw new \RuntimeException('Every tactical ensemble child target must remain shadow-only.');

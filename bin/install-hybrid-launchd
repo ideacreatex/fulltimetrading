@@ -343,6 +343,10 @@ cat >"$GENERATED" <<EOF
     <string>$PHP_XML</string><string>bin/trade</string><string>tactical-paper-daemon</string>
     <string>--submit=true</string><string>--telegram=true</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PHP_INI_SCAN_DIR</key><string>:$PROJECT_XML/config/php-paper.d</string>
+  </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>ThrottleInterval</key><integer>10</integer>

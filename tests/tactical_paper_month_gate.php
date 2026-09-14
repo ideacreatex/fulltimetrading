@@ -129,6 +129,29 @@ monthAssert(in_array('single_positive_week_concentration_above_70_percent', $fai
 monthAssert(($report['orders']['completed_exit_episodes'] ?? null) === 1, 'Completed exit episodes must be de-duplicated by symbol/session.');
 monthAssert(($report['weekly_consistency']['positive_weeks'] ?? null) === 4, 'Positive observed weeks must be counted.');
 monthAssert(($report['eligible_for_human_live_review'] ?? null) === false, 'Synthetic unstable month must remain blocked.');
+monthAssert(($report['observed_dates'] ?? null) === 4, 'Calendar age must not stand in for snapshot coverage.');
+monthAssert(str_contains($stdout, '4 stored snapshot dates') && str_contains($stdout, '/20 market dates'), 'The report must distinguish stored dates from market sessions.');
+$expectedReview = max(new DateTimeImmutable($paper['live_review_not_before']), (new DateTimeImmutable($activatedAt))->modify('+31 days'));
+monthAssert($report['earliest_calendar_review_at'] === $expectedReview->format(DateTimeInterface::ATOM), 'The review date must respect actual activation plus 31 days.');
+monthAssert($report['live_review_not_before'] === $expectedReview->format('Y-m-d'), 'Do not report an expired configuration date as the actual review threshold.');
+monthAssert(is_string($report['latest_snapshot_at'] ?? null) && str_contains($stdout, $report['latest_snapshot_at']), 'The report must expose the age of its last actual observation.');
+$mixed = [
+    ['captured_at' => '2026-09-08T16:01:00-04:00', 'equity' => 102],
+    ['captured_at' => '2026-09-08T20:00:30+00:00', 'equity' => 101],
+    ['captured_at' => '2026-09-08T15:59:00-04:00', 'equity' => 99],
+];
+$normalized = FulltimeTrading\Trading\TacticalPaperObservation::since($mixed, '2026-09-08T20:00:00+00:00', new DateTimeImmutable('2026-09-08T21:00:00Z'));
+monthAssert(array_column($normalized, 'equity') === [101, 102], 'Mixed offsets must be filtered and sorted by actual time, not strings.');
+$dates = FulltimeTrading\Trading\TacticalPaperObservation::dates([
+    ['captured_at' => '2026-09-05T16:00:00-04:00'],
+    ['captured_at' => '2026-09-07T16:00:00-04:00'],
+    ['captured_at' => '2026-09-08T16:00:00-04:00'],
+    ['captured_at' => '2026-09-08T20:01:00+00:00'],
+    ['captured_at' => '2026-09-09T16:00:00-04:00', 'payload' => ['dry_run' => true]],
+]);
+monthAssert(count($dates['stored']) === 4 && $dates['market'] === ['2026-09-08'], 'Weekend, Labor Day, duplicate offsets and dry-runs must not inflate observed market dates.');
+monthAssert(abs(FulltimeTrading\Trading\TacticalPaperObservation::maxDrawdown([['equity' => 60.0], ['equity' => 80.0]], 100.0) + 0.4) < 1.0e-12,
+    'Loss before the first stored snapshot must still be measured from activation capital.');
 
 echo "Tactical paper month gate OK\n";
 

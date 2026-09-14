@@ -129,6 +129,61 @@ final class TacticalPortfolioNotificationSchedule
         ];
     }
 
+    /**
+     * @param array<string,mixed> $clock
+     * @param array<string,mixed> $account
+     * @param array<string,mixed> $signal
+     * @return array{
+     *   key:string,
+     *   session_date:string,
+     *   broker_timestamp:string,
+     *   catch_up:bool,
+     *   week_start:string,
+     *   iso_week:string
+     * }|null
+     */
+    public static function weeklyCloseStatus(
+        array $clock,
+        array $account,
+        array $signal,
+        ?\DateTimeImmutable $hostNow = null,
+    ): ?array {
+        $close = self::closeStatus($clock, $account, $signal, $hostNow);
+        $brokerTime = self::freshBrokerTime($clock, $hostNow);
+        $accountScope = self::accountScope($account);
+        $asOf = trim((string) ($signal['as_of'] ?? ''));
+        $decisionHash = strtolower(trim((string) ($signal['decision_sha256'] ?? '')));
+        $nextOpen = self::brokerClockDate((string) ($clock['next_open'] ?? ''));
+        if ($close === null
+            || $brokerTime === null
+            || $accountScope === null
+            || $nextOpen === null
+            || preg_match('/^\d{4}-\d{2}-\d{2}$/D', $asOf) !== 1
+            || preg_match('/^[a-f0-9]{64}$/D', $decisionHash) !== 1) {
+            return null;
+        }
+
+        try {
+            $timezone = new \DateTimeZone('America/New_York');
+            $sessionDay = new \DateTimeImmutable($asOf . ' 12:00:00', $timezone);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if ($sessionDay->format('o-W') === $nextOpen->format('o-W')) {
+            return null;
+        }
+
+        return [
+            'key' => sprintf('portfolio-weekly:%s:%s:%s:v1', $accountScope, $asOf, $decisionHash),
+            'session_date' => $asOf,
+            'broker_timestamp' => $close['broker_timestamp'],
+            'catch_up' => $close['catch_up'],
+            'week_start' => $sessionDay->modify('monday this week')->format('Y-m-d'),
+            'iso_week' => $sessionDay->format('o-\WW'),
+        ];
+    }
+
     /** @param array<string,mixed> $clock */
     private static function freshBrokerTime(
         array $clock,
@@ -150,6 +205,18 @@ final class TacticalPortfolioNotificationSchedule
         }
 
         return $brokerTime;
+    }
+
+    private static function brokerClockDate(string $timestamp): ?\DateTimeImmutable
+    {
+        if ($timestamp === '') {
+            return null;
+        }
+        try {
+            return (new \DateTimeImmutable($timestamp))->setTimezone(new \DateTimeZone('America/New_York'));
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** @param array<string,mixed> $account */

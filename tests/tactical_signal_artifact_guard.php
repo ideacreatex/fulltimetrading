@@ -151,7 +151,7 @@ function artifactGuardProvenance(array $symbols, array $dataContract, string $si
 /** @return array<string,mixed> */
 function artifactGuardFixture(string $root, array $profile, array $paper): array
 {
-    $signalDate = '2026-07-16';
+    $signalDate = $paper['signal_epoch']['seed_close'] ?? '2026-07-16';
     $targets = [];
     $contexts = [];
     foreach ($profile['sleeves'] as $sleeveId => $definition) {
@@ -174,7 +174,7 @@ function artifactGuardFixture(string $root, array $profile, array $paper): array
             'drawdown_rearm_pending' => false,
             'shadow_only' => true,
             'allocation' => (float) $definition['allocation'],
-            'initial_equity' => 30_000.0 * (float) $definition['allocation'],
+            'initial_equity' => (float) ($paper['signal_epoch']['initial_equity'] ?? 30_000.0) * (float) $definition['allocation'],
             'capital_scope' => 'independent_static_sleeve',
             'sizing_reference_close' => null,
             'sizing_reference_session' => null,
@@ -186,13 +186,13 @@ function artifactGuardFixture(string $root, array $profile, array $paper): array
         ];
     }
 
-    return artifactGuardRefreshDecisionHash([
+    $fixture = [
         'schema' => 1,
         'generated_at' => '2026-07-17T02:00:00+00:00',
         'profile' => $profile['profile'],
         'causal_contract' => 'completed close D ranks symbols; target can execute only at open D+1',
         'as_of' => $signalDate,
-        'intended_session' => '2026-07-17',
+        'intended_session' => (new DateTimeImmutable($signalDate))->modify('+1 day')->format('Y-m-d'),
         'implementation' => TacticalImplementationIdentity::current($root, $profile),
         'targets' => $targets,
         'execution_contexts' => $contexts,
@@ -206,15 +206,42 @@ function artifactGuardFixture(string $root, array $profile, array $paper): array
             (array) $paper['data'],
             $signalDate,
         ),
-    ]);
+    ];
+    if (isset($paper['signal_epoch'])) {
+        $fixture['signal_epoch'] = $paper['signal_epoch'];
+    }
+    return artifactGuardRefreshDecisionHash($fixture);
 }
 
 $root = dirname(__DIR__);
 $profile = require $root . '/config/tactical_rotation.php';
 $paper = require $root . '/config/tactical_paper.php';
+// Historical artifact fixtures deliberately exercise the pre-epoch contract.
+unset($paper['signal_epoch']);
 $implementation = TacticalImplementationIdentity::current($root, $profile);
 $artifact = artifactGuardFixture($root, $profile, $paper);
 TacticalSignalArtifactGuard::validateArtifact($artifact, $profile, $paper, $implementation);
+$epochPaper = array_replace($paper, ['run_id' => 'epoch-test', 'signal_epoch' => [
+    'mode' => 'fresh_flat_paper_model', 'run_id' => 'epoch-test', 'predecessor_run_id' => 'old-test',
+    'seed_close' => '2026-07-16', 'initial_equity' => 30000.0,
+]]);
+$epochArtifact = artifactGuardRefreshDecisionHash(array_replace($artifact, ['signal_epoch' => $epochPaper['signal_epoch']]));
+TacticalSignalArtifactGuard::validateArtifact($epochArtifact, $profile, $epochPaper, $implementation);
+artifactGuardExpectRejected($artifact, $profile, $epochPaper, $implementation, 'Missing paper epoch must fail closed.');
+$wrongEpoch = $epochArtifact;
+$wrongEpoch['signal_epoch']['initial_equity'] = 1.0;
+artifactGuardExpectRejected(artifactGuardRefreshDecisionHash($wrongEpoch), $profile, $epochPaper, $implementation, 'A recomputed decision hash must not authorize a different epoch.');
+$nonSelectedArtifact = $artifact;
+$nonSelectedArtifact['validation_selected'] = false;
+$nonSelectedArtifact = artifactGuardRefreshDecisionHash($nonSelectedArtifact);
+TacticalSignalArtifactGuard::validateArtifact($nonSelectedArtifact, $profile, $paper, $implementation, false);
+artifactGuardExpectRejected(
+    $nonSelectedArtifact,
+    $profile,
+    $paper,
+    $implementation,
+    'Strict validation must still reject non-selected tactical artifacts.',
+);
 
 $mutations = [];
 $mutations['validation'] = static function (array $value): array {
@@ -316,12 +343,13 @@ if (!mkdir($temp, 0775, true) && !is_dir($temp)) {
     throw new RuntimeException('Unable to create artifact-guard test directory.');
 }
 try {
+    $integrationArtifact = artifactGuardFixture($root, $profile, require $root . '/config/tactical_paper.php');
     foreach (['validation', 'provenance', 'target_universe', 'implementation_hash', 'valid_target_old_hash'] as $name) {
         $path = $temp . '/' . $name . '.json';
         file_put_contents($path, json_encode(
             $name === 'valid_target_old_hash'
-                ? $mutations[$name]($artifact)
-                : artifactGuardRefreshDecisionHash($mutations[$name]($artifact)),
+                ? $mutations[$name]($integrationArtifact)
+                : artifactGuardRefreshDecisionHash($mutations[$name]($integrationArtifact)),
             JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR,
         ));
         $db = $temp . '/' . $name . '.sqlite';
@@ -340,6 +368,13 @@ try {
         $output = [];
         $exitCode = 0;
         exec($command, $output, $exitCode);
+        if ($name === 'validation') {
+            artifactGuardExpect(
+                $exitCode === 0,
+                'Installer-style dry-run must accept a structurally valid non-selected artifact.',
+            );
+            continue;
+        }
         artifactGuardExpect($exitCode !== 0, 'Installer-style dry-run must reject tampered ' . $name . '.');
         artifactGuardExpect(
             str_contains(implode("\n", $output), 'Signal artifact'),

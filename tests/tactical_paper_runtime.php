@@ -556,6 +556,13 @@ try {
     ];
     $run = $repo->ensureRun($identity, $allocations);
     tacticalSame('transition', $run['status'], 'A new run must start behind the legacy transition gate.');
+    $identity = array_replace($identity, ['runtime_hash' => str_repeat('c', 64)]);
+    $run = $repo->ensureRun($identity, $allocations);
+    tacticalSame(
+        str_repeat('c', 64),
+        $run['runtime_hash'],
+        'A clean transition run may refresh only its runtime hash before activation.',
+    );
     $nonFlatRejected = false;
     try {
         $repo->activate($identity['run_id'], 25000.0, [
@@ -1057,7 +1064,7 @@ try {
 
     $driftRejected = false;
     try {
-        $repo->ensureRun(array_replace($identity, ['runtime_hash' => str_repeat('c', 64)]), $allocations);
+        $repo->ensureRun(array_replace($identity, ['runtime_hash' => str_repeat('d', 64)]), $allocations);
     } catch (RuntimeException) {
         $driftRejected = true;
     }

@@ -147,6 +147,26 @@ $eligibility = TacticalPortfolioStatusMessage::entryEligibility(
 );
 portfolioMessageExpect($eligibility['allowed_now'] === false, 'Transition must block every new entry and add.');
 
+$nonSelectedSignal = $signal;
+$nonSelectedSignal['validation_selected'] = false;
+$nonSelectedEligibility = TacticalPortfolioStatusMessage::entryEligibility(
+    $run,
+    'legacy_positions_in_control',
+    $nonSelectedSignal,
+    [],
+    [],
+    $positions,
+    $now,
+);
+portfolioMessageExpect(
+    in_array(
+        'signal_validation_not_selected',
+        array_column($nonSelectedEligibility['blocked_reasons'], 'code'),
+        true,
+    ),
+    'A non-selected tactical artifact must still surface a blocked status reason.',
+);
+
 $message = TacticalPortfolioStatusMessage::build(
     'open',
     $now,
@@ -186,6 +206,50 @@ portfolioMessageHas($message, 'кандидат PANW 68.8%', 'The ranked candida
 portfolioMessageHas($message, 'Кандидат/лидер — это наблюдение, не команда на покупку.', 'A candidate must not look like an Alpaca instruction.');
 portfolioMessageHas($message, 'tactical cash $0.00 / nav $0.00 — техническое состояние, не потеря денег', 'Transition zero NAV needs an operator-safe explanation.');
 portfolioMessageExpect(strlen($message) <= 3800, 'The detailed report must stay below the safe Telegram byte limit.');
+
+$weeklyMessage = TacticalPortfolioStatusMessage::build(
+    'weekly_close',
+    $now,
+    [
+        'status' => 'ACTIVE',
+        'equity' => '27568.25',
+        'last_equity' => '28947.84',
+        'cash' => '27568.25',
+        'buying_power' => '55136.50',
+        'long_market_value' => '0',
+        'short_market_value' => '0',
+    ],
+    [],
+    [],
+    $legacyStates,
+    ['status' => 'active', 'activated_at' => '2026-07-20T12:00:00Z'],
+    'blocked_signal_or_plan',
+    $signal,
+    [],
+    $eligibility,
+    ['signal_plan_blocked:9b9de15ec1ae'],
+    ['is_open' => false, 'timestamp' => '2026-07-24T16:20:00-04:00'],
+    [],
+    [
+        'week_summary' => [
+            'observed_from' => '2026-07-20',
+            'week_end' => '2026-07-24',
+            'observed_sessions' => 5,
+            'start_equity' => 28947.84,
+            'end_equity' => 27568.25,
+            'delta_equity' => -1379.59,
+            'delta_pct' => -4.77,
+            'low_equity' => 27568.25,
+            'high_equity' => 28947.84,
+        ],
+    ],
+);
+portfolioMessageHas($weeklyMessage, '📊 НЕДЕЛЯ / ИТОГ И ПЛАН • ALPACA PAPER', 'The weekly report needs its own unmistakable header.');
+portfolioMessageHas($weeklyMessage, 'НЕДЕЛЯ', 'The weekly report must include a dedicated weekly section.');
+portfolioMessageHas($weeklyMessage, 'Покрытие 2026-07-20 → 2026-07-24 | сессий в отчёте 5', 'The weekly section must state the covered week window.');
+portfolioMessageHas($weeklyMessage, 'Equity $28,947.84 → $27,568.25 | итог -$1,379.59 (-4.77%)', 'The weekly section must show the weekly equity result.');
+portfolioMessageHas($weeklyMessage, 'Диапазон equity $27,568.25 … $28,947.84', 'The weekly section must show the observed equity range.');
+portfolioMessageHas($weeklyMessage, 'СИГНАЛ ПО РУКАВАМ', 'The weekly summary must still include the next-session plan.');
 
 $rebalanceSignal = [
     'intended_session' => '2026-07-22',

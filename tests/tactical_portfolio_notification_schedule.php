@@ -157,6 +157,57 @@ portfolioScheduleExpect(
     is_array($closeCatchUp) && $closeCatchUp['key'] === $close['key'] && $closeCatchUp['catch_up'] === true,
     'A missed close report must catch up with the identical decision key.',
 );
+$weeklyMidweek = TacticalPortfolioNotificationSchedule::weeklyCloseStatus(
+    ['is_open' => false, 'timestamp' => '2026-07-21T16:22:00-04:00', 'next_open' => '2026-07-22T09:30:00-04:00'],
+    $account,
+    $closeSignal,
+    new DateTimeImmutable('2026-07-21T16:22:01-04:00'),
+);
+portfolioScheduleExpect(
+    $weeklyMidweek === null,
+    'A normal midweek close must not emit the once-a-week summary.',
+);
+$fridaySignal = [
+    'as_of' => '2026-07-24',
+    'intended_session' => '2026-07-27',
+    'decision_sha256' => $decision,
+];
+$weeklyFriday = TacticalPortfolioNotificationSchedule::weeklyCloseStatus(
+    ['is_open' => false, 'timestamp' => '2026-07-24T16:22:00-04:00', 'next_open' => '2026-07-27T09:30:00-04:00'],
+    $account,
+    $fridaySignal,
+    new DateTimeImmutable('2026-07-24T16:22:01-04:00'),
+);
+portfolioScheduleExpect(
+    is_array($weeklyFriday)
+    && $weeklyFriday['key'] === 'portfolio-weekly:' . $scope . ':2026-07-24:' . $decision . ':v1'
+    && $weeklyFriday['week_start'] === '2026-07-20'
+    && $weeklyFriday['iso_week'] === '2026-W30',
+    'The final close before the next ISO week must emit one weekly summary key.',
+);
+$weeklyHolidayFridayOff = TacticalPortfolioNotificationSchedule::weeklyCloseStatus(
+    ['is_open' => false, 'timestamp' => '2026-07-02T16:22:00-04:00', 'next_open' => '2026-07-06T09:30:00-04:00'],
+    $account,
+    ['as_of' => '2026-07-02', 'intended_session' => '2026-07-06', 'decision_sha256' => $decision],
+    new DateTimeImmutable('2026-07-02T16:22:01-04:00'),
+);
+portfolioScheduleExpect(
+    is_array($weeklyHolidayFridayOff)
+    && $weeklyHolidayFridayOff['week_start'] === '2026-06-29',
+    'A Thursday close before a Friday holiday must still count as the week-end summary.',
+);
+$weeklyCatchUp = TacticalPortfolioNotificationSchedule::weeklyCloseStatus(
+    ['is_open' => false, 'timestamp' => '2026-07-27T08:55:00-04:00', 'next_open' => '2026-07-27T09:30:00-04:00'],
+    $account,
+    $fridaySignal,
+    new DateTimeImmutable('2026-07-27T08:55:01-04:00'),
+);
+portfolioScheduleExpect(
+    is_array($weeklyCatchUp)
+    && $weeklyCatchUp['key'] === $weeklyFriday['key']
+    && $weeklyCatchUp['catch_up'] === true,
+    'A missed Friday weekly summary must catch up with the same durable key on Monday morning.',
+);
 $invalidDecision = $closeSignal;
 $invalidDecision['decision_sha256'] = 'not-a-hash';
 portfolioScheduleExpect(

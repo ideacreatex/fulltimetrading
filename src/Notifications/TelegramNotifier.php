@@ -46,6 +46,36 @@ final readonly class TelegramNotifier
     }
 
     /**
+     * @param array<string,mixed> $richMessage
+     * @return array<string,mixed>
+     */
+    public function sendRichMessage(
+        array $richMessage,
+        string $fallbackText,
+        bool $disableNotification = false,
+    ): array {
+        if (!is_array($richMessage['blocks'] ?? null) || $richMessage['blocks'] === []) {
+            throw new \InvalidArgumentException('Telegram rich message must contain blocks.');
+        }
+        $response = $this->http->postJson(
+            'https://api.telegram.org/bot' . rawurlencode($this->botToken) . '/sendRichMessage',
+            [
+                'chat_id' => $this->chatId,
+                'rich_message' => $richMessage,
+                'disable_notification' => $disableNotification,
+            ],
+        );
+
+        // A 400/404 means Telegram rejected the rich representation before
+        // delivery. Preserve the urgent alert through the plain-text path.
+        if (in_array((int) ($response['status'] ?? 0), [400, 404], true)) {
+            return $this->sendMessage($fallbackText, $disableNotification);
+        }
+
+        return self::validateSendMessageResponse($response);
+    }
+
+    /**
      * Telegram delivery is acknowledged only by its structured success
      * response. A transport-level 2xx with malformed JSON or ok=false must
      * stay in the durable retry outbox.

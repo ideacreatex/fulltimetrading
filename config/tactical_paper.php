@@ -3,11 +3,21 @@
 declare(strict_types=1);
 
 return [
-    'run_id' => 'hybrid-v4-paper-2026-07-17',
+    'run_id' => 'hybrid-v4-paper-2026-09-07',
     'profile' => 'causal-stock-rotation-hybrid-v4',
     'enabled' => true,
     'paper_only' => true,
-    'live_review_not_before' => '2026-08-17',
+    'live_review_not_before' => '2026-10-08',
+
+    // Explicit user-approved new paper inception. Historical qualification is
+    // unchanged; only this model's capital, risk peak and cadence restart.
+    'signal_epoch' => [
+        'mode' => 'fresh_flat_paper_model',
+        'run_id' => 'hybrid-v4-paper-2026-09-07',
+        'predecessor_run_id' => 'hybrid-v4-paper-2026-07-17',
+        'seed_close' => '2026-09-04',
+        'initial_equity' => 27567.66,
+    ],
 
     // The five-year selection remains the frozen SIP replay. The paper-only
     // Alpaca entitlement supplies IEX for bars that arrive after this cutoff.

@@ -22,6 +22,7 @@ final class TacticalImplementationIdentity
         'src/Trading/TacticalRotationShadowContext.php',
         'src/Trading/TacticalSignalArtifactGuard.php',
         'src/Trading/TacticalImplementationIdentity.php',
+        'src/Trading/TacticalPaperSignalEpoch.php',
         'tools/run_tactical_rotation_backtest.php',
     ];
 

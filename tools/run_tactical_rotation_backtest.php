@@ -16,6 +16,7 @@ use FulltimeTrading\Support\Config;
 use FulltimeTrading\Trading\AlpacaPaperClient;
 use FulltimeTrading\Trading\PaperDailyReportFreshnessGuard;
 use FulltimeTrading\Trading\TacticalImplementationIdentity;
+use FulltimeTrading\Trading\TacticalPaperSignalEpoch;
 use FulltimeTrading\Trading\TacticalRotationShadowContext;
 use FulltimeTrading\Trading\TacticalSignalArtifactGuard;
 
@@ -182,6 +183,19 @@ $stressKey = rtrim(rtrim(sprintf('%.4F', (float) $profile['validation']['require
 $selected = isset($runs[$baseKey], $runs[$stressKey])
     && $runs[$baseKey]['qualifies'] === true
     && $runs[$stressKey]['qualifies'] === true;
+$signalEpoch = TacticalPaperSignalEpoch::fromConfig($paperRuntime, $end);
+if ($signalEpoch !== null) {
+    // Indicator warmup still uses all prior bars. Only model capital, positions,
+    // risk peaks and cadence start here; the qualification above is unchanged.
+    $epochReplay = tacticalBacktester($profile, (float) $profile['cost_bps'])->run(
+        $barsBySymbol, $signalEpoch['seed_close'], $end, (float) $signalEpoch['initial_equity'], true,
+    );
+    if (($epochReplay['curve'][0]['date'] ?? null) !== $signalEpoch['seed_close']) {
+        throw new RuntimeException('Paper epoch seed is not an available benchmark close.');
+    }
+    $baseSnapshot = ['features_as_of' => $epochReplay['features_as_of'], 'next_targets' => resultTargets($epochReplay)];
+    unset($epochReplay);
+}
 $targets = attachSizingReferenceCloses(
     resultTargets((array) ($baseSnapshot ?? [])),
     $barsBySymbol,
@@ -212,6 +226,9 @@ $paperShadow = [
     'order_submission_block_reason' => (string) $profile['order_submission_block_reason'],
     'data_provenance' => $marketDataProvenance,
 ];
+if ($signalEpoch !== null) {
+    $paperShadow['signal_epoch'] = $signalEpoch;
+}
 $paperShadow['decision_sha256'] = TacticalSignalArtifactGuard::decisionSha256($paperShadow);
 $robustness = isset($options['include-robustness'])
     ? robustnessAudit(

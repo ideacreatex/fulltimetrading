@@ -7,6 +7,7 @@ use FulltimeTrading\Data\HttpClient;
 use FulltimeTrading\Notifications\TelegramNotifier;
 use FulltimeTrading\Storage\TacticalPaperRepository;
 use FulltimeTrading\Support\Config;
+use FulltimeTrading\Trading\TacticalPaperObservation;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -43,18 +44,13 @@ if ($run === null) {
     ];
 } else {
     $since = is_string($run['activated_at'] ?? null) ? (string) $run['activated_at'] : null;
-    $snapshots = $since !== null ? $repo->snapshots($runId, $since) : [];
+    // Stored timestamps contain mixed UTC offsets. SQL text ordering/filtering
+    // would discard valid same-day observations after a UTC activation.
+    $snapshots = $since !== null ? TacticalPaperObservation::since($repo->snapshots($runId), $since, $now) : [];
     $intents = $repo->intents($runId, 10000);
     $equities = array_map(static fn (array $row): float => (float) $row['equity'], $snapshots);
-    $peak = null;
-    $maxDrawdown = 0.0;
-    foreach ($equities as $equity) {
-        $peak = $peak === null ? $equity : max($peak, $equity);
-        if ($peak > 0.0) {
-            $maxDrawdown = min($maxDrawdown, $equity / $peak - 1.0);
-        }
-    }
     $initialEquity = (float) ($run['initial_equity'] ?? 0.0);
+    $maxDrawdown = TacticalPaperObservation::maxDrawdown($snapshots, $initialEquity);
     $latestEquity = $equities === [] ? $initialEquity : $equities[array_key_last($equities)];
     $return = $initialEquity > 0.0 ? $latestEquity / $initialEquity - 1.0 : 0.0;
     $activeIntents = $repo->activeIntents($runId);
@@ -87,14 +83,12 @@ if ($run === null) {
             (string) ($intent['scheduled_session'] ?? '') . '|' . strtoupper((string) ($intent['symbol'] ?? ''))
         ] = true;
     }
-    $dates = [];
-    foreach ($snapshots as $snapshot) {
-        $dates[substr((string) $snapshot['captured_at'], 0, 10)] = true;
-    }
+    $observed = TacticalPaperObservation::dates($snapshots);
+    $dates = $observed['stored'];
     $weeklyEquity = [];
     foreach ($snapshots as $snapshot) {
         try {
-            $week = (new DateTimeImmutable((string) $snapshot['captured_at']))->format('o-W');
+            $week = (new DateTimeImmutable((string) $snapshot['captured_at']))->setTimezone(new DateTimeZone('America/New_York'))->format('o-W');
         } catch (Throwable) {
             continue;
         }
@@ -114,7 +108,14 @@ if ($run === null) {
     $topPositiveWeekShare = $positiveWeeklyGainTotal > 0.0
         ? max($positiveWeeklyGains) / $positiveWeeklyGainTotal
         : 1.0;
-    $elapsedDays = $since === null ? 0 : (int) (new DateTimeImmutable($since))->diff($now)->days;
+    $elapsedDays = $since === null || new DateTimeImmutable($since) > $now
+        ? 0 : (int) (new DateTimeImmutable($since))->diff($now)->days;
+    $earliestCalendarReview = $since === null ? null : (new DateTimeImmutable($since))->modify('+31 days');
+    $configuredReview = new DateTimeImmutable((string) $paper['live_review_not_before']);
+    if ($earliestCalendarReview !== null && $configuredReview > $earliestCalendarReview) {
+        $earliestCalendarReview = $configuredReview;
+    }
+    $latestSnapshotAt = $snapshots === [] ? null : (string) $snapshots[array_key_last($snapshots)]['captured_at'];
     $failed = [];
     if ((string) $run['status'] !== 'active') {
         $failed[] = 'run_not_active';
@@ -122,7 +123,7 @@ if ($run === null) {
     if ($now->format('Y-m-d') < (string) $paper['live_review_not_before']) {
         $failed[] = 'observation_window_not_finished';
     }
-    if ($elapsedDays < 31 || count($dates) < 20) {
+    if ($elapsedDays < 31 || count($observed['market']) < 20) {
         $failed[] = 'insufficient_forward_observation';
     }
     if ($activeIntents !== []) {
@@ -158,10 +159,15 @@ if ($run === null) {
         'profile' => $run['profile'],
         'status' => $run['status'],
         'activated_at' => $run['activated_at'],
-        'live_review_not_before' => $paper['live_review_not_before'],
+        'live_review_not_before' => $earliestCalendarReview?->format('Y-m-d'),
+        'configured_live_review_not_before' => $paper['live_review_not_before'],
+        'earliest_calendar_review_at' => $earliestCalendarReview?->format(DateTimeInterface::ATOM),
         'elapsed_calendar_days' => $elapsedDays,
         'observed_dates' => count($dates),
+        'observed_market_dates' => count($observed['market']),
+        'observed_market_date_list' => $observed['market'],
         'snapshots' => count($snapshots),
+        'latest_snapshot_at' => $latestSnapshotAt,
         'initial_equity' => $initialEquity,
         'latest_equity' => $latestEquity,
         'return' => $return,
@@ -204,11 +210,16 @@ function tacticalMonthMarkdown(array $report): string
 {
     $lines = ['# Hybrid-v4 paper month report', ''];
     $lines[] = '- Status: `' . (string) ($report['status'] ?? 'unknown') . '`';
-    $lines[] = '- Observation: `' . (int) ($report['elapsed_calendar_days'] ?? 0) . ' days`';
+    $lines[] = '- Observation: `' . (int) ($report['elapsed_calendar_days'] ?? 0)
+        . ' calendar days; ' . (int) ($report['observed_market_dates'] ?? 0) . '/20 market dates; '
+        . (int) ($report['observed_dates'] ?? 0) . ' stored snapshot dates`';
+    $lines[] = '- Latest observation: `' . (string) ($report['latest_snapshot_at'] ?? 'none') . '`';
+    $lines[] = '- Earliest calendar review (other gates still apply): `'
+        . (string) ($report['earliest_calendar_review_at'] ?? 'not activated') . '`';
     $lines[] = '- Equity: `$' . number_format((float) ($report['initial_equity'] ?? 0.0), 2)
         . ' → $' . number_format((float) ($report['latest_equity'] ?? 0.0), 2) . '`';
-    $lines[] = '- Return: `' . number_format(100 * (float) ($report['return'] ?? 0.0), 2) . '%`';
-    $lines[] = '- Max drawdown: `' . number_format(100 * (float) ($report['max_drawdown'] ?? 0.0), 2) . '%`';
+    $lines[] = '- Return: `' . number_format(100 * (float) ($report['return'] ?? 0.0), 4) . '%`';
+    $lines[] = '- Max drawdown: `' . number_format(100 * (float) ($report['max_drawdown'] ?? 0.0), 4) . '%`';
     $lines[] = '- Completed exit episodes: `' . (int) ($report['orders']['completed_exit_episodes'] ?? 0) . '`';
     $lines[] = '- Positive observed weeks: `' . (int) ($report['weekly_consistency']['positive_weeks'] ?? 0)
         . '/' . (int) ($report['weekly_consistency']['observed_weeks'] ?? 0) . '`';

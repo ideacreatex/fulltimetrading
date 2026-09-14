@@ -35,7 +35,7 @@ final class CausalTacticalRotationBacktester
      * @param array<string, list<Bar>> $barsBySymbol
      * @return array{curve:list<array<string,mixed>>,next_target:array<string,mixed>,features_as_of:string}
      */
-    public function run(array $barsBySymbol, string $tradeStart, string $tradeEndInclusive, float $initialEquity = 30000.0): array
+    public function run(array $barsBySymbol, string $tradeStart, string $tradeEndInclusive, float $initialEquity = 30000.0, bool $allowSignalSeedOnly = false): array
     {
         if ($initialEquity <= 0.0) {
             throw new \InvalidArgumentException('Initial equity must be positive.');
@@ -52,7 +52,7 @@ final class CausalTacticalRotationBacktester
             static fn (string $date): bool => $date >= $tradeStart && $date <= $tradeEndInclusive,
         ));
         sort($dates, SORT_STRING);
-        if (count($dates) < 2) {
+        if (count($dates) < ($allowSignalSeedOnly ? 1 : 2)) {
             throw new \RuntimeException('Tactical rotation replay requires at least two benchmark sessions.');
         }
 

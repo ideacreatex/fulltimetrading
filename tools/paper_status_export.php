@@ -8,6 +8,7 @@ use FulltimeTrading\Storage\SqliteRepository;
 use FulltimeTrading\Storage\TacticalPaperRepository;
 use FulltimeTrading\Support\Config;
 use FulltimeTrading\Support\PaperPlanStatusSummary;
+use FulltimeTrading\Support\PaperSignalExplanation;
 use FulltimeTrading\Support\StatusExportGitPublisher;
 use FulltimeTrading\Support\StatusSnapshotSafety;
 use FulltimeTrading\Trading\AlpacaPaperAccountGuard;
@@ -41,7 +42,6 @@ $tacticalRepo = new TacticalPaperRepository((string) $config->get('database_path
 $tacticalRepo->migrate();
 $tacticalRunId = (string) ($tacticalConfig['run_id'] ?? '');
 
-$now = new DateTimeImmutable();
 $http = new HttpClient();
 $client = new AlpacaPaperClient(
     $http,
@@ -52,6 +52,7 @@ $account = null;
 $positions = [];
 $openOrders = [];
 $clock = null;
+$brokerSnapshotComplete = false;
 $errors = [];
 $accountGuard = [
     'account_reference_match' => false,
@@ -68,6 +69,7 @@ try {
     $clock = $client->clock();
     $positions = $client->positions();
     $openOrders = $client->openOrders();
+    $brokerSnapshotComplete = true;
 } catch (Throwable $e) {
     $errors[] = StatusSnapshotSafety::errorCode($e);
 }
@@ -85,6 +87,9 @@ $tacticalNotificationHealth = TacticalNotificationHealthGuard::assess(
     $tacticalRunId,
     $tacticalCycle,
 );
+// Broker reads may take longer than the daemon interval. Timestamp the observed
+// state after those reads, or a fresh heartbeat can appear to be in the future.
+$now = new DateTimeImmutable();
 $tacticalHealth = statusExportTacticalRuntimeHealth(
     $tacticalRun,
     $tacticalHeartbeat,
@@ -112,6 +117,7 @@ $payload = [
         'paper_account_guard' => $accountGuard,
     ],
     'alpaca' => [
+        'snapshot_complete' => $brokerSnapshotComplete,
         'clock' => statusExportSanitizeClock($clock),
         'account' => statusExportSanitizeAccount($account),
         'positions' => array_map('statusExportSanitizePosition', $positions),
@@ -142,6 +148,8 @@ $payload = [
     ],
     'errors' => $errors,
 ];
+
+$payload['explanation'] = PaperSignalExplanation::build($payload, $now);
 
 $outputDir = (string) $options['output-dir'];
 statusExportEnsureDir($outputDir);
@@ -722,6 +730,14 @@ function statusExportMarkdown(array $payload): string
     $lines = [];
     $lines[] = '# FTT Paper Status';
     $lines[] = '';
+    if (is_string($payload['explanation']['text'] ?? null)) {
+        $lines[] = '## Что Происходит';
+        $lines[] = '';
+        $lines[] = (string) $payload['explanation']['text'];
+        $lines[] = '';
+        $lines[] = '## Технические Подробности';
+        $lines[] = '';
+    }
     $lines[] = '- Generated: `' . (string) $payload['generated_at'] . '`';
     $lines[] = '- Market open: `' . (!empty($clock['is_open']) ? 'yes' : 'no') . '`';
     $lines[] = '- Orders enabled: `' . (!empty($payload['runtime']['orders_enabled']) ? 'yes' : 'no') . '`';

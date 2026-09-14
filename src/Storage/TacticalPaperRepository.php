@@ -157,13 +157,30 @@ SQL);
         $existing = $this->run($identity['run_id']);
         $contract = self::json($identity['data_contract']);
         if ($existing !== null) {
-            foreach (['profile', 'strategy_hash', 'runtime_hash', 'live_review_not_before'] as $field) {
+            foreach (['profile', 'strategy_hash', 'live_review_not_before'] as $field) {
                 if (!hash_equals((string) $existing[$field], (string) $identity[$field])) {
                     throw new \RuntimeException('Tactical run identity drift: ' . $field);
                 }
             }
             if (!hash_equals((string) $existing['data_contract'], $contract)) {
                 throw new \RuntimeException('Tactical run identity drift: data_contract');
+            }
+            if (!hash_equals((string) $existing['runtime_hash'], (string) $identity['runtime_hash'])) {
+                if (!$this->canRefreshTransitionRuntimeHash($identity['run_id'])) {
+                    throw new \RuntimeException('Tactical run identity drift: runtime_hash');
+                }
+                $stmt = $this->pdo->prepare(
+                    'UPDATE tactical_paper_run
+                     SET runtime_hash=:runtime_hash, updated_at=:updated_at
+                     WHERE run_id=:run_id AND status=\'transition\' AND activated_at IS NULL'
+                );
+                $stmt->execute([
+                    ':runtime_hash' => $identity['runtime_hash'],
+                    ':updated_at' => self::now(),
+                    ':run_id' => $identity['run_id'],
+                ]);
+                $existing = $this->run($identity['run_id'])
+                    ?? throw new \RuntimeException('Unable to refresh tactical run identity.');
             }
             $this->assertSleeveDefinitions($identity['run_id'], $allocations);
 
@@ -224,6 +241,35 @@ SQL);
         return is_array($row) ? $row : null;
     }
 
+    private function canRefreshTransitionRuntimeHash(string $runId): bool
+    {
+        $run = $this->run($runId);
+        if ($run === null
+            || (string) ($run['status'] ?? '') !== 'transition'
+            || ($run['activated_at'] ?? null) !== null
+            || (float) ($run['initial_equity'] ?? 0.0) > 0.0) {
+            return false;
+        }
+
+        $positionStmt = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM tactical_paper_position WHERE run_id=:run_id AND qty > 0'
+        );
+        $positionStmt->execute([':run_id' => $runId]);
+        if ((int) $positionStmt->fetchColumn() !== 0) {
+            return false;
+        }
+
+        $intentStmt = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM tactical_paper_intent WHERE run_id=:run_id'
+        );
+        $intentStmt->execute([':run_id' => $runId]);
+        if ((int) $intentStmt->fetchColumn() !== 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     /** @param array<string,mixed> $legacySnapshot */
     public function activate(string $runId, float $equity, array $legacySnapshot): void
     {
@@ -245,6 +291,16 @@ SQL);
         }
         $now = self::now();
         $this->transaction(function () use ($runId, $equity, $legacySnapshot, $now): void {
+            $predecessor = $legacySnapshot['predecessor_run_id'] ?? null;
+            if ($predecessor !== null) {
+                if (!is_string($predecessor) || $predecessor === $runId || $this->run($predecessor) === null
+                    || $this->positions($predecessor) !== [] || $this->activeIntents($predecessor) !== []) {
+                    throw new \RuntimeException('Paper predecessor must exist and have no positions or unresolved intents.');
+                }
+                // Retain old equity, activation, hashes, errors and snapshots.
+                $pause = $this->pdo->prepare('UPDATE tactical_paper_run SET status=\'paused\', updated_at=:now WHERE run_id=:id');
+                $pause->execute([':now' => $now, ':id' => $predecessor]);
+            }
             $sleeves = $this->sleeves($runId);
             $allocated = 0.0;
             $last = (string) array_key_last($sleeves);
@@ -873,6 +929,39 @@ SQL);
         return array_map(fn (array $row): array => $this->decodePayload($row), $stmt->fetchAll());
     }
 
+    /**
+     * @param list<string> $keys
+     * @return list<array<string,mixed>>
+     */
+    public function pendingNotificationsForKeys(array $keys): array
+    {
+        $keys = array_values(array_unique(array_filter(array_map(
+            static fn (mixed $key): string => trim((string) $key),
+            $keys,
+        ), static fn (string $key): bool => $key !== '')));
+        if ($keys === []) {
+            return [];
+        }
+
+        $placeholders = [];
+        $params = [':now' => self::now()];
+        foreach ($keys as $index => $key) {
+            $placeholder = ':key_' . $index;
+            $placeholders[] = $placeholder;
+            $params[$placeholder] = $key;
+        }
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM tactical_paper_notification
+             WHERE notification_key IN (' . implode(',', $placeholders) . ')
+               AND delivered_at IS NULL
+               AND (next_attempt_at IS NULL OR next_attempt_at <= :now)
+             ORDER BY created_at'
+        );
+        $stmt->execute($params);
+
+        return array_map(fn (array $row): array => $this->decodePayload($row), $stmt->fetchAll());
+    }
+
     public function markNotificationAttempted(string $key, int $retrySeconds = 300): void
     {
         $now = new \DateTimeImmutable();
@@ -1064,8 +1153,13 @@ SQL);
             && (float) $intent['requested_qty'] <= $owned + 1.0e-6;
     }
 
-    /** @param array<string,float> $allocations */
-    private function assertSleeveDefinitions(string $runId, array $allocations): void
+    /**
+     * Read-only identity assertion shared by the execution and degraded
+     * notification gates.
+     *
+     * @param array<string,float> $allocations
+     */
+    public function assertSleeveDefinitions(string $runId, array $allocations): void
     {
         $stored = $this->sleeves($runId);
         ksort($allocations, SORT_STRING);

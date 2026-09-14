@@ -20,6 +20,7 @@ final class TacticalSignalArtifactGuard
         array $profile,
         array $paper,
         array $expectedImplementation,
+        bool $requireValidationSelected = true,
     ): void {
         $declaredDecisionHash = $artifact['decision_sha256'] ?? null;
         if (!is_string($declaredDecisionHash)
@@ -27,8 +28,10 @@ final class TacticalSignalArtifactGuard
             || !hash_equals(self::decisionSha256($artifact), $declaredDecisionHash)) {
             throw new \RuntimeException('Signal artifact decision hash mismatch.');
         }
+        $validationSelected = $artifact['validation_selected'] ?? null;
         if (($artifact['schema'] ?? null) !== 1
-            || ($artifact['validation_selected'] ?? null) !== true
+            || !is_bool($validationSelected)
+            || ($requireValidationSelected && $validationSelected !== true)
             || ($artifact['production_approved'] ?? null) !== false
             || ($artifact['paper_shadow_enabled'] ?? null) !== true
             || ($artifact['order_submission_enabled'] ?? null) !== false
@@ -42,6 +45,10 @@ final class TacticalSignalArtifactGuard
             is_array($artifact['implementation'] ?? null) ? $artifact['implementation'] : [],
             $expectedImplementation,
         );
+        $epoch = TacticalPaperSignalEpoch::fromConfig($paper, (string) ($artifact['as_of'] ?? ''));
+        if (($artifact['signal_epoch'] ?? null) !== $epoch) {
+            throw new \RuntimeException('Signal artifact paper epoch mismatch.');
+        }
 
         $sleeves = $profile['sleeves'] ?? null;
         $targets = $artifact['targets'] ?? null;
@@ -54,6 +61,9 @@ final class TacticalSignalArtifactGuard
             throw new \RuntimeException('Signal artifact maximum-target-gross contract is invalid.');
         }
         $maximumTargetGross = (float) $maximumTargetGross;
+        if ($epoch !== null && abs(array_sum(array_column($targets, 'initial_equity')) - (float) $epoch['initial_equity']) > 0.005) {
+            throw new \RuntimeException('Signal artifact sleeve capital differs from its paper epoch.');
+        }
         $signalDate = null;
         foreach ($targets as $sleeveId => $target) {
             if (!is_string($sleeveId) || !is_array($target)) {

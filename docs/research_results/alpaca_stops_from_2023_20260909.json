@@ -1,0 +1,1044 @@
+{
+    "protocol": {
+        "created_at": "2026-09-09T17:31:21+00:00",
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "source": "Alpaca SIP adjustment=all",
+        "cost_bps": 30,
+        "initial_equity": 30000,
+        "start_semantics": "New flat portfolio, original initial sleeve allocations, fresh risk peaks and cadence. First signal at 2023-01-03 close; earliest entry next session.",
+        "warmup": "Older data only initializes indicators and external market histories; no inherited positions, sleeve profits or pauses.",
+        "comparison": "Also measure the same dates from the old uninterrupted 2021 replay without restarting its state.",
+        "selection": "The four previously displayed configurations, unchanged. No new search or selection on the shorter period.",
+        "qualification": "Not reevaluated on a shortened training window; existing operational gates remain unchanged.",
+        "operational_identity": {
+            "schema": 1,
+            "files_sha256": {
+                "config/tactical_rotation.php": "0e29673e0c4c83505077cb1e770f110aaa3e8f55c3612790b4b4c294cfb3705c",
+                "config/tactical_paper.php": "74bc8cdc3a1af3bc04b1ad0803210d20d56993aa1a0ca4a204a537ef46082483",
+                "src/Backtest/CausalTacticalRotationBacktester.php": "f90496f1421080ce4f07591fe278a50dbf468140306aeaf2bfce2b307fd476a4",
+                "src/Backtest/CausalTacticalRotationEnsembleBacktester.php": "3e6f9fa4808da4cb3a99f2f2d36fc556057155b0ef8aa7b0704b6cd1a4a29e96",
+                "src/Backtest/TacticalRotationQualification.php": "6a6656049dbcb70651e1a8dbd8c944f8d847b4cac709878e0369da4090c0d54c",
+                "src/Data/FrozenSipIexDailyBarsProvider.php": "e689fe978104c55528688a85eaa6fb14c47ecdcc0678de8a6de9034ed2743d01",
+                "src/Data/VerifiedCacheSnapshotMarketDataProvider.php": "fc9bd4d372395bc7ed25b8ddae3f68e495818dfb62a94fe687d061a2ad78bb45",
+                "src/Trading/TacticalRotationShadowContext.php": "b17552574235667ba771e0e05b928f752fe2dd23caca5b83fedfa5c2efc433cb",
+                "src/Trading/TacticalSignalArtifactGuard.php": "fb576ddeab07ad6cb3100f5efa2d19c3d297e557ed9c5a728ba0bd36baa803f3",
+                "src/Trading/TacticalImplementationIdentity.php": "14f30d7aa392a14b998331df0771e40447d2fce2907978647b6b23dd1fc08277",
+                "src/Trading/TacticalPaperSignalEpoch.php": "2692fa7cd282622388fd36dd08d4e9f9e1698428d975a82bd31594e9d81212c9",
+                "tools/run_tactical_rotation_backtest.php": "04366164645536a9b361544b7e103df8c000dafb47859f09b354472d6acb086d"
+            },
+            "profile_sha256": "529507f5668580d17891014112183c74e0f62fb4afbc7316139efcd379585059",
+            "combined_sha256": "ca43f5fb1115934ca9c874074ca067314bc3f527fcb489748e7e4cbaf19f0ed3"
+        },
+        "source_protocol_sha256": "842dd1445fd6ec0b0e96cccdf6c0e6f4c87c03ab4d8c8405431f0cfec57d29b5",
+        "input_sha256": {
+            "bars": "6073b81febaff89f1c5626c0540206cea06ad5dfd98c149455723b57fd672897",
+            "s5tw": "807cb09ce4f803183d0bde4b0ab08fe5f0735ccdd04910a8e16ac884b1811661",
+            "vvix": "560189b31ad39261c8037712ec8e35b523aa267c15dc83c9ec0e95806d882231"
+        },
+        "implementation_sha256": {
+            "src/Research/AdaptiveResearchFactory.php": "be4035e3fd23a0a5600978248bb305f570a0e35006e376be4664b001ecd274a0",
+            "src/Research/AdaptiveRotationBacktester.php": "2c5bd383d7a4643999e8f12fc57081ef31f5f1d656f35a05066c0e84f4a6e3c1",
+            "src/Research/AdaptiveRotationEnsembleBacktester.php": "0fc2db4f9ea75e93eefd2dc20aa1a0aaeb4c189f058696557dd680bc7e979862",
+            "src/Research/AlgorithmSignalPolicy.php": "72744b5602efcd4acf79cdb2faa2e76351ee40ff8aa0ace0077f27a871e28e1e",
+            "src/Research/AlgorithmTrendResearch.php": "8c3eccc61b2b76d6d709d460bb6a2399f5ebdf59357afeea3291e6532b718a85",
+            "src/Research/AlpacaStopResearchGrid.php": "a18c0cad206d028894c4bab9ddf04ce9b135c284ebeab86a82807063388ef772",
+            "src/Research/BreadthVolatilityGrid.php": "b5648ee76fb685e401c085ba2d8a17bec700236fd925915882af157644f84087",
+            "src/Research/BreadthVolatilityResearch.php": "4ddf9ba79a08ab1b9889f57c56432000712167595a612daa3f954d54dbf6ccda",
+            "src/Research/DailyDataAudit.php": "f2b7550bd13da76560d4e4056ff119dbf3d4400ae759c83fd06e0caf249590e5",
+            "src/Research/HybridV4Research.php": "fba803a16912858fa0c73e59165aebb21bf6917fe7ce95c90be4eb0587278176",
+            "src/Research/OfflineHybridDataset.php": "29898b6649c61760bf90f0184d2cd033e6ff6cd69334b8a02c84914f219fdf13",
+            "src/Research/PortfolioCircuitController.php": "4ffe96edf9b9429ab96d05f5a0f5b293d3b698ecf5f3bcd02df5a0a6ce160edd",
+            "src/Research/ResearchMultiplicityAudit.php": "7fc43564c34f9697066e8fbb1bfd9a2f20f2cd61859862d9c61236a1cec50df8",
+            "src/Research/RthStandingStopAudit.php": "1ce615444ef78179f835e0959b3ddea06654a5761284a8f34d54239bcb11c5a4",
+            "tools/replay_alpaca_stops_from_2023.php": "f7581f1fa8dbc870a9daeef266ab31fbf78e9901a2d79ff9814ad6a70299bbd5"
+        },
+        "orders_enabled": false,
+        "limitations": [
+            "Daily OHLC stop fills are screening approximations, not verified broker executions.",
+            "Daily bars do not prove RTH trigger time or NBBO election; minute stress is required for stop candidates.",
+            "Stops may gap below their level. Fixed-price fills are not guaranteed.",
+            "Trailing stop ratchets at completed daily closes only, not at the unknown intraday high.",
+            "Global circuit observes completed close/low then exits next open. It is not an instantaneous portfolio stop.",
+            "Lifetime equity and max drawdown are never reset. Only risk-epoch peaks rearm.",
+            "All periods previously observed; chronological validation is not untouched future evidence.",
+            "Adjusted bars are not a complete cash/share corporate-action ledger; fixed universe is retrospective."
+        ]
+    },
+    "cases": {
+        "control_original": {
+            "full": {
+                "points": 922,
+                "return": 10.94053080447675,
+                "cagr": 0.9659357260707566,
+                "max_drawdown": -0.3954168174872955,
+                "max_gross_bound": 1.283326488075691,
+                "turnover": 139.25063793600214,
+                "annualized_turnover": 37.95619067621252,
+                "invested_sessions": 657,
+                "top1_positive_day_share": 0.0346312543377211,
+                "top5_positive_day_share": 0.13876761651221076,
+                "ex_top5_days_cagr": 0.48673412378231684,
+                "return_symbols": 19,
+                "positive_holding_episodes": 160,
+                "top1_positive_episode_share": 0.08092029935953068,
+                "top5_positive_episode_share": 0.27520707869247585
+            },
+            "annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 1.7622682704587294,
+                    "cagr": 1.80350272041172,
+                    "max_drawdown": -0.2788893239248671,
+                    "max_gross_bound": 1.2498970765462727,
+                    "turnover": 35.88957818114379,
+                    "annualized_turnover": 36.41296786295214,
+                    "invested_sessions": 201,
+                    "top1_positive_day_share": 0.1099497929530915,
+                    "top5_positive_day_share": 0.27783576319622905,
+                    "ex_top5_days_cagr": 0.4327494576846376,
+                    "return_symbols": 8,
+                    "positive_holding_episodes": 54,
+                    "top1_positive_episode_share": 0.1659061990482703,
+                    "top5_positive_episode_share": 0.4446212601777131
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.5605886299807545,
+                    "cagr": 0.5554069227141636,
+                    "max_drawdown": -0.3954168174872955,
+                    "max_gross_bound": 1.283326488075691,
+                    "turnover": 33.93326698657129,
+                    "annualized_turnover": 33.67968958381838,
+                    "invested_sessions": 162,
+                    "top1_positive_day_share": 0.1289402889368874,
+                    "top5_positive_day_share": 0.34246401862597925,
+                    "ex_top5_days_cagr": -0.19667761745476386,
+                    "return_symbols": 13,
+                    "positive_holding_episodes": 30,
+                    "top1_positive_episode_share": 0.12764446569213236,
+                    "top5_positive_episode_share": 0.444931903248213
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.6064769763816196,
+                    "cagr": 0.6069986638626399,
+                    "max_drawdown": -0.20351193332284057,
+                    "max_gross_bound": 1.2432279739535443,
+                    "turnover": 41.13868920637513,
+                    "annualized_turnover": 41.16686639076306,
+                    "invested_sessions": 164,
+                    "top1_positive_day_share": 0.05699574987482386,
+                    "top5_positive_day_share": 0.20500249170369717,
+                    "ex_top5_days_cagr": 0.1780272955317188,
+                    "return_symbols": 11,
+                    "positive_holding_episodes": 51,
+                    "top1_positive_episode_share": 0.14847290742104602,
+                    "top5_positive_episode_share": 0.49074694373205974
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.7242285597243348,
+                    "cagr": 1.2380171693995519,
+                    "max_drawdown": -0.20322548454173817,
+                    "max_gross_bound": 1.2559180988520413,
+                    "turnover": 28.289103561912018,
+                    "annualized_turnover": 41.83236872869784,
+                    "invested_sessions": 130,
+                    "top1_positive_day_share": 0.11612142637219797,
+                    "top5_positive_day_share": 0.30122820169359477,
+                    "ex_top5_days_cagr": -0.00850160288463353,
+                    "return_symbols": 9,
+                    "positive_holding_episodes": 29,
+                    "top1_positive_episode_share": 0.17361139166934533,
+                    "top5_positive_episode_share": 0.574818492561943
+                }
+            },
+            "initial_equity": 30000,
+            "final_equity": 358215.92413430254,
+            "sleeve_stop_events": 0,
+            "global_events": [],
+            "old_continuous_slice_from_2023": {
+                "return": 11.47760967729787,
+                "cagr": 0.9855845605187694,
+                "max_drawdown": -0.3886078151961383
+            },
+            "old_continuous_annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 2.551130597401219,
+                    "cagr": 2.566618350186507,
+                    "max_drawdown": -0.2858662295870309,
+                    "max_gross_bound": 1.2470626309285546,
+                    "turnover": 38.72342759972455,
+                    "annualized_turnover": 38.85640640329503,
+                    "invested_sessions": 199,
+                    "top1_positive_day_share": 0.10452765180472838,
+                    "top5_positive_day_share": 0.2772978403700558,
+                    "ex_top5_days_cagr": 0.7826419094362209,
+                    "return_symbols": 10,
+                    "positive_holding_episodes": 59,
+                    "top1_positive_episode_share": 0.18763931252131516,
+                    "top5_positive_episode_share": 0.4406774930623871
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 1.246519538883816,
+                    "cagr": 1.2329727622282398,
+                    "max_drawdown": -0.22118522507172833,
+                    "max_gross_bound": 1.2808686638625955,
+                    "turnover": 45.61481988986583,
+                    "annualized_turnover": 45.273948273841015,
+                    "invested_sessions": 177,
+                    "top1_positive_day_share": 0.10494088830962449,
+                    "top5_positive_day_share": 0.2660261162446334,
+                    "ex_top5_days_cagr": 0.2003174065186868,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 54,
+                    "top1_positive_episode_share": 0.21990139430023664,
+                    "top5_positive_episode_share": 0.49972640808671637
+                },
+                "2025": {
+                    "points": 250,
+                    "return": -0.15958980771871178,
+                    "cagr": -0.15968988263052875,
+                    "max_drawdown": -0.3582761330745513,
+                    "max_gross_bound": 1.228114321719878,
+                    "turnover": 28.68506414619904,
+                    "annualized_turnover": 28.704711450408762,
+                    "invested_sessions": 169,
+                    "top1_positive_day_share": 0.05396717550107992,
+                    "top5_positive_day_share": 0.2207389669068841,
+                    "ex_top5_days_cagr": -0.3212068069504408,
+                    "return_symbols": 11,
+                    "positive_holding_episodes": 30,
+                    "top1_positive_episode_share": 0.280772191613913,
+                    "top5_positive_episode_share": 0.6267828692594564
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.8610722807219782,
+                    "cagr": 1.505595884023382,
+                    "max_drawdown": -0.22120097124815186,
+                    "max_gross_bound": 1.2211758845260725,
+                    "turnover": 22.948247325307683,
+                    "annualized_turnover": 33.93460459744385,
+                    "invested_sessions": 131,
+                    "top1_positive_day_share": 0.11445841887220976,
+                    "top5_positive_day_share": 0.2645737674667996,
+                    "ex_top5_days_cagr": 0.16554947133856812,
+                    "return_symbols": 7,
+                    "positive_holding_episodes": 37,
+                    "top1_positive_episode_share": 0.26859571302526164,
+                    "top5_positive_episode_share": 0.5540011044210429
+                }
+            }
+        },
+        "control_balanced": {
+            "full": {
+                "points": 922,
+                "return": 10.820173908281653,
+                "cagr": 0.9605144612902747,
+                "max_drawdown": -0.37082189625770046,
+                "max_gross_bound": 1.2848006561405918,
+                "turnover": 138.38331289641968,
+                "annualized_turnover": 37.71977987717708,
+                "invested_sessions": 730,
+                "top1_positive_day_share": 0.036367049496737074,
+                "top5_positive_day_share": 0.12997850221621907,
+                "ex_top5_days_cagr": 0.5239532954252668,
+                "return_symbols": 20,
+                "positive_holding_episodes": 165,
+                "top1_positive_episode_share": 0.07725691677028124,
+                "top5_positive_episode_share": 0.2750937824294756
+            },
+            "annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 2.1192395357128597,
+                    "cagr": 2.1714188564863224,
+                    "max_drawdown": -0.1854308240173569,
+                    "max_gross_bound": 1.2511768617408148,
+                    "turnover": 47.581653938265646,
+                    "annualized_turnover": 48.27555305819868,
+                    "invested_sessions": 234,
+                    "top1_positive_day_share": 0.10382829500617931,
+                    "top5_positive_day_share": 0.277570846706608,
+                    "ex_top5_days_cagr": 0.5570652115206534,
+                    "return_symbols": 11,
+                    "positive_holding_episodes": 58,
+                    "top1_positive_episode_share": 0.10628437848916879,
+                    "top5_positive_episode_share": 0.3644066567042533
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.3645156998229653,
+                    "cagr": 0.36135021978424553,
+                    "max_drawdown": -0.37082189625770046,
+                    "max_gross_bound": 1.2848006561405918,
+                    "turnover": 30.566065775583134,
+                    "annualized_turnover": 30.33765088187973,
+                    "invested_sessions": 161,
+                    "top1_positive_day_share": 0.11754439472314944,
+                    "top5_positive_day_share": 0.3137166445298363,
+                    "ex_top5_days_cagr": -0.16027272359780043,
+                    "return_symbols": 13,
+                    "positive_holding_episodes": 33,
+                    "top1_positive_episode_share": 0.09283440011035406,
+                    "top5_positive_episode_share": 0.4215963088285981
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.5649624834491582,
+                    "cagr": 0.5654426166727853,
+                    "max_drawdown": -0.26590287631947973,
+                    "max_gross_bound": 1.2443879569405287,
+                    "turnover": 32.11886544305898,
+                    "annualized_turnover": 32.14086466596518,
+                    "invested_sessions": 205,
+                    "top1_positive_day_share": 0.06355514517228716,
+                    "top5_positive_day_share": 0.22333279592880745,
+                    "ex_top5_days_cagr": 0.1359022863009396,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 46,
+                    "top1_positive_episode_share": 0.14115594870507764,
+                    "top5_positive_episode_share": 0.5192697348190893
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.7745681062173861,
+                    "cagr": 1.3353099399406494,
+                    "max_drawdown": -0.20821264981198628,
+                    "max_gross_bound": 1.2567195993515485,
+                    "turnover": 28.116727739511905,
+                    "annualized_turnover": 41.57746885367095,
+                    "invested_sessions": 130,
+                    "top1_positive_day_share": 0.11904680692063287,
+                    "top5_positive_day_share": 0.30728870037225753,
+                    "ex_top5_days_cagr": 0.016134704190966298,
+                    "return_symbols": 9,
+                    "positive_holding_episodes": 29,
+                    "top1_positive_episode_share": 0.16162573882929887,
+                    "top5_positive_episode_share": 0.5689545192163349
+                }
+            },
+            "initial_equity": 30000,
+            "final_equity": 354605.21724844957,
+            "sleeve_stop_events": 0,
+            "global_events": [],
+            "old_continuous_slice_from_2023": {
+                "return": 18.20034768998272,
+                "cagr": 1.2323199126698272,
+                "max_drawdown": -0.30876417030454184
+            },
+            "old_continuous_annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 3.5229300008373174,
+                    "cagr": 3.546431179773287,
+                    "max_drawdown": -0.3066312835360817,
+                    "max_gross_bound": 1.2798969571970187,
+                    "turnover": 47.70609549184868,
+                    "annualized_turnover": 47.869921369224535,
+                    "invested_sessions": 199,
+                    "top1_positive_day_share": 0.08791780593012971,
+                    "top5_positive_day_share": 0.29675209076663367,
+                    "ex_top5_days_cagr": 0.9046470621315275,
+                    "return_symbols": 10,
+                    "positive_holding_episodes": 63,
+                    "top1_positive_episode_share": 0.1548849227085127,
+                    "top5_positive_episode_share": 0.38630476950771303
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.8317485746407887,
+                    "cagr": 0.8234821290817333,
+                    "max_drawdown": -0.22135957300717235,
+                    "max_gross_bound": 1.2820209055396914,
+                    "turnover": 41.37365393612056,
+                    "annualized_turnover": 41.06447581567401,
+                    "invested_sessions": 198,
+                    "top1_positive_day_share": 0.0655666556247011,
+                    "top5_positive_day_share": 0.25726418178996097,
+                    "ex_top5_days_cagr": 0.08986036352246574,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 57,
+                    "top1_positive_episode_share": 0.1765341565016345,
+                    "top5_positive_episode_share": 0.5073042680528542
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.2011963776075878,
+                    "cagr": 0.20134720965704123,
+                    "max_drawdown": -0.2889894182278422,
+                    "max_gross_bound": 1.2313251526787348,
+                    "turnover": 36.05081961473473,
+                    "annualized_turnover": 36.0755119569366,
+                    "invested_sessions": 200,
+                    "top1_positive_day_share": 0.04327494681012983,
+                    "top5_positive_day_share": 0.19024311087342913,
+                    "ex_top5_days_cagr": -0.08324949779264268,
+                    "return_symbols": 14,
+                    "positive_holding_episodes": 50,
+                    "top1_positive_episode_share": 0.23559470783018166,
+                    "top5_positive_episode_share": 0.5545241918016053
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.9293425866692979,
+                    "cagr": 1.642698589469024,
+                    "max_drawdown": -0.2233772178019613,
+                    "max_gross_bound": 1.2237639755075502,
+                    "turnover": 24.98384054043642,
+                    "annualized_turnover": 36.94472776273038,
+                    "invested_sessions": 130,
+                    "top1_positive_day_share": 0.11893271062286533,
+                    "top5_positive_day_share": 0.2735542501793524,
+                    "ex_top5_days_cagr": 0.18356831191988765,
+                    "return_symbols": 7,
+                    "positive_holding_episodes": 37,
+                    "top1_positive_episode_share": 0.27826528220085983,
+                    "top5_positive_episode_share": 0.582669397170524
+                }
+            }
+        },
+        "balanced__global_confirmed_f6156ed86a11": {
+            "full": {
+                "points": 922,
+                "return": 17.48993326758486,
+                "cagr": 1.2147995601100443,
+                "max_drawdown": -0.2988764384944924,
+                "max_gross_bound": 1.2848006561405918,
+                "turnover": 142.30051336921443,
+                "annualized_turnover": 38.78750933440714,
+                "invested_sessions": 789,
+                "top1_positive_day_share": 0.03343341052479757,
+                "top5_positive_day_share": 0.1212689233473064,
+                "ex_top5_days_cagr": 0.715792621976489,
+                "return_symbols": 20,
+                "positive_holding_episodes": 165,
+                "top1_positive_episode_share": 0.1541924792316822,
+                "top5_positive_episode_share": 0.35764868697832336
+            },
+            "annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 2.1192395357128597,
+                    "cagr": 2.1714188564863224,
+                    "max_drawdown": -0.1854308240173569,
+                    "max_gross_bound": 1.2511768617408148,
+                    "turnover": 47.581653938265646,
+                    "annualized_turnover": 48.27555305819868,
+                    "invested_sessions": 234,
+                    "top1_positive_day_share": 0.10382829500617931,
+                    "top5_positive_day_share": 0.277570846706608,
+                    "ex_top5_days_cagr": 0.5570652115206534,
+                    "return_symbols": 11,
+                    "positive_holding_episodes": 58,
+                    "top1_positive_episode_share": 0.10628437848916879,
+                    "top5_positive_episode_share": 0.3644066567042533
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.6976769166629844,
+                    "cagr": 0.6909757395768656,
+                    "max_drawdown": -0.21056414039183202,
+                    "max_gross_bound": 1.2848006561405918,
+                    "turnover": 31.961278307091188,
+                    "annualized_turnover": 31.722437232785477,
+                    "invested_sessions": 225,
+                    "top1_positive_day_share": 0.09958770388222594,
+                    "top5_positive_day_share": 0.2739369677974698,
+                    "ex_top5_days_cagr": 0.027894158686661008,
+                    "return_symbols": 15,
+                    "positive_holding_episodes": 34,
+                    "top1_positive_episode_share": 0.17515660949571718,
+                    "top5_positive_episode_share": 0.4929297100359474
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.9138336462171786,
+                    "cagr": 0.9146847158376967,
+                    "max_drawdown": -0.2988764384944924,
+                    "max_gross_bound": 1.2386799365276697,
+                    "turnover": 33.81367269941659,
+                    "annualized_turnover": 33.836832749210714,
+                    "invested_sessions": 200,
+                    "top1_positive_day_share": 0.05974942999262981,
+                    "top5_positive_day_share": 0.235501479657603,
+                    "ex_top5_days_cagr": 0.28240822271688626,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 45,
+                    "top1_positive_episode_share": 0.2697305498877681,
+                    "top5_positive_episode_share": 0.5860542050754256
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.8244307685935015,
+                    "cagr": 1.4329926860049023,
+                    "max_drawdown": -0.2211536352477118,
+                    "max_gross_bound": 1.251090982559539,
+                    "turnover": 28.9439084244409,
+                    "annualized_turnover": 42.80065810537262,
+                    "invested_sessions": 130,
+                    "top1_positive_day_share": 0.11905878970295004,
+                    "top5_positive_day_share": 0.3028111745399568,
+                    "ex_top5_days_cagr": 0.029215285643596767,
+                    "return_symbols": 9,
+                    "positive_holding_episodes": 29,
+                    "top1_positive_episode_share": 0.3019089982186291,
+                    "top5_positive_episode_share": 0.634201749355921
+                }
+            },
+            "initial_equity": 30000,
+            "final_equity": 554697.9980275457,
+            "sleeve_stop_events": 0,
+            "global_events": [
+                {
+                    "date": "2024-04-12",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 120740.92279932265,
+                    "risk_epoch_peak": 147427.5118193012,
+                    "trigger_value": 120740.92279932265
+                },
+                {
+                    "date": "2024-04-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 11,
+                    "confirmation": true
+                },
+                {
+                    "date": "2025-08-01",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 140480.4019523614,
+                    "risk_epoch_peak": 179012.53618409403,
+                    "trigger_value": 140480.4019523614
+                },
+                {
+                    "date": "2025-08-08",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 5,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-07-28",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 555936.0784260249,
+                    "risk_epoch_peak": 691838.6563760202,
+                    "trigger_value": 555936.0784260249
+                },
+                {
+                    "date": "2026-08-04",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 5,
+                    "confirmation": true
+                }
+            ],
+            "old_continuous_slice_from_2023": {
+                "return": 18.427926239810933,
+                "cagr": 1.2394797634790247,
+                "max_drawdown": -0.3066868911729068
+            },
+            "old_continuous_annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 3.5209975198117336,
+                    "cagr": 3.544481988242314,
+                    "max_drawdown": -0.3066868911729068,
+                    "max_gross_bound": 1.2798689485286723,
+                    "turnover": 47.72716785891724,
+                    "annualized_turnover": 47.89106610019099,
+                    "invested_sessions": 199,
+                    "top1_positive_day_share": 0.08790944813572661,
+                    "top5_positive_day_share": 0.2967326359071017,
+                    "ex_top5_days_cagr": 0.9038125899514338,
+                    "return_symbols": 10,
+                    "positive_holding_episodes": 63,
+                    "top1_positive_episode_share": 0.155162837065674,
+                    "top5_positive_episode_share": 0.38699792698107227
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.7995947992371522,
+                    "cagr": 0.7917105586764517,
+                    "max_drawdown": -0.2213543780261119,
+                    "max_gross_bound": 1.2819865688810508,
+                    "turnover": 41.38711741201513,
+                    "annualized_turnover": 41.07783868135469,
+                    "invested_sessions": 192,
+                    "top1_positive_day_share": 0.06604376251446901,
+                    "top5_positive_day_share": 0.25906850959302774,
+                    "ex_top5_days_cagr": 0.07081089331084711,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 53,
+                    "top1_positive_episode_share": 0.1755694339101112,
+                    "top5_positive_episode_share": 0.5088135542372341
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.2361696773902573,
+                    "cagr": 0.2363492039622086,
+                    "max_drawdown": -0.26826276159056983,
+                    "max_gross_bound": 1.231246203795986,
+                    "turnover": 36.39469764559556,
+                    "annualized_turnover": 36.41962552069529,
+                    "invested_sessions": 192,
+                    "top1_positive_day_share": 0.04360341560981775,
+                    "top5_positive_day_share": 0.19168704703621633,
+                    "ex_top5_days_cagr": -0.05652324349107807,
+                    "return_symbols": 13,
+                    "positive_holding_episodes": 49,
+                    "top1_positive_episode_share": 0.23834914481972289,
+                    "top5_positive_episode_share": 0.5583409448575162
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.9316985837812977,
+                    "cagr": 1.647472048607741,
+                    "max_drawdown": -0.21681116348747465,
+                    "max_gross_bound": 1.2241696360312049,
+                    "turnover": 22.136370677867966,
+                    "annualized_turnover": 32.73404611372985,
+                    "invested_sessions": 118,
+                    "top1_positive_day_share": 0.12460185022920686,
+                    "top5_positive_day_share": 0.27952918870488,
+                    "ex_top5_days_cagr": 0.20876174466129527,
+                    "return_symbols": 7,
+                    "positive_holding_episodes": 36,
+                    "top1_positive_episode_share": 0.29970538937865954,
+                    "top5_positive_episode_share": 0.6121838435622173
+                }
+            }
+        },
+        "balanced__stop_then_confirm_aacf0d177f3b": {
+            "full": {
+                "points": 922,
+                "return": 13.594395432378205,
+                "cagr": 1.0764792437916677,
+                "max_drawdown": -0.2366241235238118,
+                "max_gross_bound": 1.2852717905489264,
+                "turnover": 134.516536951908,
+                "annualized_turnover": 36.66579486692866,
+                "invested_sessions": 668,
+                "top1_positive_day_share": 0.03718974058350029,
+                "top5_positive_day_share": 0.11930182660266965,
+                "ex_top5_days_cagr": 0.6535351521295623,
+                "return_symbols": 19,
+                "positive_holding_episodes": 160,
+                "top1_positive_episode_share": 0.09530894355029082,
+                "top5_positive_episode_share": 0.3326246386374521
+            },
+            "annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 2.200102260960572,
+                    "cagr": 2.254848880975595,
+                    "max_drawdown": -0.22003954242764223,
+                    "max_gross_bound": 1.2639665467579126,
+                    "turnover": 42.17034945825361,
+                    "annualized_turnover": 42.785333721186475,
+                    "invested_sessions": 194,
+                    "top1_positive_day_share": 0.10494463766630803,
+                    "top5_positive_day_share": 0.2663502243687653,
+                    "ex_top5_days_cagr": 0.6566156079280747,
+                    "return_symbols": 8,
+                    "positive_holding_episodes": 55,
+                    "top1_positive_episode_share": 0.10329323827803119,
+                    "top5_positive_episode_share": 0.36759251629374323
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.5229902733587475,
+                    "cagr": 0.5182100634828752,
+                    "max_drawdown": -0.2366241235238118,
+                    "max_gross_bound": 1.2852717905489264,
+                    "turnover": 35.96797956947567,
+                    "annualized_turnover": 35.69919711345378,
+                    "invested_sessions": 204,
+                    "top1_positive_day_share": 0.1069462039645242,
+                    "top5_positive_day_share": 0.2916619017880972,
+                    "ex_top5_days_cagr": -0.07337131404329977,
+                    "return_symbols": 15,
+                    "positive_holding_episodes": 32,
+                    "top1_positive_episode_share": 0.1669434812156917,
+                    "top5_positive_episode_share": 0.5075419121564462
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 1.132740374185965,
+                    "cagr": 1.1338470680785875,
+                    "max_drawdown": -0.20459151127501263,
+                    "max_gross_bound": 1.2383430462295466,
+                    "turnover": 32.22268904512751,
+                    "annualized_turnover": 32.244759380089924,
+                    "invested_sessions": 179,
+                    "top1_positive_day_share": 0.06313399178382682,
+                    "top5_positive_day_share": 0.2489255671574852,
+                    "ex_top5_days_cagr": 0.4288349970947929,
+                    "return_symbols": 12,
+                    "positive_holding_episodes": 50,
+                    "top1_positive_episode_share": 0.28315571080238944,
+                    "top5_positive_episode_share": 0.5896051447720088
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.40406473743133065,
+                    "cagr": 0.6517639223208842,
+                    "max_drawdown": -0.21460557146744952,
+                    "max_gross_bound": 1.250611696246907,
+                    "turnover": 24.15551887905119,
+                    "annualized_turnover": 35.71985129786821,
+                    "invested_sessions": 91,
+                    "top1_positive_day_share": 0.08670381743226684,
+                    "top5_positive_day_share": 0.30073128309845776,
+                    "ex_top5_days_cagr": -0.11262151158604428,
+                    "return_symbols": 8,
+                    "positive_holding_episodes": 24,
+                    "top1_positive_episode_share": 0.2029625115830847,
+                    "top5_positive_episode_share": 0.6457818914075356
+                }
+            },
+            "initial_equity": 30000,
+            "final_equity": 437831.8629713461,
+            "sleeve_stop_events": 53,
+            "global_events": [
+                {
+                    "date": "2023-06-16",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 55867.29082025263,
+                    "risk_epoch_peak": 64110.450615207235,
+                    "trigger_value": 55867.29082025263
+                },
+                {
+                    "date": "2023-06-22",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-09",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 71040.81092738012,
+                    "risk_epoch_peak": 85478.13349648398,
+                    "trigger_value": 71040.81092738012
+                },
+                {
+                    "date": "2023-08-14",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-02-23",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 134487.69139388518,
+                    "risk_epoch_peak": 136129.17589559217,
+                    "trigger_value": 134487.69139388518
+                },
+                {
+                    "date": "2024-02-28",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-03-18",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 128470.09835002609,
+                    "risk_epoch_peak": 138492.30118640652,
+                    "trigger_value": 128470.09835002609
+                },
+                {
+                    "date": "2024-03-21",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-04-08",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 122181.55645525092,
+                    "risk_epoch_peak": 132431.51673806223,
+                    "trigger_value": 122181.55645525092
+                },
+                {
+                    "date": "2024-04-11",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-05-31",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 136788.76775057448,
+                    "risk_epoch_peak": 141541.4885967282,
+                    "trigger_value": 136788.76775057448
+                },
+                {
+                    "date": "2024-06-05",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-06-11",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 133870.99304301135,
+                    "risk_epoch_peak": 136788.76775057448,
+                    "trigger_value": 133870.99304301135
+                },
+                {
+                    "date": "2024-06-14",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-06-21",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 128564.28147075075,
+                    "risk_epoch_peak": 133870.99304301135,
+                    "trigger_value": 128564.28147075075
+                },
+                {
+                    "date": "2024-06-26",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 114129.18601414196,
+                    "risk_epoch_peak": 131140.30599336055,
+                    "trigger_value": 114129.18601414196
+                },
+                {
+                    "date": "2024-08-15",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 8,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-11-21",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 153193.28452192078,
+                    "risk_epoch_peak": 155264.5834870999,
+                    "trigger_value": 153193.28452192078
+                },
+                {
+                    "date": "2024-11-26",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2025-01-02",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 143448.50751787057,
+                    "risk_epoch_peak": 162000.45270083295,
+                    "trigger_value": 143448.50751787057
+                },
+                {
+                    "date": "2025-01-17",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2025-02-25",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 151502.17317122995,
+                    "risk_epoch_peak": 166680.8665210589,
+                    "trigger_value": 151502.17317122995
+                },
+                {
+                    "date": "2025-05-01",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 46,
+                    "confirmation": true
+                },
+                {
+                    "date": "2025-05-23",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 140431.97087891772,
+                    "risk_epoch_peak": 151502.17317122995,
+                    "trigger_value": 140431.97087891772
+                },
+                {
+                    "date": "2025-05-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-02-04",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 376105.60491479223,
+                    "risk_epoch_peak": 416549.5516369549,
+                    "trigger_value": 376105.60491479223
+                },
+                {
+                    "date": "2026-02-25",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 14,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-03-03",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 365475.650701207,
+                    "risk_epoch_peak": 377149.26857288455,
+                    "trigger_value": 365475.650701207
+                },
+                {
+                    "date": "2026-04-08",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 25,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-05-18",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 451760.704353851,
+                    "risk_epoch_peak": 520169.11742836016,
+                    "trigger_value": 451760.704353851
+                },
+                {
+                    "date": "2026-05-21",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 3,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-07-13",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 461575.7311342973,
+                    "risk_epoch_peak": 544798.7880836712,
+                    "trigger_value": 461575.7311342973
+                },
+                {
+                    "date": "2026-08-04",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 16,
+                    "confirmation": true
+                },
+                {
+                    "date": "2026-08-20",
+                    "event": "liquidate_next_open",
+                    "reason": "position_stop",
+                    "equity": 437831.8629713461,
+                    "risk_epoch_peak": 502581.32345618407,
+                    "trigger_value": 437831.8629713461
+                },
+                {
+                    "date": "2026-08-27",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 5,
+                    "confirmation": true
+                }
+            ],
+            "old_continuous_slice_from_2023": {
+                "return": 13.53531809452689,
+                "cagr": 1.0696858812001704,
+                "max_drawdown": -0.2610316737129268
+            },
+            "old_continuous_annual": {
+                "2023": {
+                    "points": 250,
+                    "return": 3.9638309796995976,
+                    "cagr": 3.9912171697443943,
+                    "max_drawdown": -0.209303026384837,
+                    "max_gross_bound": 1.2817209346885754,
+                    "turnover": 46.323722866622425,
+                    "annualized_turnover": 46.4828015852578,
+                    "invested_sessions": 189,
+                    "top1_positive_day_share": 0.09246799120275088,
+                    "top5_positive_day_share": 0.3113915673103058,
+                    "ex_top5_days_cagr": 1.0929650179489414,
+                    "return_symbols": 10,
+                    "positive_holding_episodes": 63,
+                    "top1_positive_episode_share": 0.12456009865923533,
+                    "top5_positive_episode_share": 0.36492784978757603
+                },
+                "2024": {
+                    "points": 252,
+                    "return": 0.19693240316615124,
+                    "cagr": 0.19532560765507267,
+                    "max_drawdown": -0.2610316737129268,
+                    "max_gross_bound": 1.283500323492464,
+                    "turnover": 33.22125166358721,
+                    "annualized_turnover": 32.97299502751421,
+                    "invested_sessions": 191,
+                    "top1_positive_day_share": 0.09459466428735992,
+                    "top5_positive_day_share": 0.2391312841110373,
+                    "ex_top5_days_cagr": -0.13752952150942843,
+                    "return_symbols": 13,
+                    "positive_holding_episodes": 43,
+                    "top1_positive_episode_share": 0.12217568335959088,
+                    "top5_positive_episode_share": 0.3802602856471422
+                },
+                "2025": {
+                    "points": 250,
+                    "return": 0.31113646797344185,
+                    "cagr": 0.3113797640970595,
+                    "max_drawdown": -0.17809020944063902,
+                    "max_gross_bound": 1.2351386633690118,
+                    "turnover": 27.717736950858537,
+                    "annualized_turnover": 27.73672170219474,
+                    "invested_sessions": 173,
+                    "top1_positive_day_share": 0.052304721777543826,
+                    "top5_positive_day_share": 0.22994302819097587,
+                    "ex_top5_days_cagr": -0.00011053618744771843,
+                    "return_symbols": 13,
+                    "positive_holding_episodes": 37,
+                    "top1_positive_episode_share": 0.17988495858617345,
+                    "top5_positive_episode_share": 0.5661991987179846
+                },
+                "2026": {
+                    "points": 170,
+                    "return": 0.8659071715922617,
+                    "cagr": 1.515227465468405,
+                    "max_drawdown": -0.2224989115342878,
+                    "max_gross_bound": 1.2030999385972767,
+                    "turnover": 18.932301895583326,
+                    "annualized_turnover": 27.99604561684943,
+                    "invested_sessions": 95,
+                    "top1_positive_day_share": 0.14541555403715367,
+                    "top5_positive_day_share": 0.3271492673255516,
+                    "ex_top5_days_cagr": 0.17270101517860792,
+                    "return_symbols": 7,
+                    "positive_holding_episodes": 39,
+                    "top1_positive_episode_share": 0.19839231592130935,
+                    "top5_positive_episode_share": 0.518597001577879
+                }
+            }
+        }
+    },
+    "prefix_checks": 4,
+    "annual_compounding_checks": 4,
+    "legacy_metric_checks": 12,
+    "operational_identity_unchanged": true,
+    "order_submission_enabled": false,
+    "completed_at": "2026-09-09T17:31:28+00:00"
+}

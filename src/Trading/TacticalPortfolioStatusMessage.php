@@ -67,6 +67,12 @@ final class TacticalPortfolioStatusMessage
                 'text' => 'есть исполняемая или сверяемая заявка; новый дополнительный риск запрещён',
             ];
         }
+        if (($signal['validation_selected'] ?? true) !== true) {
+            $reasons[] = [
+                'code' => 'signal_validation_not_selected',
+                'text' => 'frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет',
+            ];
+        }
         if ($errors !== []) {
             $reasons[] = [
                 'code' => 'runtime_error',
@@ -281,6 +287,7 @@ final class TacticalPortfolioStatusMessage
         $title = match ($phase) {
             'open' => '🌅 ОТКРЫТИЕ • ALPACA PAPER',
             'close' => '🌙 ЗАКРЫТИЕ / ПЛАН • ALPACA PAPER',
+            'weekly_close' => '📊 НЕДЕЛЯ / ИТОГ И ПЛАН • ALPACA PAPER',
             default => '📌 СТАТУС • ALPACA PAPER',
         };
         $snapshotTime = $nowNewYork;
@@ -372,6 +379,29 @@ final class TacticalPortfolioStatusMessage
         if ($lastEquity > 0.0) {
             $daily = $equity - $lastEquity;
             $lines[] = sprintf('День: %s (%+.2f%%)', self::signedMoney($daily), 100.0 * $daily / $lastEquity);
+        }
+        if ($phase === 'weekly_close' && is_array($reportMeta['week_summary'] ?? null)) {
+            $weekSummary = $reportMeta['week_summary'];
+            $lines[] = '';
+            $lines[] = 'НЕДЕЛЯ';
+            $lines[] = sprintf(
+                'Покрытие %s → %s | сессий в отчёте %d',
+                (string) ($weekSummary['observed_from'] ?? $weekSummary['week_start'] ?? 'unknown'),
+                (string) ($weekSummary['week_end'] ?? 'unknown'),
+                (int) ($weekSummary['observed_sessions'] ?? 0),
+            );
+            $lines[] = sprintf(
+                'Equity %s → %s | итог %s (%+.2f%%)',
+                self::money((float) ($weekSummary['start_equity'] ?? 0.0)),
+                self::money((float) ($weekSummary['end_equity'] ?? 0.0)),
+                self::signedMoney((float) ($weekSummary['delta_equity'] ?? 0.0)),
+                (float) ($weekSummary['delta_pct'] ?? 0.0),
+            );
+            $lines[] = sprintf(
+                'Диапазон equity %s … %s',
+                self::money((float) ($weekSummary['low_equity'] ?? 0.0)),
+                self::money((float) ($weekSummary['high_equity'] ?? 0.0)),
+            );
         }
 
         $lines[] = '';
