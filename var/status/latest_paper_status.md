@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-09-14 16:44:48 Нью-Йорк
+Снимок: 2026-09-14 16:59:56 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,567.66; деньги на счёте $27,567.66.
 Лимит покупок брокера $55,135.32: может включать заёмные средства, это не бюджет новой сделки.
@@ -12,8 +12,6 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
 Почему: Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.
 Что дальше: Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает.
-Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
-Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
 Почему: По расписанию и условиям модели новой покупки нет (HOLD). Лидер рейтинга может быть при этом указан.
 Что дальше: Дождаться следующего расчёта и разрешённого действия, а не покупать лидера вручную.
 
@@ -24,7 +22,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-09-14T20:44:48+00:00`
+- Generated: `2026-09-14T20:59:56+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -51,11 +49,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-09-14T20:44:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:42:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:41:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:40:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:39:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:38:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:37:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:36:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:59:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:58:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:57:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:56:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:55:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:54:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:53:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:52:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
