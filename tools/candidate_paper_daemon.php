@@ -52,11 +52,13 @@ if (function_exists('pcntl_async_signals')) {
 }
 try {
     if (($candidate['enabled'] ?? null) !== true) { throw new RuntimeException('candidate_release_not_enabled'); }
-    CandidateRelease::verify($root, $candidate);
+    $release = CandidateRelease::verify($root, $candidate);
+    $baseProfile = require $root . '/config/tactical_rotation.php';
     $config = Config::fromFile($root . '/config/config.php');
     $client = new AlpacaPaperClient(new HttpClient(), getenv('APCA_PAPER_BASE_URL') ?: (string) $config->get('trading.alpaca.paper_base_url'));
     AlpacaPaperAccountGuard::validateConfigured($client->account()); $accountGuard = true;
-    $state = is_file($options['state']) ? CandidateDataSnapshot::read($options['state']) : [];
+    try { $state = is_file($options['state']) ? CandidateDataSnapshot::read($options['state']) : []; }
+    catch (Throwable) { $state = []; $log(['event' => 'refresh_schedule_unreadable_retry_now']); }
     $nextCycle = $nextSession = 0; $session = null; $completedCycles = 0;
     $log(['event' => 'candidate_started', 'pid' => getmypid()]);
     do {
@@ -93,11 +95,11 @@ try {
             $nextSession = time() + 60;
         }
         // Signal computation is read-only and independent: never delay fill protection while a provider is slow.
-        $artifact = is_file($options['artifact']) ? CandidateDataSnapshot::read($options['artifact']) : [];
-        if ($session !== null && ($artifact['as_of'] ?? '') !== $session['signal_date'] && !isset($jobs['signal'])
-            && time() >= ($state['next_signal_refresh_at'] ?? 0)) {
-            $jobs['signal'] = $spawn([PHP_BINARY, '-d', 'memory_limit=512M', $root . '/tools/prepare_candidate_signal.php',
-                '--output=' . $options['artifact']], 900);
+        if ($session !== null && !isset($jobs['signal']) && time() >= ($state['next_signal_refresh_at'] ?? 0)) {
+            if (CandidateSignalArtifact::needsRefresh($options['artifact'], $candidate, $release['runtime_hash'], $baseProfile, $session)) {
+                $jobs['signal'] = $spawn([PHP_BINARY, '-d', 'memory_limit=512M', $root . '/tools/prepare_candidate_signal.php',
+                    '--output=' . $options['artifact']], 900);
+            } else { $state['next_signal_refresh_at'] = time() + 60; }
         }
         if (!isset($jobs['executor']) && time() >= $nextCycle) {
             $jobs['executor'] = $spawn([PHP_BINARY, '-d', 'memory_limit=512M', $root . '/bin/trade', 'tactical-paper-executor',

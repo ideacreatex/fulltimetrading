@@ -131,6 +131,12 @@ The worst drawdown peak/trough and non-dry-run dates are retained even when they
 are neither daily endpoints nor daily extrema; zero/negative equity remains
 reportable. No runtime ledger or observation history is rewritten.
 
+The daemon treats missing, malformed, same-date corrupted and wrong-runtime
+entry artifacts as refresh requests rather than process-fatal exceptions.
+Six additional artifact tests prove that these failures cannot terminate the
+parent's protective executor scheduling. A damaged refresh-timer file can be
+recreated; this does not reset any ledger, circuit, stop or activation state.
+
 The actual paper equity of $27,567.66 was independently replayed in eight
 additional whole-share cases with the same data and cost assumptions:
 

@@ -26,6 +26,16 @@ try {
     $parsed = Artifact::validate($roundtrip, $candidate, $hash, $base);
     $check($parsed['books'] === $a['books'], 'Recipe preserves integer/float distinctions across disk.');
     $check(count($parsed['contexts']) === 12, 'Twelve compact causal contexts.');
+    $refreshSession = ['signal_date' => '2026-09-11', 'scheduled_session' => '2026-09-14'];
+    $check(!Artifact::needsRefresh($path, $candidate, $hash, $base, $refreshSession), 'Valid compact artifact avoids unnecessary historical refresh.');
+    $check(Artifact::needsRefresh($path . '-missing', $candidate, $hash, $base, $refreshSession), 'Missing artifact schedules refresh without stopping protection.');
+    $check(Artifact::needsRefresh($path, $candidate, str_repeat('b', 64), $base, $refreshSession), 'Same-date runtime mismatch also schedules refresh.');
+    $check(Artifact::needsRefresh($path, $candidate, $hash, $base, ['signal_date' => '2026-09-14', 'scheduled_session' => '2026-09-15']), 'Completed new date schedules refresh.');
+    file_put_contents($path, '{broken');
+    $check(Artifact::needsRefresh($path, $candidate, $hash, $base, $refreshSession), 'Malformed JSON cannot terminate the protective daemon.');
+    $broken = $a; $broken['confirmation'] = false; Artifact::write($path, $broken);
+    $check(Artifact::needsRefresh($path, $candidate, $hash, $base, $refreshSession), 'Same-date content corruption schedules refresh.');
+    Artifact::write($path, $a);
     foreach ($parsed['contexts'] as $context) { $check($context('2026-09-11', null)['desired'] === ['MSFT' => .5], 'Frozen incumbent lookup.'); }
     $bad = $a; $bad['nominal_closes']['MSFT'] = 1.; $reject(fn () => Artifact::validate($bad, $candidate, $hash, $base), 'Price corruption rejected.');
     $reject(fn () => Artifact::validate($a, $candidate, str_repeat('b', 64), $base), 'Runtime drift rejected.');

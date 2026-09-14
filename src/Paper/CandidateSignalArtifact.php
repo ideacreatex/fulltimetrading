@@ -76,4 +76,15 @@ final class CandidateSignalArtifact
             @unlink($temporary); throw new \RuntimeException('Cannot commit candidate artifact.');
         }
     }
+
+    /** A broken entry artifact must not stop the daemon that maintains existing protection. */
+    public static function needsRefresh(string $path, array $candidate, string $runtimeHash, array $baseProfile, array $session): bool
+    {
+        try {
+            if (!is_file($path)) { return true; }
+            $artifact = CandidateDataSnapshot::read($path);
+            self::validate($artifact, $candidate, $runtimeHash, $baseProfile);
+            return $artifact['as_of'] !== $session['signal_date'] || $artifact['scheduled_session'] !== $session['scheduled_session'];
+        } catch (\Throwable) { return true; }
+    }
 }
