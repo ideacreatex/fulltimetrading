@@ -1,6 +1,30 @@
 # FTT Paper Status
 
-- Generated: `2026-09-14T20:29:41+00:00`
+## Что Происходит
+
+ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
+Снимок: 2026-09-14 16:44:48 Нью-Йорк
+У брокера: позиций 0, открытых заявок 0.
+Капитал $27,567.66; деньги на счёте $27,567.66.
+Лимит покупок брокера $55,135.32: может включать заёмные средства, это не бюджет новой сделки.
+Статус ACTIVE: учёт стратегии активен, но это не разрешение покупать.
+
+Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
+Почему: Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.
+Что дальше: Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает.
+Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
+Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
+Почему: По расписанию и условиям модели новой покупки нет (HOLD). Лидер рейтинга может быть при этом указан.
+Что дальше: Дождаться следующего расчёта и разрешённого действия, а не покупать лидера вручную.
+
+Расчёт модели: закрытие 2026-09-14; план на 2026-09-15.
+На наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.
+Частей стратегии: 4 | модель не планирует новую покупку.
+Ручных действий по этому сообщению не требуется. Сообщение не отправляет заявки.
+
+## Технические Подробности
+
+- Generated: `2026-09-14T20:44:48+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -27,11 +51,11 @@
 - none
 
 ## Recent Actions
-- `2026-09-14T20:29:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:28:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:27:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:26:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:25:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:24:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:22:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-14T20:20:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:44:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:42:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:41:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:40:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:39:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:38:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:37:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-14T20:36:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
