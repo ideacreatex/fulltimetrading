@@ -19,4 +19,12 @@ foreach ($checks as $field) {
 foreach ([['test_count' => 48], ['manual_orders_submitted' => 1], ['operational_database_modified' => true], ['failures' => ['exception']]] as $bad) {
     $check(!Release::assess(array_replace($proof, $bad))['paper_admission'], 'Incomplete or non-isolated proof cannot admit release.');
 }
+$record = ['run_id' => 'test', 'runtime_hash' => str_repeat('a', 64), 'commissioned_at' => gmdate(DATE_ATOM),
+    'launch_agent' => 'com.fulltimetrading.hybrid-v4-paper', 'paper_only' => true, 'live_approved' => false];
+$check(Release::commissioningMatches($record, 'test', str_repeat('a', 64)), 'Verified release commissioning survives an ordinary restart.');
+foreach ([null, [], array_replace($record, ['run_id' => 'old']), array_replace($record, ['runtime_hash' => str_repeat('b', 64)]),
+    array_replace($record, ['paper_only' => false]), array_replace($record, ['live_approved' => true]),
+    array_replace($record, ['commissioned_at' => gmdate(DATE_ATOM, time() + 300)])] as $bad) {
+    $check(!Release::commissioningMatches($bad, 'test', str_repeat('a', 64)), 'Uncommissioned or changed release cannot enter before installer success.');
+}
 echo "candidate_release_gate: {$n} assertions PASS\n";

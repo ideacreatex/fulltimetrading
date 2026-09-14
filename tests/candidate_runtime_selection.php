@@ -41,6 +41,12 @@ try {
     $check($rejected, 'No fill increment cannot become a purchase notification.');
     $message = Messages::error(['candidate_signal_invalid:secret bearer token']);
     $check(!str_contains($message, 'secret') && str_contains($message, 'S5TW'), 'Source errors are clear without echoing unsafe broker text.');
+    $opening = Messages::opening(['initial_equity' => 30000.], ['equity' => 30100., 'cash' => 20000.], [['symbol' => 'MSFT']], [], '2026-09-14', true);
+    $check(str_contains($opening, 'поздняя сводка') && str_contains($opening, '$+100.00') && str_contains($opening, 'не сообщение о новых покупках'), 'Opening catch-up is a broker snapshot, not a fill or forecast.');
+    $weekly = Messages::weekly(['week_start' => '2026-09-07', 'week_end' => '2026-09-11', 'start_equity' => 30000., 'end_equity' => 29400.,
+        'delta_equity' => -600., 'delta_pct' => -2., 'observed_sessions' => 4, 'low_equity' => 29000., 'high_equity' => 30200.],
+        ['scheduled_session' => '2026-09-14', 'plans' => [['target_quantities' => null], ['target_quantities' => []]]]);
+    $check(str_contains($weekly, '$-600.00 (-2.00%)') && str_contains($weekly, 'пересмотр 1 из 12') && str_contains($weekly, 'Live выключен'), 'Weekly loss and cash target remain explicit and paper-only.');
     $ledger->pause($candidate['run_id'], 'fixture');
     $check(Selection::select($root, $legacy, $ledger->views)['run_id'] === $candidate['run_id'], 'Pause does not silently show the retired predecessor.');
     echo "candidate_runtime_selection: {$n} assertions PASS\n";

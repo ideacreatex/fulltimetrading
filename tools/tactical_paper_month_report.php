@@ -47,7 +47,13 @@ if ($run === null) {
     $since = is_string($run['activated_at'] ?? null) ? (string) $run['activated_at'] : null;
     // Stored timestamps contain mixed UTC offsets. SQL text ordering/filtering
     // would discard valid same-day observations after a UTC activation.
-    $snapshots = $since !== null ? TacticalPaperObservation::since($repo->snapshots($runId), $since, $now) : [];
+    $candidateStatistics = null;
+    if ($since !== null && ($paper['execution_contract'] ?? null) === \FulltimeTrading\Paper\CandidateOrder::CONTRACT) {
+        $database = trim((string) $options['db']) !== '' ? (string) $options['db'] : (string) $config->get('database_path');
+        $candidateStatistics = \FulltimeTrading\Paper\CandidateSnapshotReader::read(realpath($database), $runId, $since, $now, (float) $run['initial_equity']);
+        $snapshots = $candidateStatistics['snapshots'];
+    } else { $snapshots = $since !== null ? TacticalPaperObservation::since($repo->snapshots($runId), $since, $now) : []; }
+    $snapshotCount = $candidateStatistics['total_snapshots'] ?? count($snapshots);
     $intents = $repo->intents($runId, 10000);
     $equities = array_map(static fn (array $row): float => (float) $row['equity'], $snapshots);
     $initialEquity = (float) ($run['initial_equity'] ?? 0.0);
@@ -72,6 +78,7 @@ if ($run === null) {
             || str_starts_with($status, 'paused_')
             || $payloadErrors !== [];
     }));
+    $errorSnapshotCount = $candidateStatistics['error_snapshots'] ?? count($errorSnapshots);
     $completedExitIntents = array_values(array_filter($intents, static function (array $row): bool {
         $requested = (float) ($row['requested_qty'] ?? 0.0);
 
@@ -138,7 +145,7 @@ if ($run === null) {
     if ($rejected !== []) {
         $failed[] = 'rejected_or_expired_orders';
     }
-    if ($snapshots === [] || count($errorSnapshots) / max(1, count($snapshots)) > 0.01) {
+    if ($snapshots === [] || $errorSnapshotCount / max(1, $snapshotCount) > 0.01) {
         $failed[] = 'reconciliation_error_rate_above_one_percent';
     }
     if (count($completedExitEpisodes) < 2) {
@@ -169,7 +176,8 @@ if ($run === null) {
         'observed_dates' => count($dates),
         'observed_market_dates' => count($observed['market']),
         'observed_market_date_list' => $observed['market'],
-        'snapshots' => count($snapshots),
+        'snapshots' => $snapshotCount,
+        'report_representative_snapshots' => count($snapshots),
         'latest_snapshot_at' => $latestSnapshotAt,
         'initial_equity' => $initialEquity,
         'latest_equity' => $latestEquity,
@@ -185,8 +193,8 @@ if ($run === null) {
             'completed_exit_episodes' => count($completedExitEpisodes),
         ],
         'reconciliation' => [
-            'error_snapshots' => count($errorSnapshots),
-            'error_rate' => count($errorSnapshots) / max(1, count($snapshots)),
+            'error_snapshots' => $errorSnapshotCount,
+            'error_rate' => $errorSnapshotCount / max(1, $snapshotCount),
         ],
         'weekly_consistency' => [
             'observed_weeks' => count($weeklyEquity),

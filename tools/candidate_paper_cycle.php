@@ -49,7 +49,7 @@ try {
     $account = $client->account(); $report['account_guard'] = AlpacaPaperAccountGuard::validateConfigured($account);
     $now = new DateTimeImmutable('now', new DateTimeZone('America/New_York'));
     $calendar = $client->calendar($now->modify('-15 days')->format('Y-m-d'), $now->modify('+15 days')->format('Y-m-d'));
-    $session = CandidateSession::resolve($calendar, $client->clock(), $now);
+    $clock = $client->clock(); $session = CandidateSession::resolve($calendar, $clock, $now);
     $positions = $client->positions(); $orders = $client->openOrders();
     $snapshot = ['captured_at' => gmdate(DATE_ATOM), 'equity' => $account['equity'], 'cash' => $account['cash'],
         'buying_power' => $account['buying_power'], 'positions' => $positions, 'open_orders' => $orders];
@@ -59,6 +59,8 @@ try {
         throw new RuntimeException('candidate_release_not_enabled');
     }
     $release = CandidateRelease::verify($root, $candidate);
+    $commissioned = CandidateRelease::commissioned($root, $candidate['run_id'], $release['runtime_hash']);
+    $report['installation_commissioned'] = $commissioned;
     if ($submit && (!(bool) $config->get('trading.alpaca.paper_only', true) || !(bool) $config->get('trading.alpaca.orders_enabled', false))) {
         throw new RuntimeException('configured_paper_submission_gate_closed');
     }
@@ -73,6 +75,7 @@ try {
         'fresh' => $fresh, 'next_session' => $artifact['scheduled_session'] ?? null];
     $report['report_snapshot_fresh'] = $fresh;
     $report['signal']['intended_session'] = $artifact['scheduled_session'] ?? null;
+    $report['signal']['required_as_of'] = $session['signal_date'];
     $operationalDb = (string) $config->get('database_path');
     if (!$submit) {
         if ($positions !== [] || $orders !== []) { throw new RuntimeException('flat_only_isolated_preflight'); }
@@ -87,6 +90,7 @@ try {
     $books = CandidateDefinition::books(require $root . '/config/tactical_rotation.php', [], [], []);
     $ledger->provision($identity, array_map(static fn ($b): float => $b['allocation'], $books));
     $runId = $candidate['run_id']; $run = $ledger->run($runId);
+    $report['run_status'] = $run['status'];
     $recordFill = static function (array $before, array $after) use ($ledger, $runId, $telegram, &$notificationKeys): void {
         if (!$telegram || (float) $after['cumulative_filled_qty'] <= (float) $before['cumulative_filled_qty']) { return; }
         $key = 'candidate-fill:' . $runId . ':' . $after['decision_id'] . ':' . $after['cumulative_filled_qty'];
@@ -155,6 +159,31 @@ try {
         if ($close !== null) {
             $closeKey = 'portfolio-close:' . $runId . ':' . $close['date'];
             $report['notification_schedule']['close_status_key'] = $closeKey;
+            if ($fresh) {
+                $notificationSignal = ['as_of' => $close['date'], 'intended_session' => $close['scheduled_session'],
+                    'decision_sha256' => hash('sha256', CandidateOrder::json($close))];
+                $openSchedule = \FulltimeTrading\Trading\TacticalPortfolioNotificationSchedule::openStatus($clock, $account, $now, '09:35', $notificationSignal);
+                if ($openSchedule !== null) {
+                    $report['notification_schedule']['open_status_key'] = $openSchedule['key'];
+                    $report['notification_schedule']['open_status_required_key'] = $openSchedule['required_key'];
+                    if ($telegram) {
+                        $ledger->views->queueNotification($openSchedule['key'], CandidateMessages::opening($run, $account, $positions, $orders,
+                            $openSchedule['session_date'], $openSchedule['catch_up']), ['run_id' => $runId]);
+                    }
+                }
+                $weeklySchedule = \FulltimeTrading\Trading\TacticalPortfolioNotificationSchedule::weeklyCloseStatus($clock, $account, $notificationSignal, $now);
+                if ($weeklySchedule !== null) {
+                    $report['notification_schedule']['weekly_status_key'] = $weeklySchedule['key'];
+                    $report['notification_schedule']['weekly_status_session'] = $weeklySchedule['session_date'];
+                    $report['notification_schedule']['weekly_status_catch_up'] = $weeklySchedule['catch_up'];
+                    if ($telegram && !$ledger->views->notificationDelivered($weeklySchedule['key'])) {
+                        $weekStart = new DateTimeImmutable($weeklySchedule['week_start'] . ' 00:00:00', new DateTimeZone('America/New_York'));
+                        $observations = \FulltimeTrading\Paper\CandidateSnapshotReader::read(realpath($dbPath), $runId, $weekStart->format(DATE_ATOM), $now, (float) $run['initial_equity']);
+                        $week = \FulltimeTrading\Trading\TacticalPortfolioWeeklySummary::fromSnapshots($observations['snapshots'], $weeklySchedule['session_date'], (float) $account['equity']);
+                        if ($week !== null) { $ledger->views->queueNotification($weeklySchedule['key'], CandidateMessages::weekly($week, $close), ['run_id' => $runId]); }
+                    }
+                }
+            }
             if ($telegram) {
                 $ledger->views->queueNotification($closeKey, CandidateMessages::close($run, $close, $account, $positions, $orders), ['run_id' => $runId]);
                 $notificationKeys[] = $closeKey;
@@ -182,7 +211,7 @@ try {
             $window = (new TacticalRotationExecutionWindow())->resolve($close['scheduled_session'], $now, $close['date'], $session['market_open']);
             $window['candidate_preopen_stop_transition_allowed'] = $now->format('Y-m-d') === $close['scheduled_session']
                 && $now->format('H:i') >= '09:15' && $now->format('H:i') < '09:28' && !$session['market_open'];
-            $outboxReady = $telegram && $ledger->views->notificationDelivered($closeKey);
+            $outboxReady = $telegram && $commissioned && $ledger->views->notificationDelivered($closeKey);
             foreach ($ledger->views->pendingNotifications(100) as $pending) {
                 if (($pending['payload']['run_id'] ?? '') === $runId) { $outboxReady = false; }
             }

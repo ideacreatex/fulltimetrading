@@ -100,7 +100,7 @@ Rules: [Alpaca user protection](https://docs.alpaca.markets/us/docs/user-protect
 
 ## Remaining admission work
 
-The versioned release proof now passes 49 test programs, including the full CLI
+The versioned release proof now passes 50 test programs, including the full CLI
 in an isolated repository with a broker substitute that cannot perform HTTP
 mutations. It rejects non-flat adoption, source corruption, changed runtime
 code and submission from a disabled configuration. A further 100 deterministic
@@ -114,6 +114,22 @@ economic criteria, full-data memory footprint and starting-capital sensitivity
 pass. It does not change strict historical validation or live permission.
 The native protective-close update can use verified Alpaca raw prices even
 while external entry indicators are unpublished.
+
+The installer now commissions entry permission only after heartbeat, account,
+lock and Telegram verification succeeds. The commissioning record binds the
+run and runtime hash; it cannot authorize another build. Rollback is disarmed
+before entry commissioning, so an installer error cannot restore a predecessor
+after the replacement has started buying. Existing reconciliations and native
+protective actions do not require new-entry commissioning.
+
+Morning and weekly account notifications are preserved, with explicit catch-up,
+actual P/L, paper-only wording and separate broker-confirmed fill messages.
+Candidate month/weekly reporting streams SQLite observations rather than loading
+all broker payloads. A 100,000-row test used 2 MiB peak memory and preserved exact
+drawdown, daily/weekly endpoints, market dates and the full error-rate counts.
+The worst drawdown peak/trough and non-dry-run dates are retained even when they
+are neither daily endpoints nor daily extrema; zero/negative equity remains
+reportable. No runtime ledger or observation history is rewritten.
 
 The actual paper equity of $27,567.66 was independently replayed in eight
 additional whole-share cases with the same data and cost assumptions:

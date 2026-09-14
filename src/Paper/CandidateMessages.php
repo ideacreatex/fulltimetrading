@@ -52,7 +52,7 @@ final class CandidateMessages
     {
         $reason = 'Торговый цикл не прошёл проверку; детали сохранены в локальном журнале.';
         foreach ($codes as $code) {
-            if ($code === 'candidate_external_signal_stale' || str_starts_with($code, 'candidate_signal_invalid:')) {
+            if (in_array($code, ['candidate_external_signal_stale', 'activation_requires_latest_complete_signal'], true) || str_starts_with($code, 'candidate_signal_invalid:')) {
                 $reason = 'Нет проверенного сигнала последнего закрытия: нужны цены Alpaca, S5TW и VVIX за одну дату. Старые значения не подставляются.'; break;
             }
             if (str_contains($code, 'ambiguous') || str_contains($code, 'unresolved')) {
@@ -61,5 +61,21 @@ final class CandidateMessages
         }
         return 'PAPER: новые покупки заблокированы. ' . $reason
             . ' Это не прогноз падения рынка. Ручные заявки и переключение в live не выполняются.';
+    }
+
+    public static function opening(array $run, array $account, array $positions, array $orders, string $session, bool $catchUp): string
+    {
+        $initial = (float) $run['initial_equity']; $equity = (float) $account['equity'];
+        return sprintf("PAPER: %s за %s.\nКапитал $%.2f; деньги $%.2f. P/L с активации $%+.2f.\nУ брокера: %d позиций, %d открытых заявок.\nЭто текущая сверка счёта, а не сообщение о новых покупках. Исполнения сообщаются отдельно после подтверждения брокера. Live выключен.",
+            $catchUp ? 'поздняя сводка после открытия' : 'сводка после открытия', $session, $equity, (float) $account['cash'],
+            $equity - $initial, count($positions), count($orders));
+    }
+
+    public static function weekly(array $week, array $close): string
+    {
+        $due = count(array_filter($close['plans'], static fn ($p): bool => $p['target_quantities'] !== null));
+        return sprintf("PAPER: итог недели %s - %s.\nКапитал $%.2f -> $%.2f. Результат $%+.2f (%+.2f%%).\nНаблюдений по датам: %d; минимум капитала $%.2f, максимум $%.2f.\nПлан на %s: пересмотр %d из 12 частей. Цели описаны в отдельном плане закрытия; это не гарантия заявок или прибыли. Защитные паузы и стопы сохраняются. Live выключен.",
+            $week['week_start'], $week['week_end'], $week['start_equity'], $week['end_equity'], $week['delta_equity'], $week['delta_pct'],
+            $week['observed_sessions'], $week['low_equity'], $week['high_equity'], $close['scheduled_session'], $due);
     }
 }

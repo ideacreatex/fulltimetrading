@@ -110,6 +110,8 @@ TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/ftt-hybrid-launchd.XXXXXX") || die "mktemp 
 TRANSACTION_ACTIVE=0
 WAS_LOADED=0
 BACKUP=""
+COMMISSION_BACKUP=""
+COMMISSION_FILE="$PROJECT_DIR/var/run/candidate_commission.json"
 
 rollback() {
     printf '%s\n' "Rolling back hybrid LaunchAgent." >&2
@@ -139,6 +141,12 @@ rollback() {
     if ! rm -f "$PLIST"; then
         printf '%s\n' "ERROR: unable to remove the unverified hybrid plist during rollback." >&2
         return 1
+    fi
+    if [ "${CANDIDATE_FLAG:-false}" = "true" ]; then
+        rm -f "$COMMISSION_FILE" || return 1
+        if [ -n "$COMMISSION_BACKUP" ] && [ -f "$COMMISSION_BACKUP" ]; then
+            install -m 0600 "$COMMISSION_BACKUP" "$COMMISSION_FILE" || return 1
+        fi
     fi
     if [ -n "$BACKUP" ] && [ -f "$BACKUP" ]; then
         if ! install -m 0644 "$BACKUP" "$PLIST"; then
@@ -454,6 +462,13 @@ if [ -f "$PLIST" ]; then
 fi
 
 TRANSACTION_ACTIVE=1
+if [ "$CANDIDATE_FLAG" = "true" ]; then
+    if [ -f "$COMMISSION_FILE" ]; then
+        COMMISSION_BACKUP="$TMP_DIR/previous-commission.json"
+        cp "$COMMISSION_FILE" "$COMMISSION_BACKUP"
+    fi
+    rm -f "$COMMISSION_FILE"
+fi
 if [ "$WAS_LOADED" -eq 1 ]; then
     launchctl bootout "$DOMAIN/$LABEL"
 fi
@@ -589,4 +604,19 @@ done
 
 VERIFIED_PID=$(launchd_pid "$LABEL")
 TRANSACTION_ACTIVE=0
+if [ "$CANDIDATE_FLAG" = "true" ]; then
+    # Installation is committed before entry authorization. A later error must
+    # not roll back a daemon that may already own newly submitted paper orders.
+    "$PHP_BIN" -r '
+        require $argv[1] . "/bootstrap.php";
+        $candidate = require $argv[1] . "/config/paper_candidate.php";
+        $release = FulltimeTrading\Paper\CandidateRelease::verify($argv[1], $candidate);
+        FulltimeTrading\Paper\CandidateSignalArtifact::write($argv[1] . "/var/run/candidate_commission.json", [
+            "run_id" => $candidate["run_id"], "runtime_hash" => $release["runtime_hash"],
+            "commissioned_at" => gmdate(DATE_ATOM), "verified_pid" => (int) $argv[2],
+            "launch_agent" => "com.fulltimetrading.hybrid-v4-paper", "paper_only" => true, "live_approved" => false,
+        ]);
+    ' "$PROJECT_DIR" "$VERIFIED_PID" \
+        || die "daemon installed but entry commissioning failed; candidate remains unarmed, inspect before retrying"
+fi
 printf 'Installed and verified %s (pid %s)\n' "$LABEL" "$VERIFIED_PID"

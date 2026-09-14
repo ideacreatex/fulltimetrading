@@ -14,6 +14,7 @@ final class CandidateRelease
             'tools/verify_candidate_release.php', 'src/Storage/SqliteRepository.php', 'src/Data/MarketDataProvider.php',
             'src/Storage/TacticalPaperRepository.php', 'src/Trading/AlpacaPaperClient.php', 'src/Trading/AlpacaPaperAccountGuard.php',
             'src/Trading/TacticalOrderGateway.php', 'src/Trading/TacticalRotationExecutionWindow.php', 'src/Trading/WholeShareSizing.php',
+            'src/Trading/TacticalPortfolioNotificationSchedule.php', 'src/Trading/TacticalPortfolioWeeklySummary.php',
             'src/Data/HttpClient.php', 'src/Data/AlpacaBarsProvider.php', 'src/Domain/Bar.php', 'src/Indicators/IndicatorCalculator.php',
             'src/Support/Config.php', 'src/Support/EnvLoader.php', 'src/Support/ProcessLock.php', 'src/Notifications/TelegramNotifier.php',
             'src/Backtest/CausalTacticalRotationBacktester.php', 'src/Backtest/CausalTacticalRotationEnsembleBacktester.php'];
@@ -49,6 +50,22 @@ final class CandidateRelease
     }
 
     public static function hash(string $root): string { return hash('sha256', CandidateOrder::json(self::files($root))); }
+
+    public static function commissioningMatches(?array $record, string $run, string $hash): bool
+    {
+        $at = $record['commissioned_at'] ?? null;
+        return ($record['run_id'] ?? null) === $run && ($record['runtime_hash'] ?? null) === $hash
+            && ($record['paper_only'] ?? null) === true && ($record['live_approved'] ?? null) === false
+            && ($record['launch_agent'] ?? null) === 'com.fulltimetrading.hybrid-v4-paper'
+            && is_string($at) && preg_match('/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/D', $at) === 1
+            && strtotime($at) !== false && strtotime($at) <= time() + 5;
+    }
+
+    public static function commissioned(string $root, string $run, string $hash): bool
+    {
+        try { return self::commissioningMatches(CandidateDataSnapshot::read($root . '/var/run/candidate_commission.json'), $run, $hash); }
+        catch (\Throwable) { return false; }
+    }
 
     public static function verify(string $root, array $candidate): array
     {
