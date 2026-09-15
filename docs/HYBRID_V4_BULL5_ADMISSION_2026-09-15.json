@@ -1,0 +1,654 @@
+{
+  "verified_at": "2026-09-15T13:20:14+00:00",
+  "recipe": "bull_v110_ma50_boost105",
+  "active_profile": "maximum-stop12-costband2-whole-v1",
+  "active_runtime_hash": "709c3979f85a08c8e84eb9ee2f94598d2a0698ddb26e3b9e5d34c00c0ae341dd",
+  "staged_runtime_hash": "670ac65a387ac2d7a37603fa13c3d960c00c9f3fb5aedac15aa06cd34fe11a15",
+  "staged_admission": {
+    "policy": "experimental-capital-or-drawdown-execution-v1",
+    "paper_admission": true,
+    "failed_checks": [],
+    "strict_validation_selected": false,
+    "live_approved": false,
+    "fresh_current_signal_still_required": true,
+    "independent_holdout": false
+  },
+  "deployed": false,
+  "commissioned": false,
+  "regression_programs": 54,
+  "failed_programs": [],
+  "post_admission_test": {
+    "script": "tests/staged_bull5_release.php",
+    "sha256": "37cb9b08aa842a5e3bff60a9a802bd5c1d08dea3da4441fa318ccaf8c2b94186",
+    "assertions": 14,
+    "passed": true
+  },
+  "snapshot": {
+    "passed": true,
+    "assertions": 13,
+    "runtime_hash": "670ac65a387ac2d7a37603fa13c3d960c00c9f3fb5aedac15aa06cd34fe11a15",
+    "recipe": "bull_v110_ma50_boost105",
+    "targets": {
+      "dynamic_loo10_rank0_phase0": {
+        "MSFT": 9
+      },
+      "qqq200_full_rank0_phase0": {
+        "MSFT": 3
+      },
+      "spy200_full_rank0_phase0": {
+        "MSFT": 3
+      },
+      "qqq150_ex_crypto_rank0_phase0": {
+        "MSFT": 3
+      }
+    },
+    "peak_memory_bytes": 369098752,
+    "signal_sha256": "9a422a041b2751407d346c68e1ba7ff985a51ec49edbc1111a2635b1a47b02b6",
+    "orders_submitted": 0,
+    "release_admitted": false
+  },
+  "capital_cases": 40,
+  "new_replays": 32,
+  "reused_replays": 8,
+  "capital_pairs": [
+    {
+      "capital": 25000,
+      "scenario": "continuous",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 2.4708519463864986,
+      "drawdown_reduction_pp": -0.1361145371701289,
+      "candidate_max_gross": 1.2665557890810824
+    },
+    {
+      "capital": 25000,
+      "scenario": "continuous",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 2.789747026801148,
+      "drawdown_reduction_pp": 1.0475432643409666,
+      "candidate_max_gross": 1.272150678659437
+    },
+    {
+      "capital": 25000,
+      "scenario": "fresh2023",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.6735114303336536,
+      "drawdown_reduction_pp": 0.07899759174019305,
+      "candidate_max_gross": 1.2561757583474438
+    },
+    {
+      "capital": 25000,
+      "scenario": "fresh2023",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 1.6095597159333286,
+      "drawdown_reduction_pp": -0.04735744700222755,
+      "candidate_max_gross": 1.2648908141247206
+    },
+    {
+      "capital": 27500,
+      "scenario": "continuous",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 2.0173648863506033,
+      "drawdown_reduction_pp": -0.040714577717138045,
+      "candidate_max_gross": 1.2679018581215868
+    },
+    {
+      "capital": 27500,
+      "scenario": "continuous",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 29.60472786833037,
+      "drawdown_reduction_pp": 0.4002949850705373,
+      "candidate_max_gross": 1.266271857066441
+    },
+    {
+      "capital": 27500,
+      "scenario": "fresh2023",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.978374427420972,
+      "drawdown_reduction_pp": -0.15775492210257092,
+      "candidate_max_gross": 1.267336856160391
+    },
+    {
+      "capital": 27500,
+      "scenario": "fresh2023",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 2.183604803627315,
+      "drawdown_reduction_pp": -0.1084487719153926,
+      "candidate_max_gross": 1.263811161936997
+    },
+    {
+      "capital": 27567.66,
+      "scenario": "continuous",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.778404654860723,
+      "drawdown_reduction_pp": -0.10385430379099558,
+      "candidate_max_gross": 1.2686875539339784
+    },
+    {
+      "capital": 27567.66,
+      "scenario": "continuous",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 34.061240167612716,
+      "drawdown_reduction_pp": 1.272859635285073,
+      "candidate_max_gross": 1.2647011672258923
+    },
+    {
+      "capital": 27567.66,
+      "scenario": "fresh2023",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.8413513751718975,
+      "drawdown_reduction_pp": 0.018499567093999136,
+      "candidate_max_gross": 1.264736074659469
+    },
+    {
+      "capital": 27567.66,
+      "scenario": "fresh2023",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 2.9009376633778006,
+      "drawdown_reduction_pp": 0.007824305875459014,
+      "candidate_max_gross": 1.2652990778437603
+    },
+    {
+      "capital": 27600,
+      "scenario": "continuous",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.815071223542832,
+      "drawdown_reduction_pp": -0.23089023635458616,
+      "candidate_max_gross": 1.26239358957257
+    },
+    {
+      "capital": 27600,
+      "scenario": "continuous",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 22.145445873197623,
+      "drawdown_reduction_pp": 0.3441760215636136,
+      "candidate_max_gross": 1.2616627364205732
+    },
+    {
+      "capital": 27600,
+      "scenario": "fresh2023",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 3.9238461861321072,
+      "drawdown_reduction_pp": -0.014403461018974717,
+      "candidate_max_gross": 1.263265524715185
+    },
+    {
+      "capital": 27600,
+      "scenario": "fresh2023",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 3.2661188857732837,
+      "drawdown_reduction_pp": -0.00027213521639479765,
+      "candidate_max_gross": 1.2587684186251553
+    },
+    {
+      "capital": 30000,
+      "scenario": "continuous",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 2.9361826859460205,
+      "drawdown_reduction_pp": -0.10837275856027118,
+      "candidate_max_gross": 1.2688403472188439
+    },
+    {
+      "capital": 30000,
+      "scenario": "continuous",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 9.059650703087163,
+      "drawdown_reduction_pp": -0.8698274184977484,
+      "candidate_max_gross": 1.2622521858639566
+    },
+    {
+      "capital": 30000,
+      "scenario": "fresh2023",
+      "cost_bps": 30,
+      "terminal_money_gain_pct": 1.6645688058056107,
+      "drawdown_reduction_pp": 0.17251302412093494,
+      "candidate_max_gross": 1.2624895479737421
+    },
+    {
+      "capital": 30000,
+      "scenario": "fresh2023",
+      "cost_bps": 60,
+      "terminal_money_gain_pct": 2.260375777085488,
+      "drawdown_reduction_pp": 0.12006236473474097,
+      "candidate_max_gross": 1.2516630820809052
+    }
+  ],
+  "economic_review_against_original_maximum": {
+    "27567.66_continuous_30": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": -443054.39220633474,
+      "capital_delta_pct": -29.32544907914646,
+      "drawdown_reduction_pp": 5.578939946538797,
+      "cagr_delta_pp": -12.050037808980573,
+      "material_capital_benefit": false,
+      "material_risk_benefit": true,
+      "economically_interesting": true,
+      "strictly_dominates": false,
+      "tradeoff": "less_ending_money_for_risk_reduction",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 40.332323421789496,
+        "candidate": 30.143329231825366
+      },
+      "baseline": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 1510818.7806794539,
+        "cagr": 1.0274982619237387,
+        "max_drawdown": -0.2874057981678586,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 1067764.3884731191,
+        "cagr": 0.906997883833933,
+        "max_drawdown": -0.23161639870247064,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "27567.66_continuous_60": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 212298.42764338152,
+      "capital_delta_pct": 43.32258956507462,
+      "drawdown_reduction_pp": 5.528673370268433,
+      "cagr_delta_pp": 10.903206567412393,
+      "material_capital_benefit": true,
+      "material_risk_benefit": true,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 40.98321253115142,
+        "candidate": 30.788872154507672
+      },
+      "baseline": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 490040.9457853142,
+        "cagr": 0.6620290928002854,
+        "max_drawdown": -0.2906956920285515,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 702339.3734286957,
+        "cagr": 0.7710611584744094,
+        "max_drawdown": -0.23540895832586717,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "27567.66_fresh2023_30": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 534665.6890912108,
+      "capital_delta_pct": 142.0401819102759,
+      "drawdown_reduction_pp": 11.792521742937934,
+      "cagr_delta_pp": 55.55461309676297,
+      "material_capital_benefit": true,
+      "material_risk_benefit": true,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 53.2905849266464,
+        "candidate": 29.822752435185595
+      },
+      "baseline": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 376418.61753524723,
+        "cagr": 1.0391356686696334,
+        "max_drawdown": -0.34764421410582624,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 911084.3066264581,
+        "cagr": 1.594681799637263,
+        "max_drawdown": -0.2297189966764469,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "27567.66_fresh2023_60": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 325211.5078834079,
+      "capital_delta_pct": 119.6575105851876,
+      "drawdown_reduction_pp": 0.8112886452941726,
+      "cagr_delta_pp": 44.63794767207594,
+      "material_capital_benefit": true,
+      "material_risk_benefit": false,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 32.81013946693507,
+        "candidate": 31.39439952475516
+      },
+      "baseline": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 271785.28643371747,
+        "cagr": 0.8659145938297372,
+        "max_drawdown": -0.2470454409477042,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 27567.66,
+        "terminal_equity": 596996.7943171253,
+        "cagr": 1.3122940705504966,
+        "max_drawdown": -0.23893255449476247,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "30000_continuous_30": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": -571369.4531728954,
+      "capital_delta_pct": -33.315555544206156,
+      "drawdown_reduction_pp": 5.412165361312815,
+      "cagr_delta_pp": -14.101156062815235,
+      "material_capital_benefit": false,
+      "material_risk_benefit": true,
+      "economically_interesting": true,
+      "strictly_dominates": false,
+      "tradeoff": "less_ending_money_for_risk_reduction",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 40.16685826285651,
+        "candidate": 30.283473026648245
+      },
+      "baseline": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 1715023.0390567845,
+        "cagr": 1.0426665135534763,
+        "max_drawdown": -0.2865645899512932,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 1143653.585883889,
+        "cagr": 0.9016549529253239,
+        "max_drawdown": -0.23244293633816504,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "30000_continuous_60": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 221288.5670606487,
+      "capital_delta_pct": 41.22119048907018,
+      "drawdown_reduction_pp": 3.6523065616153594,
+      "cagr_delta_pp": 10.454252484573878,
+      "material_capital_benefit": true,
+      "material_risk_benefit": false,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 40.896792959696086,
+        "candidate": 34.00111843401463
+      },
+      "baseline": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 536832.0624299375,
+        "cagr": 0.6639791316770809,
+        "max_drawdown": -0.29026063759588006,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2021-01-04",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 758120.6294905862,
+        "cagr": 0.7685216565228197,
+        "max_drawdown": -0.25373757197972646,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "30000_fresh2023_30": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 548096.1918267823,
+      "capital_delta_pct": 127.41330650253593,
+      "drawdown_reduction_pp": 11.19305291306848,
+      "cagr_delta_pp": 51.87046290309701,
+      "material_capital_benefit": true,
+      "material_risk_benefit": true,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 51.89222850772577,
+        "candidate": 29.82088907262512
+      },
+      "baseline": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 430171.8610652911,
+        "cagr": 1.0665133258573376,
+        "max_drawdown": -0.34163846970673917,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 978268.0528920734,
+        "cagr": 1.5852179548883076,
+        "max_drawdown": -0.22970794057605437,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 30,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    },
+    "30000_fresh2023_60": {
+      "policy": "capital-or-drawdown-v1",
+      "scope": "retrospective_preference_review_not_admission",
+      "capital_delta_dollars": 351737.0273954247,
+      "capital_delta_pct": 119.56819518545925,
+      "drawdown_reduction_pp": 0.8048858844307616,
+      "cagr_delta_pp": 44.54670827446216,
+      "material_capital_benefit": true,
+      "material_risk_benefit": false,
+      "economically_interesting": true,
+      "strictly_dominates": true,
+      "tradeoff": "no_worse_money_or_drawdown",
+      "recovery_from_max_drawdown_pct": {
+        "baseline": 32.6940663045294,
+        "candidate": 31.29182262439891
+      },
+      "baseline": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 294172.732849111,
+        "cagr": 0.8631705344640856,
+        "max_drawdown": -0.24638679946319064,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "candidate": {
+        "start": "2023-01-03",
+        "end": "2026-09-04",
+        "initial_equity": 30000,
+        "terminal_equity": 645909.7602445357,
+        "cagr": 1.3086376172087073,
+        "max_drawdown": -0.23833794061888303,
+        "data_contract": "Alpaca SIP split/raw whole previous close",
+        "cost_bps": 60,
+        "calendar_sha256": "c6b4806b25a03b01283b8567a74011c70b67db00277bb9c9b09b69af9ee26680"
+      },
+      "execution_authorized": false,
+      "live_authorized": false
+    }
+  },
+  "minutes": {
+    "completed_at": "2026-09-15T12:53:34+00:00",
+    "recipe": "bull_v110_ma50_boost105",
+    "cases": 4,
+    "unique_events": 64,
+    "exact_reused_events": 64,
+    "rth_touch": 64,
+    "missing_opening_minute": 0,
+    "source_sha256": {
+      "var/reports/candidate_bull_parity_20260915/bull_v110_ma50_boost105__continuous__30.json": "4cf0842824de5a2850658f4833adc307336dd71d7dca2212bf3b75a9b31a32f8",
+      "var/reports/candidate_bull_parity_20260915/bull_v110_ma50_boost105__continuous__60.json": "00bdcb7ad5291cfa61686eaf574d939c937a302a19e00010937bd0b75d3b471a",
+      "var/reports/candidate_bull_parity_20260915/bull_v110_ma50_boost105__fresh2023__30.json": "f416478aba33c0fd31ef57dc529f34b6d021839b111793acc84cf4eed2c5b9fa",
+      "var/reports/candidate_bull_parity_20260915/bull_v110_ma50_boost105__fresh2023__60.json": "b633dc5d0960428e3f66a3e8c7256b3c8207872c4357287d4962bf95460cb418"
+    },
+    "minute_protocol_sha256": "221d25bfd0f440beac14fa77908948256cb95a239dfe0ede1401521c423581e8",
+    "calendar_sha256": "20fd2faf7f48be5e1a3213ae6ae631abfde96c940f6c874c9587f06e04c81010",
+    "minute_snapshots_sha256": {
+      "minutes_2021-01-20.json": "0b0b4ca8bead4123c272ec95754a2d4092660d166bab0cb7dbc285d7ef8d3740",
+      "minutes_2021-03-25.json": "0b634b72503b9b4583ac74268368846f822506e601e292661c7d96475cb7109f",
+      "minutes_2021-07-16.json": "e7e942c88fde3b4d0a889fad77a86bef3d01342c8f84746798d26b190a4043b4",
+      "minutes_2021-12-03.json": "ae7dee07aa195945d4be247b5b14e02d6308c56627fdd13d0e90c9041725c14d",
+      "minutes_2022-01-10.json": "388e2920ac06765e654ef8bcfd4abfec39a91dbcdfd3d1c8269e068ac38996da",
+      "minutes_2023-06-20.json": "91d5f43abd3199a0535ec1ba674be21514ff3c84548d2856c647ec1796258112",
+      "minutes_2023-08-09.json": "184d86b8f331366e430e7dbf08e34135630f2e7aaed5f9cd46a99eb22e246cfc",
+      "minutes_2024-01-02.json": "6a1bc6c2077f55175f295dceaf984fe55a381e486677b0511644e34e5a395f00",
+      "minutes_2024-01-11.json": "f108b956671893e6f961f8ab232f0b3f0792ed318bb55daa2afa422a2be3297c",
+      "minutes_2024-02-21.json": "cf7a34d4a8fb9a04ee14c008e615c986382a414b3e18b65be40dee37ced44ca3",
+      "minutes_2024-05-31.json": "5d9a4f6bcdbc6a3600b75a46607588d04ffe52a29e48ebb50403ec5b05caf932",
+      "minutes_2024-06-11.json": "6cca9326fb68611d545ff40c17548656882c2ab8b6de718a9b4a19bae067efd6",
+      "minutes_2024-06-24.json": "dc0b92e919e6cfe3ee6be402f57951115687cb5f5e032e6f9038f5353d480745",
+      "minutes_2024-11-21.json": "130f65bb8fec39372d53851879ac40f139d73bced3cb68c452e4676292fe66cd",
+      "minutes_2025-01-02.json": "1e9e8d03892239feee4b328ffae227d1b96d8e95fac6b9fc1f800801636d4002",
+      "minutes_2025-02-03.json": "9e76fb71074c39e081ac04ecba81eec0dc21aec9845af61fc799ce1944cd2dc0",
+      "minutes_2025-02-19.json": "f43cd4413deee3211c20c061baf3e9c51fe9ba1713e582cb8c5a6c68f5e0d6ce",
+      "minutes_2025-02-27.json": "de91f1fd12cb88c0a52367bba7496933c43b16a0098ee2b932c54bfbc4efae93",
+      "minutes_2025-03-27.json": "a4fd5dc54cfbd85ae72f39519b6597611bb14998213624d5927b3deefc919644",
+      "minutes_2025-05-27.json": "f08438dc28f2ec4aca7c2e3283f0a94a42fdd4f0adac2dd7ab87148a6f95f1b0",
+      "minutes_2025-11-20.json": "5a14bc9d477fdd4d90dd7a2cec4bc13bf8db1543298ea03a88a3d7e1ab278746",
+      "minutes_2026-02-04.json": "77211eae02f8ca586224dd12342a02517c68de4476f19d6c1795279043fabd4b",
+      "minutes_2026-03-03.json": "7e95ac8ab253297c1b8c58ec34cfad6bca92f8a2749c3b5b1bdf06e22b71bd02",
+      "minutes_2026-06-05.json": "c957ce089ca975d2afefc2d07d35356a878a56051f4b200e741983790519bfb9",
+      "minutes_2026-06-24.json": "604c55cd2adad489a9d2539054149a36f247278e3716b1fa42cd945ffa7ef6e2",
+      "minutes_2026-07-28.json": "4c9ea1e6f03c6dd65eec2003e3b9560add1e1aa34408ce1520a397c2a16f5691",
+      "minutes_2026-08-20.json": "735f377490cd9ba815bce58130aeb7686af548b4aab32f23b34ab1337e2b9f7e",
+      "minutes_2026-09-02.json": "1b9c512afefb4749e0a3c50f083b505f668c3407c045d1777a594916acf6641f",
+      "minutes_2021-02-10.json": "a2c3058f7bff6aaadb9f0ab68fcd95d1eeca9dfd0425e0b844ea28a5b08489e9",
+      "minutes_2021-02-17.json": "96d2b4d79e34ec4a1176af119d191737b8d81484e1b5dbaef42311340a0ff2c7",
+      "minutes_2021-02-23.json": "010bd4d3bd3a77f4dbe458a4231e850f8bb7f757714cbdfdd9026d5e627adbcf",
+      "minutes_2021-03-04.json": "4a3c1681405cdee4a8249e3a62dec16d9d995d2bbd98a1725b948ca774dd9f05",
+      "minutes_2021-07-19.json": "364bddcec0d05f531e0a0f1ce367d2ca222c610ee7a99407a2be6156e1057edf",
+      "minutes_2021-11-09.json": "8f9471c5bc65928a552247de4dd5f38ea26bcfc73b6d94439536ff1a7da6235f",
+      "minutes_2023-05-11.json": "d0d971a7458364c7f400bd70245f5f77d03af1c25663920372285a82e8f6c23c",
+      "minutes_2024-01-19.json": "9221c23203b3448ba785eb00ae747aba586504ff0f57f10b9c7780142ba38ca2",
+      "minutes_2024-03-18.json": "73b0c8950fea854a106bb4a060e02de569e41c3f1b15040019c0dfa7fe6535d7",
+      "minutes_2024-04-08.json": "4fcbc65cc53cf18c2e98e4ca6bf15fbf9bb6b359449db1b2617e05bafc9d5dc7",
+      "minutes_2024-04-19.json": "8db5d3a8a0cfc6a1ecd0f6134a0e7d205fe3b4f6b557dcc0c35c080b2ef53638",
+      "minutes_2024-11-25.json": "b21ad3c93df995b77afda4b811ae81389b63c7b3731143a69e1f5ef64635b9c4",
+      "minutes_2024-12-10.json": "fffea2586689ea2152b1082ea5ccae3d7682ce3bc0055dcc50182d818a12a400",
+      "minutes_2025-01-07.json": "215a7eb4f90ae65638259492b3ba791c9fd9cd7696438a41998bc13ed097ffb5",
+      "minutes_2026-03-23.json": "addc329d68da7d647a8470474fd5b6ba792b561c245db485ea60b967a6b45b97",
+      "minutes_2023-06-16.json": "9d8831a1f21b9cb0fe603dbb947ab71e8131d2f31fe17c4f8d38a49415f8c868",
+      "minutes_2024-02-23.json": "b7da796b118e9ddc8c809bf29368dc3f4faf8a7a898b305abbf40a5abbd6b75a",
+      "minutes_2025-01-10.json": "3bd6d7337f741f826ccb04b9ac8ab736c65ab4be9ff173c6abe13f8ab879a2d2",
+      "minutes_2025-03-07.json": "a22fbcb2f122ffc4b301acc8b2d0e53ce0daff30207a1b673e43f329d950096b",
+      "minutes_2025-05-23.json": "7c6b188f15ca65b8b86c9c85b39d89a73bd5cd21e93696b452c929a6d4f2dd0b",
+      "minutes_2026-01-08.json": "cbe2f1a8e6a58fad26522f5fe5acc8fb4a86dead7ad94fd4f349c58c62f5062f",
+      "minutes_2026-06-29.json": "f5984c224dc95e7bfb3b83f8f2e623950cc55101197ad8660234a297caf4c625",
+      "minutes_2024-08-05.json": "e112f6a38e71b449a9c28264a969d32b0259701294f7daddc487203cca99edb1",
+      "minutes_2026-03-24.json": "3bc115ba7fb6ece270e2d5b516c8ed8326fdbc1f50641063556ed3e0423620da",
+      "minutes_2021-01-27.json": "2c67521dcf9eb14361d27d9ef00bc81a692d4dbde44950519b81a264988dc938"
+    },
+    "script_sha256": "1ea90a608d89f5bbd56cb80528aed7533e8420264d85848771dd9641feb85d4b",
+    "orders_submitted": 0,
+    "new_downloads": 0,
+    "proves_execution": false,
+    "scope": "Exact existing stop/price/basis matches across both recent paths and 30/60 bps. Daily/minute stop touch is not NBBO election or guaranteed fills.",
+    "delay_sensitivity": {
+      "delayed_observations": 64,
+      "delayed_worse": 34,
+      "delayed_bps": {
+        "minimum": -299.92339873902483,
+        "p05": -130.13238265464764,
+        "median": -0.6689990632774423
+      }
+    }
+  },
+  "evidence_sha256": {
+    "var/reports/bull5_admission_20260915/stage.json": "96936acc3c29698a3c1d9a2d752a11bf440f0dbadff649787c6d42688d2b3839",
+    "var/reports/bull5_admission_20260915/minutes.json": "793f9750703072f0430030f29cba14ffde33fd301506be29922d5e7f4c633c21",
+    "var/reports/bull5_capital_sensitivity_20260915/protocol.json": "334a2d6c3e2054e43218146ea44ed747b08e8da77b53b5388a4f0517d49437eb",
+    "var/reports/bull5_capital_sensitivity_20260915/summary.json": "bba725110069c0fc21d76035a866f2fe6010df7abba1d4806d1bbbad4f884a1d",
+    "var/staging/bull5-v1/stage_sources.json": "9f4c447318a4d79dd4670cd489796cfc883d5271e086ee5006b06e57bc403ce9",
+    "var/staging/bull5-v1/var/releases/candidate-bull5-v1/manifest.json": "b74c13fa04bb4d4e8da8f555b669406898c717ab78dedcf6183c417f772567b1",
+    "var/staging/bull5-v1/var/reports/bull5_release_20260915/verification.json": "213f26c31663a3980f6e72ab79ab92e8c57014bb323fcdc8e57542b08493ef5b"
+  },
+  "activation_blockers": [
+    "Existing paper account has four pending BUY OPG orders; flat-only handoff must not be bypassed.",
+    "Fresh account capital must match the reviewed value and a current source-bound signal is required.",
+    "Existing LaunchAgent commissioning has not occurred for bull5."
+  ],
+  "manual_orders_submitted": 0,
+  "operational_database_modified": false,
+  "limitations": [
+    "Adaptive reuse of historical data, not an independent holdout.",
+    "Historical equity prices from Alpaca SIP; S5TW and VVIX from separately audited external sources.",
+    "One-minute touch/latency audit is not a guaranteed broker execution price.",
+    "Positive money deltas across 20 pairs are descriptive, not a newly imposed admission gate.",
+    "Capital and integer-sizing sensitivity around a circuit threshold explains the large outlier."
+  ]
+}
