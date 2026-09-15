@@ -9,8 +9,16 @@ use FulltimeTrading\Research\PaperExecutionRotationEnsembleBacktester;
 
 final class CandidateDefinition
 {
-    public const PROFILE = 'maximum-stop12-costband2-whole-v1';
+    public const PROFILE = 'maximum-stop12-costband2-whole-bull5-v1';
+    public const INDICATOR_RECIPE = 'bull_v110_ma50_boost105';
     public const CIRCUIT = ['drawdown' => .18, 'release' => 'confirmed', 'minimum_pause' => 5, 'initial_scale' => 1];
+
+    public static function indicatorMaps(array $bars, array $breadth, array $vvix): array
+    {
+        $case = \FulltimeTrading\Research\CandidateBullRiskStudy::cases()[self::INDICATOR_RECIPE];
+        $maps = \FulltimeTrading\Research\CandidateBullRiskStudy::maps($case, $bars, $breadth, $vvix);
+        return ['scale' => $maps['scale'], 'confirm' => ['volatility_calm' => $maps['confirmation']], 'bullish' => $maps['bullish']];
+    }
 
     public static function books(array $baseProfile, array $scale, array $features, array $nominal): array
     {

@@ -14,6 +14,7 @@ final class CandidateSignalArtifact
         foreach ($books as &$book) { $book['config'] = array_diff_key($book['config'], array_flip(self::DATA_KEYS)); }
         unset($book);
         $artifact = ['schema' => CandidateOrder::CONTRACT, 'run_id' => $candidate['run_id'], 'profile' => CandidateDefinition::PROFILE,
+            'indicator_recipe' => CandidateDefinition::INDICATOR_RECIPE,
             'as_of' => $inputs['date'], 'scheduled_session' => $nextSession, 'generated_at' => gmdate(DATE_ATOM),
             'runtime_hash' => $runtimeHash, 'base_profile_sha256' => $candidate['base_profile_sha256'], 'books' => $books,
             'contexts' => $inputs['context_answers'], 'nominal_closes' => $inputs['nominal_closes'],
@@ -31,6 +32,8 @@ final class CandidateSignalArtifact
         if (($a['schema'] ?? null) !== CandidateOrder::CONTRACT || ($a['paper_only'] ?? null) !== true
             || ($a['order_submission_enabled'] ?? null) !== false || ($a['validation_selected'] ?? null) !== false
             || ($a['run_id'] ?? null) !== $candidate['run_id'] || ($a['profile'] ?? null) !== CandidateDefinition::PROFILE
+            || ($a['indicator_recipe'] ?? null) !== CandidateDefinition::INDICATOR_RECIPE
+            || ($candidate['indicator_recipe'] ?? null) !== CandidateDefinition::INDICATOR_RECIPE
             || ($a['runtime_hash'] ?? null) !== $runtimeHash || ($a['base_profile_sha256'] ?? null) !== $candidate['base_profile_sha256']) {
             throw new \RuntimeException('Candidate signal identity failed.');
         }

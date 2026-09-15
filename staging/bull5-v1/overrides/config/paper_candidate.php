@@ -7,7 +7,7 @@ return [
     'enabled' => true,
     'paper_only' => true,
     'live_enabled' => false,
-    'run_id' => 'hybrid-v4-bull5-staged-2026-09-15',
+    'run_id' => 'hybrid-v4-bull5-2026-09-15',
     'predecessor_run_id' => 'hybrid-v4-candidate-2026-09-15',
     'profile' => 'maximum-stop12-costband2-whole-bull5-v1',
     'indicator_recipe' => 'bull_v110_ma50_boost105',

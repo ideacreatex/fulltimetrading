@@ -53,6 +53,8 @@ final class CandidateDataSnapshot
     {
         CandidateOrder::date($date);
         if (($candidate['paper_only'] ?? null) !== true || ($candidate['live_enabled'] ?? null) !== false
+            || ($candidate['profile'] ?? null) !== CandidateDefinition::PROFILE
+            || ($candidate['indicator_recipe'] ?? null) !== CandidateDefinition::INDICATOR_RECIPE
             || ($candidate['data']['feed'] ?? null) !== 'sip' || ($candidate['data']['yahoo_fallback'] ?? null) !== false
             || !hash_equals($candidate['base_profile_sha256'] ?? '', hash_file('sha256', $root . '/config/tactical_rotation.php'))) {
             throw new \RuntimeException('Candidate data/profile contract drift.');
@@ -101,7 +103,7 @@ final class CandidateDataSnapshot
                 throw new \RuntimeException('Candidate VVIX calendar incomplete.');
             }
         }
-        $maps = SelectedMaximumResearch::maps($decoded['split'], $breadth, $indicators['vvix']);
+        $maps = CandidateDefinition::indicatorMaps($decoded['split'], $breadth, $indicators['vvix']);
         $features = OpportunityPolicy::features($decoded['split'], $indicators['vvix'], $profile['universe']);
         $nominal = $nominalCloses = [];
         foreach ($decoded['raw'] as $symbol => $series) {

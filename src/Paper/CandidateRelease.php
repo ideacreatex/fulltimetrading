@@ -11,14 +11,15 @@ final class CandidateRelease
         $files = ['bootstrap.php', 'config/config.php', 'config/paper_candidate.php', 'config/tactical_rotation.php',
             'bin/trade', 'bin/install-hybrid-launchd', 'tools/candidate_paper_cycle.php', 'tools/candidate_paper_daemon.php',
             'tools/prepare_candidate_signal.php', 'tools/fetch_candidate_execution_data.php', 'tools/fetch_candidate_external_data.php',
-            'tools/verify_candidate_release.php', 'src/Storage/SqliteRepository.php', 'src/Data/MarketDataProvider.php',
+            'tools/verify_candidate_release.php', 'tools/verify_staged_bull5_release.php', 'src/Storage/SqliteRepository.php', 'src/Data/MarketDataProvider.php',
             'src/Storage/TacticalPaperRepository.php', 'src/Trading/AlpacaPaperClient.php', 'src/Trading/AlpacaPaperAccountGuard.php',
             'src/Trading/TacticalOrderGateway.php', 'src/Trading/TacticalRotationExecutionWindow.php', 'src/Trading/WholeShareSizing.php',
             'src/Trading/TacticalPortfolioNotificationSchedule.php', 'src/Trading/TacticalPortfolioWeeklySummary.php',
             'src/Data/HttpClient.php', 'src/Data/AlpacaBarsProvider.php', 'src/Domain/Bar.php', 'src/Indicators/IndicatorCalculator.php',
             'src/Support/Config.php', 'src/Support/EnvLoader.php', 'src/Support/ProcessLock.php', 'src/Notifications/TelegramNotifier.php',
             'src/Backtest/CausalTacticalRotationBacktester.php', 'src/Backtest/CausalTacticalRotationEnsembleBacktester.php'];
-        foreach (['AdaptiveResearchFactory', 'AdaptiveRotationBacktester', 'AdaptiveRotationEnsembleBacktester',
+        foreach (['CandidateBullRiskStudy', 'CandidateInteractionStudy', 'DeployedCandidateStudy',
+            'AdaptiveResearchFactory', 'AdaptiveRotationBacktester', 'AdaptiveRotationEnsembleBacktester',
             'AlgorithmSignalPolicy', 'AlgorithmTrendResearch', 'AlpacaStopResearchGrid', 'BreadthVolatilityResearch',
             'DailyDataAudit', 'HybridV4Research', 'OpportunityPolicy', 'PortfolioCircuitController', 'SelectedMaximumResearch',
             'PaperExecutionRotationBacktester', 'PaperExecutionRotationEnsembleBacktester'] as $name) {

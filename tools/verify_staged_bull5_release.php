@@ -45,7 +45,7 @@ try {
     $require($activeManifest['runtime_hash'] === $source['reference_runtime_hash']
         && $activeManifest['proof_sha256'] === hash_file('sha256', $sourceRoot . '/' . $activeManifest['proof_path']), 'Operational release changed while staging.');
     $activeProof = $read($activeManifest['proof_path']);
-    $require($stage['passed'] === true && $stage['programs'] >= 54 && $stage['failed_programs'] === []
+    $require($stage['passed'] === true && $stage['programs'] >= 55 && $stage['failed_programs'] === []
         && $stage['network_disabled'] === true && $stage['credential_environment_stripped'] === true
         && $stage['stage_source_sha256'] === hash_file('sha256', $root . '/stage_sources.json')
         && $stage['script_sha256'] === hash_file('sha256', $sourceRoot . '/tools/verify_bull5_stage_20260915.php'), 'Staged regression proof invalid.');
@@ -60,6 +60,8 @@ try {
     $proof['test_count'] = count($proof['tests']); $proof['tests_passed'] = true;
     $proof['full_command_contract_verified'] = $stage['results']['tests/candidate_cycle_contract.php']['exit_code'] === 0;
     $proof['fault_matrix_verified'] = $stage['results']['tests/staged_bull5_fault_matrix.php']['exit_code'] === 0;
+    $proof['auction_boundary_verified'] = ($stage['results']['tests/candidate_opg_auction_boundary.php']['exit_code'] ?? -1) === 0;
+    $require($proof['auction_boundary_verified'], 'The observed OPG submission-cutoff regression must be fixed.');
     foreach ($proof['files'] + ['tools/verify_staged_bull5_release.php' => hash_file('sha256', __FILE__)] as $file => $_) {
         $proof['lint'][$file] = $run(str_ends_with($file, '.php') || $file === 'bin/trade'
             ? [PHP_BINARY, '-l', $root . '/' . $file] : ['sh', '-n', $root . '/' . $file], $root);

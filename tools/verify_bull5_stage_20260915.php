@@ -17,7 +17,7 @@ if (!is_dir($out)) { mkdir($out, 0775, true); }
 $prior = $read($root . '/' . $active['proof_path']);
 $commands = [['tools/verify_staged_bull5_snapshot.php']];
 foreach (array_keys($prior['tests']) as $test) { $commands[] = ['tests/' . $test . '.php']; }
-foreach (['staged_bull5_fault_matrix', 'staged_bull5_maps', 'paper_market_commentary'] as $test) { $commands[] = ['tests/' . $test . '.php']; }
+foreach (['staged_bull5_fault_matrix', 'staged_bull5_maps', 'paper_market_commentary', 'candidate_opg_auction_boundary'] as $test) { $commands[] = ['tests/' . $test . '.php']; }
 $results = []; $env = ['PATH' => getenv('PATH') ?: '/usr/bin:/bin', 'HOME' => $stage . '/home', 'TMPDIR' => sys_get_temp_dir()];
 foreach ($commands as [$file]) {
     $command = [PHP_BINARY, '-d', 'memory_limit=512M', '-d', 'allow_url_fopen=0', '-d', 'disable_functions=curl_exec,fsockopen,stream_socket_client', $stage . '/' . $file];
