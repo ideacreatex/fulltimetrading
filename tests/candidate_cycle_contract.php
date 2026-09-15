@@ -16,6 +16,8 @@ try {
         copy($root . '/' . $file, $fixture . '/' . $file);
     }
     $candidate = require $fixture . '/config/paper_candidate.php'; $base = require $fixture . '/config/tactical_rotation.php';
+    $candidate['enabled'] = false;
+    file_put_contents($fixture . '/config/paper_candidate.php', "<?php\nreturn " . var_export($candidate, true) . ";\n");
     $now = new DateTimeImmutable('now', new DateTimeZone('America/New_York')); $calendar = [];
     for ($i = -15; $i <= 15; ++$i) {
         $day = $now->modify(($i >= 0 ? '+' : '') . $i . ' days');
@@ -96,7 +98,8 @@ PHP);
     $check($result['code'] === 2 && $result['report']['entry_submission_enabled'] === false, 'Source corruption blocks the full command.');
     $check(str_contains(implode(' ', $result['report']['errors']), 'provenance'), 'CLI reports source provenance rather than pretending no signal.');
     $result = $invoke(true);
-    $check($result['code'] === 2 && $result['report']['submitted'] === [], 'Disabled staged configuration cannot submit.');
+    $check($result['code'] === 2 && $result['report']['submitted'] === []
+        && in_array('candidate_release_not_enabled', $result['report']['errors'], true), 'Disabled staged configuration cannot submit.');
     file_put_contents($fixture . '/src/Paper/CandidateOrder.php', "\n// isolated identity-corruption fixture\n", FILE_APPEND);
     $result = $invoke();
     $check($result['code'] === 2 && str_contains(implode(' ', $result['report']['errors']), 'release admission/identity'), 'A source edit invalidates command-level release approval.');

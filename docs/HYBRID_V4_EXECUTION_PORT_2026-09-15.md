@@ -158,8 +158,15 @@ requests ending September 15 and September 16 also returned September 11 as
 their latest row, so this is not simply an exclusive-end-date bug. Cboe VVIX
 already includes September 14. No old indicator value was relabeled or filled.
 
-Fresh external inputs, existing-LaunchAgent handoff and post-handoff checks
-remain mandatory. The configuration is staged and disabled, not deployed.
-The old four-sleeve run remains active; its month report shows seven elapsed
-days, five observed market dates and no trades. A successful software release
-proof is not a successful deployment or a passed forward-month gate.
+At 2026-09-15T01:46:59Z the normal S5TW fetch completed through September 14,
+after repeated read-only checks at five-minute intervals. Both external series
+now have same-session coverage. The real-broker isolated preflight at 01:47:25Z
+passed with twelve targets, zero errors, zero submitted orders and confirmed
+flat $27,567.66 equity. The full-data signal builder used 375,390,208 peak bytes.
+
+The configuration is enabled for the existing-LaunchAgent handoff; this is not
+proof of activation. Its new runtime hash was verified by all 50 test programs.
+A consistent local pre-handoff SQLite backup is retained in the release reports.
+Post-handoff checks remain mandatory. The predecessor month report showed seven
+elapsed days, five market dates and no trades; that age cannot be inherited by
+the new candidate. Software admission is not a passed forward-month gate.

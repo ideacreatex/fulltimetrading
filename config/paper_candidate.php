@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 return [
-    // Staged release only. Activation requires the signed-off runtime manifest and existing LaunchAgent handoff.
-    'enabled' => false,
+    // Experimental paper release. Activation still requires verified inputs, manifest and LaunchAgent commissioning.
+    'enabled' => true,
     'paper_only' => true,
     'live_enabled' => false,
     'run_id' => 'hybrid-v4-candidate-2026-09-15',
