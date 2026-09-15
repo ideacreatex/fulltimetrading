@@ -3,17 +3,21 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-14 21:51:52 Нью-Йорк
-У брокера: позиций 0, открытых заявок 1.
+Снимок: 2026-09-14 22:01:55 Нью-Йорк
+У брокера: позиций 0, открытых заявок 4.
 Капитал $27,567.66; деньги на счёте $27,567.66.
-Лимит покупок брокера $50,595.71: может включать заёмные средства, это не бюджет новой сделки.
-Заявка: покупка MSFT; количество 9, исполнено 0. Наличие заявки не означает полного исполнения.
+Лимит покупок брокера $46,056.08: может включать заёмные средства, это не бюджет новой сделки.
+Заявка: покупка MSFT; количество 3, исполнено 0. Наличие заявки не означает полного исполнения.
+Заявка: покупка MSFT; количество 3, исполнено 0. Наличие заявки не означает полного исполнения.
+Заявка: покупка MSFT; количество 3, исполнено 0. Наличие заявки не означает полного исполнения.
 Статус ACTIVE: учёт стратегии активен, но это не разрешение покупать.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
 Почему: Есть заявка в исполнении или сверке; новый дополнительный риск заблокирован.
 Что дальше: Дождаться ответа брокера и сверки фактического количества.
+Почему: По расписанию и условиям модели новой покупки нет (HOLD). Лидер рейтинга может быть при этом указан.
+Что дальше: Дождаться следующего расчёта и разрешённого действия, а не покупать лидера вручную.
 
 Расчёт модели: закрытие 2026-09-14; план на 2026-09-15.
 На наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.
@@ -23,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-15T01:51:52+00:00`
+- Generated: `2026-09-15T02:01:55+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -31,7 +35,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
 - Equity: `$27,567.66`
 - Cash: `$27,567.66`
-- Buying power: `$50,595.71`
+- Buying power: `$46,056.08`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 97 delivered`
@@ -46,14 +50,17 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - none
 
 ## Open Orders
+- `MSFT` buy market qty `3`, limit `-`, status `accepted`
+- `MSFT` buy market qty `3`, limit `-`, status `accepted`
+- `MSFT` buy market qty `3`, limit `-`, status `accepted`
 - `MSFT` buy market qty `9`, limit `-`, status `accepted`
 
 ## Recent Actions
-- `2026-09-15T01:51:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:50:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:49:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:47:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:46:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:45:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:44:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T01:43:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T02:01:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T02:00:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:59:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:58:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:57:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:56:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:55:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T01:54:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
