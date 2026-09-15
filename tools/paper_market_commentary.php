@@ -62,13 +62,17 @@ if ($mode === 'context') {
         'open_orders' => array_map(static fn ($o): array => array_intersect_key($o, array_flip(['symbol', 'side', 'qty', 'filled_qty', 'status', 'type', 'time_in_force'])), $orders),
         'recent_intents' => $intents, 'signal_date' => $close['date'] ?? null, 'scheduled_session' => $close['scheduled_session'] ?? null, 'plans' => $plans,
         'market_data' => [], 'data_warnings' => [], 'limitations' => 'Sequential broker/ledger reads are not atomic; facts are timestamped observations, not execution commands.'];
+    $session = CandidateSession::resolve($calendar, $clock, $now);
+    $context['required_signal_date'] = $session['signal_date'];
+    $context['signal_is_latest_completed_session'] = false;
+    $verifiedArtifactDate = null;
     try {
         $artifact = CandidateDataSnapshot::read($root . '/var/reports/daily/candidate_signal.json');
         CandidateSignalArtifact::validate($artifact, $candidate, $release['runtime_hash'], require $root . '/config/tactical_rotation.php');
         CandidateDataSnapshot::verifyProvenance($root, $artifact['provenance']);
-        $session = CandidateSession::resolve($calendar, $clock, $now);
+        $verifiedArtifactDate = $artifact['as_of'];
         $context['signal_is_latest_completed_session'] = $artifact['as_of'] === $session['signal_date'];
-        $context['required_signal_date'] = $session['signal_date']; $context['confirmation_for_circuit_reentry'] = $artifact['confirmation'];
+        $context['confirmation_for_circuit_reentry'] = $artifact['confirmation'];
         $suffix = str_replace('-', '', $artifact['as_of']); $rawPath = $root . '/var/reports/candidate_execution_data_' . $suffix . '/split.json'; $data = $read($rawPath);
         foreach (['SPY', 'QQQ', 'SVXY'] as $symbol) {
             $series = $data[$symbol]; $last = end($series); $previous = $series[count($series) - 2]; $closes = array_column($series, 'c');
@@ -81,6 +85,8 @@ if ($mode === 'context') {
             $context['market_data'][$name] = ['as_of' => $artifact['as_of'], 'value' => $series[$artifact['as_of']], 'source' => $name === 'vvix' ? 'Cboe' : 'Investing.com breadth series'];
         }
     } catch (Throwable $e) { $context['data_warnings'][] = $e->getMessage(); }
+    $context['data_warnings'] = array_merge($context['data_warnings'], PaperMarketCommentary::freshnessWarnings(
+        $session['signal_date'], $verifiedArtifactDate, $context['signal_date']));
     if ($due !== null) { $context['existing_receipt'] = $outbox->receipt(PaperMarketCommentary::key($candidate['run_id'], $due['session_date'], $due['phase'])); }
     $relative = 'var/reports/market_commentary/contexts/' . gmdate('Ymd_His') . '_' . getmypid() . '.json'; Writer::write($root . '/' . $relative, $context);
     echo json_encode(['context_path' => $relative, 'context_sha256' => hash_file('sha256', $root . '/' . $relative), 'context' => $context], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), "\n";

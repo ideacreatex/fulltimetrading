@@ -29,6 +29,20 @@ foreach (['2026-03-10T13:00:00Z', '2026-11-03T14:00:00Z'] as $utc) {
 }
 $reject(fn () => Report::phase($calendar, ['timestamp' => $date . 'T13:35:00Z', 'is_open' => true], new DateTimeImmutable($date . 'T13:40:00Z')), 'Stale clock rejected.');
 $reject(fn () => $phase($date . ' 09:40', false, $calendar), 'Clock/calendar contradiction rejected.');
+$check(Report::freshnessWarnings('2026-09-14', '2026-09-14', '2026-09-14') === [], 'Previous close is current before the next close is eligible.');
+$check(Report::freshnessWarnings($date, '2026-09-14', '2026-09-14') === [
+    'signal_date_mismatch: required=2026-09-15; observed=2026-09-14',
+    'plan_date_mismatch: required=2026-09-15; observed=2026-09-14',
+], 'After close publication delay cannot produce an empty warning list.');
+$check(Report::freshnessWarnings($date, $date, '2026-09-14') === [
+    'plan_date_mismatch: required=2026-09-15; observed=2026-09-14',
+], 'A fresh artifact does not relabel the previous ledger plan.');
+$check(Report::freshnessWarnings($date, null, $date) === [
+    'signal_date_mismatch: required=2026-09-15; observed=missing',
+], 'An unverified artifact cannot be reported as fresh.');
+$check(count(Report::freshnessWarnings($date, null, null)) === 2, 'Missing plan and artifact are explicit.');
+$check(count(Report::freshnessWarnings($date, '2026-09-16', $date)) === 1, 'A future artifact is not current.');
+$check(Report::freshnessWarnings($date, $date, $date) === [], 'Verified current artifact and observed plan have no date warnings.');
 $now = new DateTimeImmutable($date . ' 09:00', $zone);
 $context = ['captured_at' => $now->format(DATE_ATOM), 'paper_only' => true, 'run_id' => 'paper-test', 'due' => ['phase' => 'pre_open', 'session_date' => $date],
     'account' => ['equity' => 27567.66, 'cash' => 27567.66], 'positions' => [], 'open_orders' => [['symbol' => 'MSFT']]];

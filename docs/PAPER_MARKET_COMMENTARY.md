@@ -64,6 +64,11 @@ rendered message at most 3800 bytes. The context must be no more than 15 minutes
 old and belong to the same active release and current eligible report window.
 The tool verifies account guard, source hashes and signal recipe. Data warnings
 remain visible to the author, rather than being replaced with invented values.
+The expected completed session is resolved independently of the signal artifact.
+A missing, stale or future artifact and an outdated ledger plan produce explicit,
+separate date warnings, even if the old artifact's hashes remain valid. A fresh
+artifact alone does not make an older observed plan current. These warnings are
+read-only commentary diagnostics, not changes to trading gates.
 
 ## Safety And Delivery
 

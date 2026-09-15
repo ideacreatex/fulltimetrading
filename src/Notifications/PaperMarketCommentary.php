@@ -36,6 +36,17 @@ final class PaperMarketCommentary
         return 'market-commentary:' . $run . ':' . $date . ':' . $phase . ':v1';
     }
 
+    public static function freshnessWarnings(string $requiredDate, ?string $artifactDate, ?string $planDate): array
+    {
+        $warnings = [];
+        foreach (['signal' => $artifactDate, 'plan' => $planDate] as $kind => $date) {
+            if ($date !== $requiredDate) {
+                $warnings[] = $kind . '_date_mismatch: required=' . $requiredDate . '; observed=' . ($date ?? 'missing');
+            }
+        }
+        return $warnings;
+    }
+
     public static function render(array $draft, array $context, \DateTimeImmutable $now): string
     {
         $at = new \DateTimeImmutable($context['captured_at'] ?? 'invalid'); $age = $now->getTimestamp() - $at->getTimestamp();
