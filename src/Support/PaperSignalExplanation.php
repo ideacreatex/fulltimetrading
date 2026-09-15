@@ -41,7 +41,8 @@ final class PaperSignalExplanation
         }
         if (!$brokerKnown) { $codes['broker_snapshot_unverified'] = true; }
         if (!$fresh || !$cycleFresh || !$sameRun) { $codes['snapshot_not_current'] = true; }
-        $experimentalPaper = ($run['profile'] ?? null) === 'maximum-stop12-costband2-whole-v1'
+        $experimentalPaper = in_array($run['profile'] ?? null,
+            ['maximum-stop12-costband2-whole-v1', 'maximum-stop12-costband2-whole-bull5-v1'], true)
             && ($cycle['profile'] ?? null) === $run['profile'] && ($signal['paper_admission'] ?? null) === true
             && ($cycle['paper_only'] ?? null) === true && $sameRun;
         if (($signal['validation_selected'] ?? null) !== true && !$experimentalPaper) {

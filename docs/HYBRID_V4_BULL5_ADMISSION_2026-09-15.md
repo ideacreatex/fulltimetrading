@@ -1,5 +1,12 @@
 # Bull5 staged paper admission, 2026-09-15
 
+**Historical pre-open assessment, superseded at 09:41 New York.** The first
+opening exposed an untested submission-cutoff cancellation bug. Bull5 with the
+fix is now deployed; see `HYBRID_V4_BULL5_DEPLOYMENT_2026-09-15.md/.json` for the
+new hash, 55-program regression, activation and preserved predecessor history.
+The original pre-open proof/manifest is archived in
+`var/reports/bull5_admission_20260915/pre_open_release/`.
+
 ## Status
 
 The variant `bull_v110_ma50_boost105` now has a separately verified, source-bound

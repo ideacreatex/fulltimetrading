@@ -98,4 +98,22 @@ $expect(str_contains(E::intent($intent), 'не подтверждение зак
 $expect(!str_contains(E::intent($intent), 'P/L $0'), 'Profit must not be fabricated from sale notional.');
 $intent['cumulative_filled_qty'] = INF;
 $expect(str_contains(E::intent($intent), 'НЕ ПОДТВЕРЖДЕНЫ'), 'Non-finite quantities fail closed.');
+foreach (['maximum-stop12-costband2-whole-v1', 'maximum-stop12-costband2-whole-bull5-v1'] as $profile) {
+    $paper = $base; $paper['tactical']['run']['profile'] = $profile; $paper['tactical']['cycle']['profile'] = $profile;
+    $paper['tactical']['cycle']['paper_only'] = true; $paper['tactical']['cycle']['signal']['paper_admission'] = true;
+    $paper['tactical']['cycle']['signal']['validation_selected'] = false;
+    $v = E::build($paper, $now);
+    $expect(str_contains($v['text'], 'только экспериментальный paper') && !in_array('qualification', array_column($v['reasons'], 'id'), true), 'Admitted paper profile is not mislabeled as rejected history: ' . $profile);
+    $expect(!$v['reported_plan_permitted'] && $v['execution_authority'] === 'none', 'Explaining admission never enables an entry.');
+    foreach (['missing_admission', 'string_admission', 'nonpaper', 'different_profile', 'different_run'] as $fault) {
+        $bad = $paper;
+        if ($fault === 'missing_admission') { unset($bad['tactical']['cycle']['signal']['paper_admission']); }
+        if ($fault === 'string_admission') { $bad['tactical']['cycle']['signal']['paper_admission'] = 'true'; }
+        if ($fault === 'nonpaper') { $bad['tactical']['cycle']['paper_only'] = false; }
+        if ($fault === 'different_profile') { $bad['tactical']['cycle']['profile'] = 'unapproved'; }
+        if ($fault === 'different_run') { $bad['tactical']['cycle']['run_id'] = 'different'; }
+        $v = E::build($bad, $now);
+        $expect(!str_contains($v['text'], 'только экспериментальный paper') && !$v['reported_plan_permitted'], 'Missing/mismatched proof is not paper admission: ' . $fault);
+    }
+}
 echo "paper_signal_explanation: {$checks} assertions PASS\n";

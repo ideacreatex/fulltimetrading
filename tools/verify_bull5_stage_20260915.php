@@ -7,19 +7,27 @@ require dirname(__DIR__) . '/bootstrap.php';
 $root = dirname(__DIR__); $stage = $root . '/var/staging/bull5-v1'; $out = $root . '/var/reports/bull5_admission_20260915';
 $lock = \FulltimeTrading\Support\ProcessLock::tryAcquire($root . '/var/run/bull5_stage_verification.lock'); if ($lock === null) { exit(75); }
 $read = static fn ($p): array => json_decode(file_get_contents($p), true, 512, JSON_THROW_ON_ERROR);
-$active = Release::verify($root, require $root . '/config/paper_candidate.php'); $source = $read($stage . '/stage_sources.json');
+$active = Release::verify($root, require $root . '/config/paper_candidate.php');
+$prior = $read($root . '/' . $active['proof_path']);
+$commands = ['tools/verify_staged_bull5_snapshot.php' => true];
+foreach (array_keys($prior['tests']) as $test) {
+    $file = str_ends_with($test, '.php') ? $test : 'tests/' . $test . '.php';
+    if (preg_match('~^(tests|tools)/[a-z0-9_]+\.php$~D', $file) !== 1) { throw new RuntimeException('Invalid prior verification program.'); }
+    $commands[$file] = true;
+}
+foreach (['staged_bull5_fault_matrix', 'staged_bull5_maps', 'paper_market_commentary', 'candidate_opg_auction_boundary'] as $test) { $commands['tests/' . $test . '.php'] = true; }
+if (in_array('--list-commands', $argv, true)) {
+    echo json_encode(['commands' => array_keys($commands), 'verification_performed' => false], JSON_PRETTY_PRINT), "\n"; exit;
+}
+$source = $read($stage . '/stage_sources.json');
 foreach ($source['files'] as $path => $record) {
     if (hash_file('sha256', $stage . '/' . $path) !== $record['sha256'] || hash_file('sha256', $root . '/' . $record['source']) !== $record['sha256']) {
         throw new RuntimeException('Rebuild stage after source changes.');
     }
 }
 if (!is_dir($out)) { mkdir($out, 0775, true); }
-$prior = $read($root . '/' . $active['proof_path']);
-$commands = [['tools/verify_staged_bull5_snapshot.php']];
-foreach (array_keys($prior['tests']) as $test) { $commands[] = ['tests/' . $test . '.php']; }
-foreach (['staged_bull5_fault_matrix', 'staged_bull5_maps', 'paper_market_commentary', 'candidate_opg_auction_boundary'] as $test) { $commands[] = ['tests/' . $test . '.php']; }
 $results = []; $env = ['PATH' => getenv('PATH') ?: '/usr/bin:/bin', 'HOME' => $stage . '/home', 'TMPDIR' => sys_get_temp_dir()];
-foreach ($commands as [$file]) {
+foreach (array_keys($commands) as $file) {
     $command = [PHP_BINARY, '-d', 'memory_limit=512M', '-d', 'allow_url_fopen=0', '-d', 'disable_functions=curl_exec,fsockopen,stream_socket_client', $stage . '/' . $file];
     $p = proc_open($command, [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]], $pipes, $stage, $env);
     if (!is_resource($p)) { throw new RuntimeException('Cannot start staged verification.'); }

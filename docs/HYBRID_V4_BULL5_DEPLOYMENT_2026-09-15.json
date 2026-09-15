@@ -1,0 +1,151 @@
+{
+  "verified_at": "2026-09-15T13:45:30+00:00",
+  "source_commit": "cba476d8",
+  "profile": "maximum-stop12-costband2-whole-bull5-v1",
+  "run_id": "hybrid-v4-bull5-2026-09-15",
+  "runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+  "paper_admission": true,
+  "live_approved": false,
+  "deployed": true,
+  "activated_at": "2026-09-15T13:41:18+00:00",
+  "commission": {
+    "run_id": "hybrid-v4-bull5-2026-09-15",
+    "runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+    "commissioned_at": "2026-09-15T13:41:21+00:00",
+    "verified_pid": 69275,
+    "launch_agent": "com.fulltimetrading.hybrid-v4-paper",
+    "paper_only": true,
+    "live_approved": false
+  },
+  "regression_programs": 55,
+  "failed_programs": [],
+  "opg_boundary_test": {
+    "exit_code": 0,
+    "output": "OPG auction boundary: 230 assertions PASS; 14 restartable scenarios, no broker access\n",
+    "sha256": "41007a2c7e5e32e72f798b383069bef957f2e49af0308068085cc09edc630af4"
+  },
+  "post_admission_assertions": 14,
+  "opening_orders_old_run": [
+    {
+      "submitted_at": "2026-09-15T08:00:34.004823002Z",
+      "canceled_at": "2026-09-15T13:28:42.856994917Z",
+      "symbol": "MSFT",
+      "qty": "3",
+      "filled_qty": "0",
+      "time_in_force": "opg",
+      "status": "canceled"
+    },
+    {
+      "submitted_at": "2026-09-15T08:00:34.099556949Z",
+      "canceled_at": "2026-09-15T13:28:18.855871798Z",
+      "symbol": "MSFT",
+      "qty": "3",
+      "filled_qty": "0",
+      "time_in_force": "opg",
+      "status": "canceled"
+    },
+    {
+      "submitted_at": "2026-09-15T08:00:34.102778418Z",
+      "canceled_at": "2026-09-15T13:27:54.244075623Z",
+      "symbol": "MSFT",
+      "qty": "3",
+      "filled_qty": "0",
+      "time_in_force": "opg",
+      "status": "canceled"
+    },
+    {
+      "submitted_at": "2026-09-15T08:00:34.105746368Z",
+      "canceled_at": "2026-09-15T13:27:28.669895126Z",
+      "symbol": "MSFT",
+      "qty": "9",
+      "filled_qty": "0",
+      "time_in_force": "opg",
+      "status": "canceled"
+    }
+  ],
+  "root_cause": "CandidateEntryBatch used the new-OPG submission cutoff as expiry of already submitted OPG orders; it aborted at 09:27 and canceled before the 09:30 auction.",
+  "fix": "Bounded resting of already submitted same-session OPG until the existing 09:32 deadline, no late POST or chase, ordinary signal/account/risk guards retained.",
+  "predecessor": {
+    "run_id": "hybrid-v4-candidate-2026-09-15",
+    "status": "paused",
+    "activated_at": "2026-09-15T01:51:22+00:00",
+    "initial_equity": 27567.66,
+    "canceled_intents": 4,
+    "filled_shares": 0,
+    "history_preserved": true
+  },
+  "post_install_audit": {
+    "generated_at": "2026-09-15T13:41:48+00:00",
+    "run_id": "hybrid-v4-bull5-2026-09-15",
+    "paper_only": true,
+    "orders_submitted": 0,
+    "database_mode": "read_only",
+    "run_status": "active",
+    "activated_at": "2026-09-15T13:41:18+00:00",
+    "account_guard": {
+      "account_reference_match": true,
+      "multiplier_match": true,
+      "shorting_match": true,
+      "active": true,
+      "unblocked": true
+    },
+    "attempts": 1,
+    "audit": {
+      "status": "flat_or_waiting",
+      "ok": true,
+      "errors": [],
+      "coverage": [],
+      "reconciliation": {
+        "ok": true,
+        "errors": [],
+        "positions": [],
+        "cash_difference": -1.964508555829525e-10,
+        "open_orders": 0
+      },
+      "filled_buy_shares": 0,
+      "open_order_count": 0,
+      "direct_order_lookups": 0,
+      "orders_submitted": 0,
+      "limitations": "Sequential broker GETs are not atomic; retry attention before diagnosing. A resting stop does not guarantee execution price or extended-hours protection."
+    },
+    "runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+    "broker": {
+      "buying_power": "55135.32",
+      "cash": "27567.66",
+      "equity": "27567.66"
+    },
+    "clock": {
+      "is_open": true,
+      "next_close": "2026-09-15T16:00:00-04:00",
+      "next_open": "2026-09-16T09:30:00-04:00",
+      "timestamp": "2026-09-15T09:41:50.654064265-04:00"
+    },
+    "completed_at": "2026-09-15T13:41:50+00:00",
+    "historical_order_lookup_scope": "Latest 50 ledger orders plus every active intent; older fills are checked by cash/position conservation, not re-fetched."
+  },
+  "month": {
+    "calendar_days": 0,
+    "market_dates": 1,
+    "minimum_days": 31,
+    "minimum_dates": 20,
+    "earliest_review": "2026-10-16T13:41:18+00:00",
+    "gate": "blocked"
+  },
+  "manual_broker_orders": 0,
+  "manual_broker_cancellations": 0,
+  "api_host_or_keys_changed": false,
+  "evidence_sha256": {
+    "var/releases/candidate-bull5-v1/manifest.json": "ad4b58ab39e197aa53dfbe80fec18b31eb5ed98c45c62f509ddf04a6dd4aa3f5",
+    "var/reports/bull5_release_20260915/verification.json": "c6073045cb49a188aba55424896e994964a7bf10d5fce8be9ece58c4691f54ba",
+    "var/reports/bull5_admission_20260915/stage.json": "7578ba59c1e7dadabbdd546dc3353f9640e853dede8c4f74e8815649c6e288c8",
+    "var/reports/candidate_forward_20260915/20260915_133044_65592.json": "413d5c6f7a9e254484d9c885d7b782654ff4c0a4e514f4a95d2ebb0ee12090cb",
+    "var/run/candidate_commission.json": "6c99a1d503edf46fa2a8970bead5eb8f94177e9c2a95736134eaae0530a6c5a1"
+  },
+  "pre_open_release_archive": "var/reports/bull5_admission_20260915/pre_open_release/",
+  "limitations": [
+    "No broker-confirmed fill has occurred yet in the new run.",
+    "The opening cutoff bug was not detected by the previous regression suite; first-opening forward audit exposed it.",
+    "Historical returns are not realized paper returns; deployment is not independent validation or live approval.",
+    "Presentation and test-list compatibility fixes are outside the trading runtime hash."
+  ]
+}
