@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
-Снимок: 2026-09-15 09:37:32 Нью-Йорк
+Снимок: 2026-09-15 09:52:39 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,567.66; деньги на счёте $27,567.66.
 Лимит покупок брокера $55,135.32: может включать заёмные средства, это не бюджет новой сделки.
@@ -22,7 +22,7 @@ ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
 
 ## Технические Подробности
 
-- Generated: `2026-09-15T13:37:32+00:00`
+- Generated: `2026-09-15T13:52:39+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -33,13 +33,13 @@ ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
 - Buying power: `$55,135.32`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `healthy`
-- Telegram outbox: `0 pending, 0 failed pending, 98 delivered`
+- Telegram outbox: `0 pending, 0 failed pending, 100 delivered`
 - Hybrid reconciliation: `reconciled`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
 - Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-09-15:v3`
-- Telegram close report key: `portfolio-close:hybrid-v4-candidate-2026-09-15:2026-09-14`
-- Live review not before: `2026-10-16T01:51:22+00:00`
+- Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-14`
+- Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
 - none
@@ -48,11 +48,11 @@ ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
 - none
 
 ## Recent Actions
-- `2026-09-15T13:37:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:36:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:35:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:34:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:33:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:32:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:31:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T13:30:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:51:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:50:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:49:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:48:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:47:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:46:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:45:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T13:44:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
