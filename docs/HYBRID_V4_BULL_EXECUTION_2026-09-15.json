@@ -1,0 +1,892 @@
+{
+    "verified_at": "2026-09-15T12:02:12+00:00",
+    "protocol_sha256": "1e16170aafce1317c2c3db9dbe5d9ede4bdc327b7482500dfdcd539b6b345c03",
+    "component_cases": 24,
+    "additional_attribution_control_replays": 1,
+    "totals": {
+        "assertions": 934661,
+        "sleeve_sessions": 277848,
+        "quantity_decisions": 95909,
+        "gap_preempted_decisions": 207,
+        "saved_stops": 4275
+    },
+    "verification_assertions": 4610,
+    "receipts": {
+        "bull_v100_ma50_boost105__early2017__30": {
+            "proof_sha256": "12d88700158fa641053ae8c10fc90dfaa58b38693390e1e9265c1892f67f8c80",
+            "source_sha256": "8297a0deed6def4ebafe092de4fae5deca150341928d946ec5fc68e9cb926739",
+            "source_curve_sha256": "7ac09451190c92a1837fa29301076aea4d7d0d2a41af48bc66e1d9233366b4f6"
+        },
+        "bull_v100_ma50_boost105__early2017__60": {
+            "proof_sha256": "c3e951911aad93186386b0e7ddae3fec02e63cc7ddd7a80b9f3abfba20888cc2",
+            "source_sha256": "9d57fe02ab4f2a9f5640ba63c5644c1a8e07f2777d7990b0bb5ef8513fe3d18e",
+            "source_curve_sha256": "efa3a51e7245814c6464484a6deb6dbf6566720860b03bb866db76ad6bccf839"
+        },
+        "bull_v100_ma50_boost105__early2019__30": {
+            "proof_sha256": "b01aed0c0dac3cc24fa488c72a030a07759aac800cefdad903ab8b2b46707d17",
+            "source_sha256": "131e1d8029e7e165c198402befa777de9b1fd550a443023613bbf836887045b5",
+            "source_curve_sha256": "b9bf4d21e4fe8760005ff02927e3ef5b36615da2e78efe90d28941ec454766fb"
+        },
+        "bull_v100_ma50_boost105__early2019__60": {
+            "proof_sha256": "9008d56848f34bf4b7aad52da06695a0e01267a048dd41aecc3e48854525e3f9",
+            "source_sha256": "8aa9a24a04aad96dabe5cc35ef813cca289f7f8f915a2f7bfc8ab73a44058ac4",
+            "source_curve_sha256": "fdde49ad3ee0cdb34ca7419718c77d4177bc9e51bb6786471f77a928a6254e60"
+        },
+        "bull_v100_ma50_boost105__continuous__30": {
+            "proof_sha256": "50943003c3cdfed416acdd7ee7f0e3c5b0f4ee7480e27ca1fa0b5f8e4129b3f5",
+            "source_sha256": "5fe70720e0e14f561d3c4ab09c6cf8652e0a032c50128a7ec936bef3c4ca9941",
+            "source_curve_sha256": "c14b1f3ae6e0fcdc7e8dece31d1339f587295d42b5d1c8a872e8af859a15f750"
+        },
+        "bull_v100_ma50_boost105__continuous__60": {
+            "proof_sha256": "3528d23fa9756a1e6da7df145564ab1ff489aed2047b46ab7e0786d207135389",
+            "source_sha256": "26b7af5c3135b098e5efc194c147ad28f71e63b78b081a2416e32ad06e9f5074",
+            "source_curve_sha256": "0ce8872a36439c9c9d59681be70f6ddf61c3d1d2c76fd41ac688d8da890bc336"
+        },
+        "bull_v100_ma50_boost105__fresh2023__30": {
+            "proof_sha256": "08fc342efc24edd7598d887ee22e54080bcf814f1f3803eea25c1894559d8b50",
+            "source_sha256": "1acad4e21cced6273da8a06de73564ffe1a7a151731d33acb739aa3a22e6909b",
+            "source_curve_sha256": "774a8e202928b2fc02055dcdae0f2140f9ab854c2084432b8ad8117963a4a42e"
+        },
+        "bull_v100_ma50_boost105__fresh2023__60": {
+            "proof_sha256": "0691a13b2ce49ba459d5b0527281bc276bb6c7a5a2c3fe937a0ca4eae02bf7fd",
+            "source_sha256": "1351e62a6f4bf1a9ff8c943a8b6c548f904874303f70e384ab071950b95c5b1a",
+            "source_curve_sha256": "30614949243c57ef07563977eb71303b2a584983c30527208459fcce98a453cf"
+        },
+        "bull_v105_ma50_boost105__early2017__30": {
+            "proof_sha256": "409801e35635c88ea5233fd3e9112abee9874a7d415b440e8c961a097dbee476",
+            "source_sha256": "12bf63645baae7287fd0ace0037ac338f9f96e7034a3d5bb0f3dd71e9bc59708",
+            "source_curve_sha256": "7ac09451190c92a1837fa29301076aea4d7d0d2a41af48bc66e1d9233366b4f6"
+        },
+        "bull_v105_ma50_boost105__early2017__60": {
+            "proof_sha256": "43e2c74afd6a1a0d274d7485d6ac5c410d4257d5a3f2176554814b977d531490",
+            "source_sha256": "54691ee5d62c16a32b7e936a2e95ced76de85211e6c6390b0950584eafd76fa4",
+            "source_curve_sha256": "93ce68eb020d3cf0e5aa061cb281bab362e8a8ef3e576d0758abee67ba8a8017"
+        },
+        "bull_v105_ma50_boost105__early2019__30": {
+            "proof_sha256": "30518aa8bdc5745d0d018cdbb773786e894e3ced30c81e9573542603b6841e0a",
+            "source_sha256": "3ded3db7aae553f2edf98d9178500ef1a5a21a7d2b914711fe3e600e0f6d2932",
+            "source_curve_sha256": "b9bf4d21e4fe8760005ff02927e3ef5b36615da2e78efe90d28941ec454766fb"
+        },
+        "bull_v105_ma50_boost105__early2019__60": {
+            "proof_sha256": "b63d0726d0427dcbf13042f2bfa66fef97f168762a2a6c621bda74c89d272c5d",
+            "source_sha256": "4fa963d8c86e6eab6366fc5e61e30cdf82bdad7a02ce075155c4038e22f8fcdc",
+            "source_curve_sha256": "3a94d6e37591bc0a512915d5d07f20b97d267c398134ceef160ed1a2e1818ccb"
+        },
+        "bull_v105_ma50_boost105__continuous__30": {
+            "proof_sha256": "2a01c2928834b797618e02ced41a3d055bac80d3a28a57817f2990b3a7f8f455",
+            "source_sha256": "78984145b62a6461bf998233494e9501376d8b37df023e89f832319341c2538d",
+            "source_curve_sha256": "78dcacdc096310b7e958895f819c2f927eaa73f1c2162dc5fe38a842550c53dc"
+        },
+        "bull_v105_ma50_boost105__continuous__60": {
+            "proof_sha256": "ba75ca4787b94a0f53726059bb71a9cf3164ffd766703fbe4a5da473783c5027",
+            "source_sha256": "40c31336125de97e765ad329564de32de44c324535eb4d935c3bd19cfd5d7ca0",
+            "source_curve_sha256": "ae1ec6a012fae3eb61bccbdce67e7e5a7fc05375d96bd0e4cb1574c0be47062e"
+        },
+        "bull_v105_ma50_boost105__fresh2023__30": {
+            "proof_sha256": "65a9b842b548c7ab26c47d3c7ec5060e4aa609a8346ff37b2649da437f150345",
+            "source_sha256": "1640d90b923d00b0babc66fed533957e82e50deb758a15443600b9bd9922a0df",
+            "source_curve_sha256": "002cae7130fd4b7d460f3d9716fbceb273983a04f1049e2d3c969c198d348173"
+        },
+        "bull_v105_ma50_boost105__fresh2023__60": {
+            "proof_sha256": "9681a05d202dfde94a58777627d3a2f22d1c29cbbce7e87446697405adc323db",
+            "source_sha256": "b7e42e3d0207360d838cbfa6c5557d5dc97af20cddfd1ea3de5828c3d2cd10b3",
+            "source_curve_sha256": "cb82960751a1ccd9bfac630b26550ba1f113830b608f0922ef413a3dc894ed2a"
+        },
+        "bull_v110_ma50_boost105__early2017__30": {
+            "proof_sha256": "d0d44e058615ee151b657cab22439ab8637816dff311c44c459d0f37334fbfd6",
+            "source_sha256": "f4cebed9f2d114dd98fbb06557bdba89ff827520feb7d1961d9c490eb67413df",
+            "source_curve_sha256": "7ac09451190c92a1837fa29301076aea4d7d0d2a41af48bc66e1d9233366b4f6"
+        },
+        "bull_v110_ma50_boost105__early2017__60": {
+            "proof_sha256": "bca7e4f2f933cc74b1ea7e6f777f8cbed6072f24427ce5b5c81f702eeec13224",
+            "source_sha256": "f95ddd58e1711875f6d92866c98c35d509ae055d1b64bc704dd747732d12ccac",
+            "source_curve_sha256": "de0f3a817bf4c08332f5a996a78274be8be4ac6288833c36c3fb30275917e99a"
+        },
+        "bull_v110_ma50_boost105__early2019__30": {
+            "proof_sha256": "ae82f4f4caabbcecb69ec338ba85d1e42dc1e76bd83fc72a3ad37e6b47ec3eff",
+            "source_sha256": "7ab547e40b0f51ce2a7e3565841bcb8626cac9ffb3d6fa4ec7549d19292d3b1f",
+            "source_curve_sha256": "b9bf4d21e4fe8760005ff02927e3ef5b36615da2e78efe90d28941ec454766fb"
+        },
+        "bull_v110_ma50_boost105__early2019__60": {
+            "proof_sha256": "d1c27c349adcba8a557e7cd678e6d3d79a411d9273c8760f42e4a2f27695cad5",
+            "source_sha256": "52b9b78ceaf254ad7e914145a06dab05ac5bffb2ec901ebdb631d48d1e108208",
+            "source_curve_sha256": "6c8627d092e8bcd94fa8d0865f66396a4650f1de499de4b9f67689e776d46ff9"
+        },
+        "bull_v110_ma50_boost105__continuous__30": {
+            "proof_sha256": "4cf0842824de5a2850658f4833adc307336dd71d7dca2212bf3b75a9b31a32f8",
+            "source_sha256": "938727df71a1b41a21b2a401c8e7c7ec4b13e5d88f6740d07005a56de8eb4fa4",
+            "source_curve_sha256": "880d13ffdd4cff765b916a05572f2c78a61920be0b5da0d0a1254d040f2e993c"
+        },
+        "bull_v110_ma50_boost105__continuous__60": {
+            "proof_sha256": "00bdcb7ad5291cfa61686eaf574d939c937a302a19e00010937bd0b75d3b471a",
+            "source_sha256": "46e6bcc16b29e0b6469d4a33bf41d4c3aedea576b11b62e0b07da76fbc178f40",
+            "source_curve_sha256": "e32fc13e0d81ad01878396a35c86b5ee54a10f61a11e3d1452e0bdbd38313d2d"
+        },
+        "bull_v110_ma50_boost105__fresh2023__30": {
+            "proof_sha256": "f416478aba33c0fd31ef57dc529f34b6d021839b111793acc84cf4eed2c5b9fa",
+            "source_sha256": "a8b8386b4cd970dddbfd40af8be5adef008a446b86909c512802703d3b47afb3",
+            "source_curve_sha256": "0fcda607fe76b30d2ebd8261e4ab2b23513e513610986b3fb7f6a74504aa94b5"
+        },
+        "bull_v110_ma50_boost105__fresh2023__60": {
+            "proof_sha256": "b633dc5d0960428e3f66a3e8c7256b3c8207872c4357287d4962bf95460cb418",
+            "source_sha256": "a7fd2fcb78dc6dd9a12b3809db04fb6c8bd2d1222d316779ebd58314eb6dd039",
+            "source_curve_sha256": "77f1a50688bd2b40b722a2711169481ff84e4c98377d3d38d2c3fdd67d4820d8"
+        },
+        "deployed__continuous__60": {
+            "proof_sha256": "5cc39e89a99448663b731bc07c1d82d72422faf3ee238cbe095ab237b2597796",
+            "source_sha256": "b3a7db78b7720d02fa95f8ff244db76382dab86572a8f8ac4064a0b8de547699",
+            "source_curve_sha256": "8c97358c8bf015e66888e7cb78539296bc01690f9126df87487769cfc0c42b25"
+        }
+    },
+    "snapshot_binding": {
+        "protocol_sha256": "51dc227bf2e9174e5472dea353c223378c0bf5a9c238e2462f67b45c477b13b0",
+        "complete": true,
+        "assertions": 37,
+        "receipts": {
+            "bull_v100_ma50_boost105": {
+                "passed": true,
+                "artifact_sha256": "2a675891908928bd7160fdd4edf4ee70a4a03e52100b728f440a2418f037aec9",
+                "recipe_sha256": "78f76eedc1ce6c360b82a2696c587668b49143597c952ab295173d6680afb832",
+                "content_sha256": "3d47877464b2d2f9aaa1777e5f7e778d7c7b6141ca621fcc497318c748e4cc96",
+                "bullish": false,
+                "daily_scale": 1,
+                "confirmation": false,
+                "matches_deployed_close_contexts": true
+            },
+            "bull_v105_ma50_boost105": {
+                "passed": true,
+                "artifact_sha256": "05c4a5c2214c531d998a3c4d7ec559119d01c0bc1c87468a8b3f2ab71e6771b5",
+                "recipe_sha256": "fbdb15115c10dcf68d7145435caacf3a3d17be5dd1641c89a2190c3a5a7fbd27",
+                "content_sha256": "3655404dd31cea48a85e2726e83144863821458838d24d872213019884f5145e",
+                "bullish": false,
+                "daily_scale": 1,
+                "confirmation": false,
+                "matches_deployed_close_contexts": true
+            },
+            "bull_v110_ma50_boost105": {
+                "passed": true,
+                "artifact_sha256": "e08943b02d70dc4b0e273dc4b707de8b416031379e16e76b351fb4421b571956",
+                "recipe_sha256": "cbe6c47e103d7f30d4fd6c37608800e0520df45ef90517b31d1f3763280c79d2",
+                "content_sha256": "ba8ab0ae39741bac984c88df0f4f98a12f44dd1c71ac619bc2996c4a38d3be72",
+                "bullish": false,
+                "daily_scale": 1,
+                "confirmation": false,
+                "matches_deployed_close_contexts": true
+            }
+        },
+        "peak_memory_bytes": 392708096,
+        "orders_submitted": 0,
+        "operational_database_modified": false,
+        "runtime_unchanged": true,
+        "release_admitted": false,
+        "scope": "Isolated dated snapshot binding, not broker/persisted-ledger admission."
+    },
+    "continuous_60bps_attribution": {
+        "bull_v100_ma50_boost105": {
+            "base_terminal": 523894.43253738515,
+            "variant_terminal": 700917.6465454077,
+            "terminal_money_delta": 0.33789863570537215,
+            "summed_log_relative_contribution": 0.29110020076851373,
+            "reconciled_relative_factor": 1.3378986357053697,
+            "years": {
+                "2021": {
+                    "sessions": 252,
+                    "base_start": 27567.66,
+                    "variant_start": 27567.66,
+                    "log_relative_contribution": 0.36796945668970965,
+                    "base_end": 25702.359360761617,
+                    "variant_end": 37134.715070795704,
+                    "base_return": -0.067662639456464,
+                    "variant_return": 0.3470390693586509,
+                    "relative_factor": 1.4447979093890975
+                },
+                "2022": {
+                    "sessions": 251,
+                    "base_start": 25702.359360761617,
+                    "variant_start": 37134.715070795704,
+                    "log_relative_contribution": -0.12863785536796807,
+                    "base_end": 24401.923406740098,
+                    "variant_end": 31000.19698002177,
+                    "base_return": -0.05059597587009168,
+                    "variant_return": -0.16519631506741728,
+                    "relative_factor": 0.8792923388940214
+                },
+                "2023": {
+                    "sessions": 250,
+                    "base_start": 24401.923406740098,
+                    "variant_start": 31000.19698002177,
+                    "log_relative_contribution": 0.06181488823532444,
+                    "base_end": 73535.61952612609,
+                    "variant_end": 99376.57260337211,
+                    "base_return": 2.013517348628948,
+                    "variant_return": 2.205675520946394,
+                    "relative_factor": 1.0637654110087893
+                },
+                "2024": {
+                    "sessions": 252,
+                    "base_start": 73535.61952612609,
+                    "variant_start": 99376.57260337211,
+                    "log_relative_contribution": -0.024644126328880404,
+                    "base_end": 112326.89994136551,
+                    "variant_end": 148104.1485534073,
+                    "base_return": 0.5275168777419148,
+                    "variant_return": 0.49033262743438333,
+                    "relative_factor": 0.975657060914116
+                },
+                "2025": {
+                    "sessions": 250,
+                    "base_start": 112326.89994136551,
+                    "variant_start": 148104.1485534073,
+                    "log_relative_contribution": -0.0016074304226592565,
+                    "base_end": 246221.64157437749,
+                    "variant_end": 324124.2873303133,
+                    "base_return": 1.1920095872218037,
+                    "variant_return": 1.1884889147006708,
+                    "relative_factor": 0.9983938608016788
+                },
+                "2026": {
+                    "sessions": 170,
+                    "base_start": 246221.64157437749,
+                    "variant_start": 324124.2873303133,
+                    "log_relative_contribution": 0.016205267962988094,
+                    "base_end": 523894.43253738515,
+                    "variant_end": 700917.6465454077,
+                    "base_return": 1.1277351137273186,
+                    "variant_return": 1.162496529706539,
+                    "relative_factor": 1.0163372854802055
+                }
+            },
+            "prior_close_circuit_groups": {
+                "neither_forced_cash": {
+                    "sessions": 1200,
+                    "log_relative_contribution": 0.06029123188589299,
+                    "relative_factor": 1.062145832240062
+                },
+                "only_base_forced_cash": {
+                    "sessions": 197,
+                    "log_relative_contribution": 0.18728008651438438,
+                    "relative_factor": 1.2059650122880556
+                },
+                "only_variant_forced_cash": {
+                    "sessions": 8,
+                    "log_relative_contribution": 0.04308864126566135,
+                    "relative_factor": 1.0440304349282583
+                },
+                "both_forced_cash": {
+                    "sessions": 20,
+                    "log_relative_contribution": 0.0004402411025757739,
+                    "relative_factor": 1.0004403380229123
+                }
+            },
+            "base_forced_cash_sessions": 217,
+            "variant_forced_cash_sessions": 28,
+            "first_circuit_divergence": {
+                "session": "2021-08-18",
+                "decided_at_close": "2021-08-17",
+                "base_force_cash": true,
+                "variant_force_cash": false
+            },
+            "base_events": [
+                {
+                    "date": "2021-08-17",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 25873.2492340368,
+                    "risk_epoch_peak": 31653.192524509024,
+                    "trigger_value": 25873.2492340368
+                },
+                {
+                    "date": "2022-05-27",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 197,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 57731.908405660375,
+                    "risk_epoch_peak": 70976.77559094677,
+                    "trigger_value": 57731.908405660375
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 82371.99930488816,
+                    "risk_epoch_peak": 101141.7742421976,
+                    "trigger_value": 82371.99930488816
+                },
+                {
+                    "date": "2024-08-19",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                }
+            ],
+            "variant_events": [
+                {
+                    "date": "2022-12-01",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 31186.10536373364,
+                    "risk_epoch_peak": 38072.23773844729,
+                    "trigger_value": 31186.10536373364
+                },
+                {
+                    "date": "2022-12-13",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 8,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 78003.80557713892,
+                    "risk_epoch_peak": 95757.41307453826,
+                    "trigger_value": 78003.80557713892
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 108389.19057458719,
+                    "risk_epoch_peak": 135394.6799534581,
+                    "trigger_value": 108389.19057458719
+                },
+                {
+                    "date": "2024-08-19",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                }
+            ],
+            "interpretation": "Accounting by PRIOR close circuit state. State is an order restriction, not proof every sleeve was flat. Groups are path-dependent, not independent causal effects; rounding/positions/costs remain coupled.",
+            "first_divergence_drawdown": {
+                "base": -0.1826022220664415,
+                "variant": -0.1654724529514099
+            }
+        },
+        "bull_v105_ma50_boost105": {
+            "base_terminal": 523894.43253738515,
+            "variant_terminal": 701061.7325528917,
+            "terminal_money_delta": 0.3381736644106519,
+            "summed_log_relative_contribution": 0.2913057473124079,
+            "reconciled_relative_factor": 1.3381736644106512,
+            "years": {
+                "2021": {
+                    "sessions": 252,
+                    "base_start": 27567.66,
+                    "variant_start": 27567.66,
+                    "log_relative_contribution": 0.36796945668970965,
+                    "base_end": 25702.359360761617,
+                    "variant_end": 37134.715070795704,
+                    "base_return": -0.067662639456464,
+                    "variant_return": 0.3470390693586509,
+                    "relative_factor": 1.4447979093890975
+                },
+                "2022": {
+                    "sessions": 251,
+                    "base_start": 25702.359360761617,
+                    "variant_start": 37134.715070795704,
+                    "log_relative_contribution": -0.12863785536796807,
+                    "base_end": 24401.923406740098,
+                    "variant_end": 31000.19698002177,
+                    "base_return": -0.05059597587009168,
+                    "variant_return": -0.16519631506741728,
+                    "relative_factor": 0.8792923388940214
+                },
+                "2023": {
+                    "sessions": 250,
+                    "base_start": 24401.923406740098,
+                    "variant_start": 31000.19698002177,
+                    "log_relative_contribution": 0.06181488823532444,
+                    "base_end": 73535.61952612609,
+                    "variant_end": 99376.57260337211,
+                    "base_return": 2.013517348628948,
+                    "variant_return": 2.205675520946394,
+                    "relative_factor": 1.0637654110087893
+                },
+                "2024": {
+                    "sessions": 252,
+                    "base_start": 73535.61952612609,
+                    "variant_start": 99376.57260337211,
+                    "log_relative_contribution": -0.024244290130027595,
+                    "base_end": 112326.89994136551,
+                    "variant_end": 148163.3777934073,
+                    "base_return": 0.5275168777419148,
+                    "variant_return": 0.49092863551202526,
+                    "relative_factor": 0.9760472419237836
+                },
+                "2025": {
+                    "sessions": 250,
+                    "base_start": 112326.89994136551,
+                    "variant_start": 148163.3777934073,
+                    "log_relative_contribution": -0.0016844907066178353,
+                    "base_end": 246221.64157437749,
+                    "variant_end": 324228.9237298423,
+                    "base_return": 1.1920095872218037,
+                    "variant_return": 1.1883202756212352,
+                    "relative_factor": 0.9983169272515616
+                },
+                "2026": {
+                    "sessions": 170,
+                    "base_start": 246221.64157437749,
+                    "variant_start": 324228.9237298423,
+                    "log_relative_contribution": 0.016088038591986865,
+                    "base_end": 523894.43253738515,
+                    "variant_end": 701061.7325528917,
+                    "base_return": 1.1277351137273186,
+                    "variant_return": 1.1622430364572853,
+                    "relative_factor": 1.016218147882853
+                }
+            },
+            "prior_close_circuit_groups": {
+                "neither_forced_cash": {
+                    "sessions": 1200,
+                    "log_relative_contribution": 0.060791838828175446,
+                    "relative_factor": 1.0626776829303648
+                },
+                "only_base_forced_cash": {
+                    "sessions": 198,
+                    "log_relative_contribution": 0.18698502611599496,
+                    "relative_factor": 1.2056092322619656
+                },
+                "only_variant_forced_cash": {
+                    "sessions": 8,
+                    "log_relative_contribution": 0.04308864126566135,
+                    "relative_factor": 1.0440304349282583
+                },
+                "both_forced_cash": {
+                    "sessions": 19,
+                    "log_relative_contribution": 0.0004402411025757739,
+                    "relative_factor": 1.0004403380229123
+                }
+            },
+            "base_forced_cash_sessions": 217,
+            "variant_forced_cash_sessions": 27,
+            "first_circuit_divergence": {
+                "session": "2021-08-18",
+                "decided_at_close": "2021-08-17",
+                "base_force_cash": true,
+                "variant_force_cash": false
+            },
+            "base_events": [
+                {
+                    "date": "2021-08-17",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 25873.2492340368,
+                    "risk_epoch_peak": 31653.192524509024,
+                    "trigger_value": 25873.2492340368
+                },
+                {
+                    "date": "2022-05-27",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 197,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 57731.908405660375,
+                    "risk_epoch_peak": 70976.77559094677,
+                    "trigger_value": 57731.908405660375
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 82371.99930488816,
+                    "risk_epoch_peak": 101141.7742421976,
+                    "trigger_value": 82371.99930488816
+                },
+                {
+                    "date": "2024-08-19",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                }
+            ],
+            "variant_events": [
+                {
+                    "date": "2022-12-01",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 31186.10536373364,
+                    "risk_epoch_peak": 38072.23773844729,
+                    "trigger_value": 31186.10536373364
+                },
+                {
+                    "date": "2022-12-13",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 8,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 78003.80557713892,
+                    "risk_epoch_peak": 95757.41307453826,
+                    "trigger_value": 78003.80557713892
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 108389.19057458719,
+                    "risk_epoch_peak": 135394.6799534581,
+                    "trigger_value": 108389.19057458719
+                },
+                {
+                    "date": "2024-08-16",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 9,
+                    "confirmation": true
+                }
+            ],
+            "interpretation": "Accounting by PRIOR close circuit state. State is an order restriction, not proof every sleeve was flat. Groups are path-dependent, not independent causal effects; rounding/positions/costs remain coupled.",
+            "first_divergence_drawdown": {
+                "base": -0.1826022220664415,
+                "variant": -0.1654724529514099
+            }
+        },
+        "bull_v110_ma50_boost105": {
+            "base_terminal": 523894.43253738515,
+            "variant_terminal": 702339.3734286957,
+            "terminal_money_delta": 0.34061240167612716,
+            "summed_log_relative_contribution": 0.2931265257389473,
+            "reconciled_relative_factor": 1.3406124016761252,
+            "years": {
+                "2021": {
+                    "sessions": 252,
+                    "base_start": 27567.66,
+                    "variant_start": 27567.66,
+                    "log_relative_contribution": 0.36796945668970965,
+                    "base_end": 25702.359360761617,
+                    "variant_end": 37134.715070795704,
+                    "base_return": -0.067662639456464,
+                    "variant_return": 0.3470390693586509,
+                    "relative_factor": 1.4447979093890975
+                },
+                "2022": {
+                    "sessions": 251,
+                    "base_start": 25702.359360761617,
+                    "variant_start": 37134.715070795704,
+                    "log_relative_contribution": -0.12863785536796807,
+                    "base_end": 24401.923406740098,
+                    "variant_end": 31000.19698002177,
+                    "base_return": -0.05059597587009168,
+                    "variant_return": -0.16519631506741728,
+                    "relative_factor": 0.8792923388940214
+                },
+                "2023": {
+                    "sessions": 250,
+                    "base_start": 24401.923406740098,
+                    "variant_start": 31000.19698002177,
+                    "log_relative_contribution": 0.06181488823532444,
+                    "base_end": 73535.61952612609,
+                    "variant_end": 99376.57260337211,
+                    "base_return": 2.013517348628948,
+                    "variant_return": 2.205675520946394,
+                    "relative_factor": 1.0637654110087893
+                },
+                "2024": {
+                    "sessions": 252,
+                    "base_start": 73535.61952612609,
+                    "variant_start": 99376.57260337211,
+                    "log_relative_contribution": -0.022559641071497882,
+                    "base_end": 112326.89994136551,
+                    "variant_end": 148413.19145340726,
+                    "base_return": 0.5275168777419148,
+                    "variant_return": 0.49344244388210257,
+                    "relative_factor": 0.9776929248008158
+                },
+                "2025": {
+                    "sessions": 250,
+                    "base_start": 112326.89994136551,
+                    "variant_start": 148413.19145340726,
+                    "log_relative_contribution": -0.0015747291737771727,
+                    "base_end": 246221.64157437749,
+                    "variant_end": 324811.2458508507,
+                    "base_return": 1.1920095872218037,
+                    "variant_return": 1.1885604821915154,
+                    "relative_factor": 0.9984265100616361
+                },
+                "2026": {
+                    "sessions": 170,
+                    "base_start": 246221.64157437749,
+                    "variant_start": 324811.2458508507,
+                    "log_relative_contribution": 0.016114406427156454,
+                    "base_end": 523894.43253738515,
+                    "variant_end": 702339.3734286957,
+                    "base_return": 1.1277351137273186,
+                    "variant_return": 1.162300050876937,
+                    "relative_factor": 1.016244943708745
+                }
+            },
+            "prior_close_circuit_groups": {
+                "neither_forced_cash": {
+                    "sessions": 1200,
+                    "log_relative_contribution": 0.062127079249724625,
+                    "relative_factor": 1.064097560855937
+                },
+                "only_base_forced_cash": {
+                    "sessions": 199,
+                    "log_relative_contribution": 0.18747056412098578,
+                    "relative_factor": 1.2061947434958722
+                },
+                "only_variant_forced_cash": {
+                    "sessions": 8,
+                    "log_relative_contribution": 0.04308864126566135,
+                    "relative_factor": 1.0440304349282583
+                },
+                "both_forced_cash": {
+                    "sessions": 18,
+                    "log_relative_contribution": 0.0004402411025757739,
+                    "relative_factor": 1.0004403380229123
+                }
+            },
+            "base_forced_cash_sessions": 217,
+            "variant_forced_cash_sessions": 26,
+            "first_circuit_divergence": {
+                "session": "2021-08-18",
+                "decided_at_close": "2021-08-17",
+                "base_force_cash": true,
+                "variant_force_cash": false
+            },
+            "base_events": [
+                {
+                    "date": "2021-08-17",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 25873.2492340368,
+                    "risk_epoch_peak": 31653.192524509024,
+                    "trigger_value": 25873.2492340368
+                },
+                {
+                    "date": "2022-05-27",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 197,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 57731.908405660375,
+                    "risk_epoch_peak": 70976.77559094677,
+                    "trigger_value": 57731.908405660375
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 82371.99930488816,
+                    "risk_epoch_peak": 101141.7742421976,
+                    "trigger_value": 82371.99930488816
+                },
+                {
+                    "date": "2024-08-19",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                }
+            ],
+            "variant_events": [
+                {
+                    "date": "2022-12-01",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 31186.10536373364,
+                    "risk_epoch_peak": 38072.23773844729,
+                    "trigger_value": 31186.10536373364
+                },
+                {
+                    "date": "2022-12-13",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 8,
+                    "confirmation": true
+                },
+                {
+                    "date": "2023-08-15",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 78003.80557713892,
+                    "risk_epoch_peak": 95757.41307453826,
+                    "trigger_value": 78003.80557713892
+                },
+                {
+                    "date": "2023-08-29",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 10,
+                    "confirmation": true
+                },
+                {
+                    "date": "2024-08-05",
+                    "event": "liquidate_next_open",
+                    "reason": "portfolio_drawdown",
+                    "equity": 108389.19057458719,
+                    "risk_epoch_peak": 135394.6799534581,
+                    "trigger_value": 108389.19057458719
+                },
+                {
+                    "date": "2024-08-15",
+                    "event": "release_next_open",
+                    "elapsed_cash_sessions": 8,
+                    "confirmation": true
+                }
+            ],
+            "interpretation": "Accounting by PRIOR close circuit state. State is an order restriction, not proof every sleeve was flat. Groups are path-dependent, not independent causal effects; rounding/positions/costs remain coupled.",
+            "first_divergence_drawdown": {
+                "base": -0.1826022220664415,
+                "variant": -0.1654724529514099
+            }
+        }
+    },
+    "tests": {
+        "candidate_path_attribution": {
+            "exit_code": 0,
+            "output": "Candidate path attribution: 12 assertions PASS",
+            "sha256": "c4300096dec17a3c5922f2fc694ceb8773d43dad6275f68781ac5270c5d4f71f"
+        },
+        "candidate_bull_snapshot": {
+            "exit_code": 0,
+            "output": "Candidate bull snapshot: 55 assertions PASS",
+            "sha256": "708863e7f39dcdad55329e83a95d79cdbbf9a5cb36c0a6d653e4b3486982b5ac"
+        },
+        "candidate_parity_inputs": {
+            "exit_code": 0,
+            "output": "Candidate parity inputs: 13 assertions PASS",
+            "sha256": "96b1a0d7a7a1e9fa697b7bc26a6d8b37539a5452490f8334817841f9569dc7b1"
+        },
+        "candidate_bull_risk_study": {
+            "exit_code": 0,
+            "output": "Candidate bull-risk study: 17515 assertions PASS",
+            "sha256": "6a882c5eb9ea8ea8812c087e2b783d4599e30eb0c688f489c83b44f6c4e4dfb4"
+        },
+        "candidate_bull_risk_assessment": {
+            "exit_code": 0,
+            "output": "Candidate bull-risk assessment: 21 assertions PASS",
+            "sha256": "6cf5a2244428a3641da222b617d2bb841da506d9ab266ca278ddf5540d5d8b71"
+        },
+        "candidate_close_engine": {
+            "exit_code": 0,
+            "output": "candidate_close_engine: 31 assertions PASS",
+            "sha256": "a3b3ee272c890980ccc9c46383869bdedbe05895be4c26df505175f1fe60d244"
+        },
+        "candidate_circuit": {
+            "exit_code": 0,
+            "output": "candidate_circuit: 466 assertions PASS",
+            "sha256": "e7b7db96b4d77efccb73dd962b3e2f7a73c9565dedf5adadb9f782ec264cc849"
+        },
+        "whole_share_sizing": {
+            "exit_code": 0,
+            "output": "whole_share_sizing: 3176 assertions PASS",
+            "sha256": "416c747f694fb439fbd516ab27f3913ddd53aaad68c95e07c38c0a1af7e70ad1"
+        },
+        "candidate_execution_plan": {
+            "exit_code": 0,
+            "output": "candidate_execution_plan: 32 assertions PASS",
+            "sha256": "923bd3edf66553635e193b9f9d6a45c53947ec8379e057504fdef9c605460826"
+        },
+        "candidate_entry_batch": {
+            "exit_code": 0,
+            "output": "candidate_entry_batch: 86 assertions PASS",
+            "sha256": "179dadd2d63968c8ce94d5035d4045638d4885582ffcdd49ab28ff07b11324b7"
+        },
+        "candidate_paper_ledger": {
+            "exit_code": 0,
+            "output": "candidate_paper_ledger: 43 assertions PASS",
+            "sha256": "ff65afd57da451e9588dd7588b1aa1ab5dc9d874afdee3f9241f33a71677c772"
+        },
+        "paper_forward_execution_audit": {
+            "exit_code": 0,
+            "output": "Paper forward execution audit: 45 assertions PASS",
+            "sha256": "dc74d637f60c58b89b2ac35434437c1cb142c13873e82e98d43a8e14c5d714dc"
+        },
+        "alpaca_paper_client_guard": {
+            "exit_code": 0,
+            "output": "Alpaca paper client URL guard OK",
+            "sha256": "fc7172ada2d82ba4df3380c206b0f9011d60c78ae12e06d6981510de0a45f210"
+        },
+        "paper_market_commentary": {
+            "exit_code": 0,
+            "output": "Paper market commentary: 38 assertions PASS",
+            "sha256": "be1aa19842f90a2c6996ce02739e8f503045314bbe588b32ef13f153c28ae421"
+        }
+    },
+    "lint": {
+        "src/Research/CandidateComponentParity.php": {
+            "exit_code": 0,
+            "sha256": "f0e8448593243bf847e7049fc08a42a8d7a22d77ff0c235ef962a8a541b59d56"
+        },
+        "src/Research/CandidateBullSnapshot.php": {
+            "exit_code": 0,
+            "sha256": "4649c7ed356dfd112ddce394a0a2566f6e42f92b398e2bfe99221496a55cb0df"
+        },
+        "src/Research/CandidatePathAttribution.php": {
+            "exit_code": 0,
+            "sha256": "3aacfcad09f9f47f8de68d63d6e0ddf5b2770692b8d4bfbfe713a5d90e99c678"
+        },
+        "tests/candidate_bull_snapshot.php": {
+            "exit_code": 0,
+            "sha256": "708863e7f39dcdad55329e83a95d79cdbbf9a5cb36c0a6d653e4b3486982b5ac"
+        },
+        "tests/candidate_path_attribution.php": {
+            "exit_code": 0,
+            "sha256": "c4300096dec17a3c5922f2fc694ceb8773d43dad6275f68781ac5270c5d4f71f"
+        },
+        "tools/verify_candidate_bull_parity_20260915.php": {
+            "exit_code": 0,
+            "sha256": "e62554840baef3f42e75426285f6a35938719d04d12e94feef56cbcf504205ac"
+        },
+        "tools/verify_candidate_bull_snapshot_20260915.php": {
+            "exit_code": 0,
+            "sha256": "d03c07b5583fef0a2ec2b5bdb15c46f7775a133ce9ba2f595e1369a7d8583aea"
+        },
+        "tools/summarize_candidate_bull_execution_20260915.php": {
+            "exit_code": 0,
+            "sha256": "0687e5269e9cdd2f07945265eb607168962c5cd4a2c4a1f74125259b022a50a2"
+        }
+    },
+    "active_runtime_hash": "709c3979f85a08c8e84eb9ee2f94598d2a0698ddb26e3b9e5d34c00c0ae341dd",
+    "orders_submitted": 0,
+    "operational_database_modified": false,
+    "new_release_admitted": false,
+    "broker_execution_verified": false,
+    "independent_holdout": false
+}
