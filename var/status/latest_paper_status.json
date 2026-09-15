@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-09-15T01:46:48+00:00",
+    "generated_at": "2026-09-15T01:51:52+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "89c2b60b",
+        "commit": "00e183e6",
         "dirty": false
     },
     "runtime": {
@@ -25,7 +25,7 @@
     "alpaca": {
         "snapshot_complete": true,
         "clock": {
-            "timestamp": "2026-09-14T21:46:47.159113327-04:00",
+            "timestamp": "2026-09-14T21:51:51.147801836-04:00",
             "is_open": false,
             "next_open": "2026-09-15T09:30:00-04:00",
             "next_close": "2026-09-15T16:00:00-04:00"
@@ -37,7 +37,7 @@
             "currency": "USD",
             "cash": 27567.66,
             "equity": 27567.66,
-            "buying_power": 55135.32,
+            "buying_power": 50595.71,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -47,7 +47,27 @@
             "shorting_enabled": true
         },
         "positions": [],
-        "open_orders": []
+        "open_orders": [
+            {
+                "id_statusExportLast4": "7630",
+                "client_order_id": "ftt5-bcd92e1dab51d1f5e3b522aaaf3923331fd3c6e7",
+                "symbol": "MSFT",
+                "side": "buy",
+                "type": "market",
+                "qty": 9,
+                "notional": null,
+                "filled_qty": 0,
+                "filled_avg_price": null,
+                "limit_price": null,
+                "stop_price": null,
+                "status": "accepted",
+                "time_in_force": "opg",
+                "created_at": "2026-09-15T01:51:47.76537699Z",
+                "updated_at": "2026-09-15T01:51:47.766391792Z",
+                "submitted_at": "2026-09-15T01:51:47.76537699Z",
+                "filled_at": null
+            }
+        ]
     },
     "bot": {
         "states": [
@@ -382,6 +402,66 @@
         ],
         "recent_actions": [
             {
+                "id": 81045,
+                "created_at": "2026-09-15T01:51:04+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 81044,
+                "created_at": "2026-09-15T01:50:02+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 81043,
+                "created_at": "2026-09-15T01:49:00+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 81042,
+                "created_at": "2026-09-15T01:47:57+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 81041,
+                "created_at": "2026-09-15T01:46:55+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
                 "id": 81040,
                 "created_at": "2026-09-15T01:45:53+00:00",
                 "symbol": null,
@@ -560,66 +640,6 @@
                 "order_id_last4": null,
                 "client_order_id": null,
                 "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 81025,
-                "created_at": "2026-09-15T01:30:19+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 81024,
-                "created_at": "2026-09-15T01:29:17+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 81023,
-                "created_at": "2026-09-15T01:28:15+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 81022,
-                "created_at": "2026-09-15T01:27:13+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 81021,
-                "created_at": "2026-09-15T01:26:10+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
             }
         ]
     },
@@ -668,7 +688,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-09-15T01:45:53+00:00",
+        "generated_at": "2026-09-15T01:51:04+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": false,
@@ -688,34 +708,30 @@
     },
     "tactical": {
         "run": {
-            "run_id": "hybrid-v4-paper-2026-09-07",
-            "profile": "causal-stock-rotation-hybrid-v4",
+            "run_id": "hybrid-v4-candidate-2026-09-15",
+            "profile": "maximum-stop12-costband2-whole-v1",
             "status": "active",
             "initial_equity": 27567.66,
-            "activated_at": "2026-09-07T20:00:49+00:00",
-            "last_error_code": "signal_plan_blocked:9b9de15ec1ae",
-            "live_review_not_before": "2026-10-08",
-            "strategy_hash_short": "0e29673e0c4c",
-            "runtime_hash_short": "0be9fcff025b"
+            "activated_at": "2026-09-15T01:51:22+00:00",
+            "last_error_code": null,
+            "live_review_not_before": "2026-10-16T01:51:22+00:00",
+            "strategy_hash_short": "6013c08abc72",
+            "runtime_hash_short": "709c3979f85a"
         },
         "health": {
             "expected": true,
-            "ok": false,
+            "ok": true,
             "max_age_seconds": 180,
-            "checked_at": "2026-09-15T01:46:48+00:00",
-            "errors": [
-                "tactical_heartbeat_failed",
-                "tactical_cycle_failed",
-                "tactical_run_failed"
-            ]
+            "checked_at": "2026-09-15T01:51:52+00:00",
+            "errors": []
         },
         "notifications": {
             "expected": true,
             "ok": true,
             "pending_count": 0,
             "failed_pending_count": 0,
-            "delivered_count": 95,
-            "last_delivered_at": "2026-09-14T20:21:43+00:00",
+            "delivered_count": 97,
+            "last_delivered_at": "2026-09-15T01:51:24+00:00",
             "required": {
                 "signal": true,
                 "transition": false,
@@ -725,24 +741,24 @@
             "errors": []
         },
         "heartbeat": {
-            "pid": 33152,
-            "started_at": "2026-09-14T20:06:13+00:00",
-            "heartbeat_at": "2026-09-15T01:46:47+00:00",
+            "pid": 79845,
+            "started_at": "2026-09-15T01:49:09+00:00",
+            "heartbeat_at": "2026-09-15T01:51:51+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
-            "last_signal_exit_code": 0,
-            "last_signal_finished_at": "2026-09-14T20:21:00+00:00",
-            "last_executor_exit_code": 2,
-            "last_executor_finished_at": "2026-09-15T01:46:32+00:00",
+            "error": null,
+            "last_executor_exit_code": 0,
+            "last_executor_finished_at": "2026-09-15T01:51:49+00:00",
             "last_executor_timed_out": false,
-            "error": null
+            "last_signal_exit_code": null,
+            "last_signal_finished_at": null
         },
         "cycle": {
-            "generated_at": "2026-09-14T21:46:29-04:00",
-            "run_id": "hybrid-v4-paper-2026-09-07",
-            "profile": "causal-stock-rotation-hybrid-v4",
+            "generated_at": "2026-09-15T01:51:49+00:00",
+            "run_id": "hybrid-v4-candidate-2026-09-15",
+            "profile": "maximum-stop12-costband2-whole-v1",
             "dry_run": false,
             "paper_only": true,
             "account_guard": {
@@ -753,885 +769,567 @@
                 "unblocked": true
             },
             "run_status": "active",
-            "reconciliation_status": "blocked_signal_or_plan",
+            "reconciliation_status": "reconciled",
             "report_snapshot_fresh": true,
             "signal": {
                 "as_of": "2026-09-14",
-                "generated_at": "2026-09-14T20:20:59+00:00",
-                "intended_session": "2026-09-15",
                 "validation_selected": false,
-                "decision_sha256": "55ef7eec11a4d3074fc94bf4d0485f35c30acbbe41714a87dd151f4cc1befa75",
-                "targets": {
-                    "dynamic_loo10": {
-                        "action": "hold",
-                        "symbol": null,
-                        "gross": 0,
-                        "current_symbol": "MSFT",
-                        "current_gross": 0.9862743984969322,
+                "paper_admission": true,
+                "fresh": true,
+                "next_session": "2026-09-15",
+                "intended_session": "2026-09-15",
+                "required_as_of": "2026-09-14",
+                "sleeves": {
+                    "dynamic_loo10_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.0053874471430762,
                         "ranked_symbol": "MSFT",
-                        "ranked_gross": 0.9859999999999999,
-                        "cooldown_left": 0,
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
                         "cooldown_after_next_open_tick": 0,
-                        "drawdown_rearm_pending": false,
                         "risk_exit_pending": false,
-                        "allocation": 0.6,
-                        "due": false,
-                        "execution_status": "hold_no_trade",
-                        "no_chase": true,
-                        "shadow_order_eligible": false
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "qqq200_full": {
+                    "dynamic_loo10_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
                         "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
                         "symbol": null,
                         "gross": 0,
-                        "current_symbol": "MSFT",
-                        "current_gross": 1.1759017574409745,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "dynamic_loo10_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq200_full_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
                         "ranked_symbol": "MSFT",
                         "ranked_gross": 1.18,
-                        "cooldown_left": 0,
+                        "circuit_cooldown_left": 0,
                         "cooldown_after_next_open_tick": 0,
-                        "drawdown_rearm_pending": false,
                         "risk_exit_pending": false,
-                        "allocation": 0.13333333333333333,
-                        "due": false,
-                        "execution_status": "hold_no_trade",
-                        "no_chase": true,
-                        "shadow_order_eligible": false
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "spy200_full": {
+                    "qqq200_full_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
                         "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
                         "symbol": null,
                         "gross": 0,
-                        "current_symbol": "MSFT",
-                        "current_gross": 1.1759017574409745,
                         "ranked_symbol": "MSFT",
                         "ranked_gross": 1.18,
-                        "cooldown_left": 0,
+                        "circuit_cooldown_left": 0,
                         "cooldown_after_next_open_tick": 0,
-                        "drawdown_rearm_pending": false,
                         "risk_exit_pending": false,
-                        "allocation": 0.13333333333333333,
-                        "due": false,
-                        "execution_status": "hold_no_trade",
-                        "no_chase": true,
-                        "shadow_order_eligible": false
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "qqq150_ex_crypto": {
+                    "qqq200_full_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
                         "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
                         "symbol": null,
                         "gross": 0,
-                        "current_symbol": "MSFT",
-                        "current_gross": 1.1759017574409745,
                         "ranked_symbol": "MSFT",
                         "ranked_gross": 1.18,
-                        "cooldown_left": 0,
+                        "circuit_cooldown_left": 0,
                         "cooldown_after_next_open_tick": 0,
-                        "drawdown_rearm_pending": false,
                         "risk_exit_pending": false,
-                        "allocation": 0.13333333333333333,
-                        "due": false,
-                        "execution_status": "hold_no_trade",
-                        "no_chase": true,
-                        "shadow_order_eligible": false
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     }
                 },
-                "data_provenance": {
-                    "schema": 1,
-                    "mode": "frozen_alpaca_sip_plus_completed_alpaca_iex",
-                    "request": {
-                        "symbols": [
-                            "AAPL",
-                            "AMD",
-                            "AMZN",
-                            "ANET",
-                            "AVGO",
-                            "COIN",
-                            "CRWD",
-                            "DELL",
-                            "GOOGL",
-                            "META",
-                            "MRVL",
-                            "MSFT",
-                            "MSTR",
-                            "MU",
-                            "NVDA",
-                            "PANW",
-                            "PLTR",
-                            "QQQ",
-                            "SMCI",
-                            "SPY",
-                            "TSLA",
-                            "WDC"
-                        ],
-                        "timeframe": "1Day",
-                        "start": "2020-01-01",
-                        "end": "2026-09-14"
+                "targets": {
+                    "dynamic_loo10_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.0053874471430762,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "boundary": {
-                        "frozen_sip_cutoff_inclusive": "2026-07-15",
-                        "recent_iex_start_inclusive": "2026-07-16",
-                        "overlap_policy": "reject",
-                        "overlap_sessions": 0
+                    "dynamic_loo10_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "cross_feed_audit": {
-                        "mode": "audit_only_cutoff_overlap_v1",
-                        "enabled": true,
-                        "used": true,
-                        "passed": true,
-                        "role": "audit_only_not_decision_data",
-                        "decision_data_usage": "none",
-                        "used_for_merged_bars": false,
-                        "contract": {
-                            "mode": "audit_only_cutoff_overlap_v1",
-                            "enabled": true,
-                            "sessions": 5,
-                            "price_tolerance_bps": {
-                                "open": 150,
-                                "high": 150,
-                                "low": 150,
-                                "close": 50
-                            },
-                            "minimum_iex_to_sip_volume_ratio": 0.001,
-                            "maximum_iex_to_sip_volume_ratio": 0.5,
-                            "require_all_symbols": true
-                        },
-                        "feeds": {
-                            "reference": "sip",
-                            "candidate": "iex"
-                        },
-                        "cache_namespace": "alpaca-causal-tactical-rotation-v1-iex-split-1day-after-20260715",
-                        "request": {
-                            "symbols": [
-                                "AAPL",
-                                "AMD",
-                                "AMZN",
-                                "ANET",
-                                "AVGO",
-                                "COIN",
-                                "CRWD",
-                                "DELL",
-                                "GOOGL",
-                                "META",
-                                "MRVL",
-                                "MSFT",
-                                "MSTR",
-                                "MU",
-                                "NVDA",
-                                "PANW",
-                                "PLTR",
-                                "QQQ",
-                                "SMCI",
-                                "SPY",
-                                "TSLA",
-                                "WDC"
-                            ],
-                            "timeframe": "1Day",
-                            "start": "2026-07-09",
-                            "end": "2026-07-15"
-                        },
-                        "window": {
-                            "start": "2026-07-09",
-                            "end": "2026-07-15",
-                            "sessions": [
-                                "2026-07-09",
-                                "2026-07-10",
-                                "2026-07-13",
-                                "2026-07-14",
-                                "2026-07-15"
-                            ]
-                        },
-                        "compared_symbols": [
-                            "AAPL",
-                            "AMD",
-                            "AMZN",
-                            "ANET",
-                            "AVGO",
-                            "COIN",
-                            "CRWD",
-                            "DELL",
-                            "GOOGL",
-                            "META",
-                            "MRVL",
-                            "MSFT",
-                            "MSTR",
-                            "MU",
-                            "NVDA",
-                            "PANW",
-                            "PLTR",
-                            "QQQ",
-                            "SMCI",
-                            "SPY",
-                            "TSLA",
-                            "WDC"
-                        ],
-                        "compared_sessions": 5,
-                        "compared_bars": 110,
-                        "violations": 0,
-                        "observed": {
-                            "maximum_price_deviation_bps": {
-                                "open": 94.28107308806865,
-                                "high": 70.88615609177944,
-                                "low": 80.38696303121063,
-                                "close": 14.054473199573135
-                            },
-                            "minimum_iex_to_sip_volume_ratio": 0.010271069379771807,
-                            "maximum_iex_to_sip_volume_ratio": 0.06224252775797969
-                        },
-                        "canonical_sha256": {
-                            "frozen_sip": "772a91742cd3a751273408ee91c5f8bd219f9969044a09b5b353ebb8701f5c8b",
-                            "audit_iex": "ba64c6b872d6ab252d86d0129c028c9977035095df1c499d461038ccb81e37ba"
-                        }
+                    "dynamic_loo10_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.0053874471430762,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "segments": {
-                        "frozen_sip": {
-                            "provider": "Alpaca",
-                            "feed": "sip",
-                            "adjustment": "split",
-                            "storage": "immutable_exact_cache_snapshot",
-                            "namespace": "alpaca-causal-tactical-rotation-v1-sip-split-1day",
-                            "file": "38767d08a8fa7532a8060c245c1d449119243e59.json",
-                            "size_bytes": 8554608,
-                            "sha256": "47a111363eff1ad594c458f284a5c0d3140399bcbac5b50472bffbda7c6a5863",
-                            "expected_sha256": "47a111363eff1ad594c458f284a5c0d3140399bcbac5b50472bffbda7c6a5863",
-                            "request": {
-                                "symbols": [
-                                    "AAPL",
-                                    "AMD",
-                                    "AMZN",
-                                    "ANET",
-                                    "AVGO",
-                                    "COIN",
-                                    "CRWD",
-                                    "DELL",
-                                    "GOOGL",
-                                    "META",
-                                    "MRVL",
-                                    "MSFT",
-                                    "MSTR",
-                                    "MU",
-                                    "NVDA",
-                                    "PANW",
-                                    "PLTR",
-                                    "QQQ",
-                                    "SMCI",
-                                    "SPY",
-                                    "TSLA",
-                                    "WDC"
-                                ],
-                                "timeframe": "1Day",
-                                "start": "2020-01-01",
-                                "end": "2026-07-15"
-                            },
-                            "snapshot_coverage": {
-                                "AAPL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AMD": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AMZN": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "ANET": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AVGO": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "COIN": {
-                                    "bars": 1319,
-                                    "first_session": "2021-04-14",
-                                    "last_session": "2026-07-15"
-                                },
-                                "CRWD": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "DELL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "GOOGL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "META": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MRVL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MSFT": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MSTR": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MU": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "NVDA": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "PANW": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "PLTR": {
-                                    "bars": 1453,
-                                    "first_session": "2020-09-30",
-                                    "last_session": "2026-07-15"
-                                },
-                                "QQQ": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "SMCI": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "SPY": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "TSLA": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "WDC": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                }
-                            },
-                            "snapshot_canonical_sha256": "373e4103c4be8154b1b889a65eb723de037ec742d57a8ecf9f3c3d9cb7738969",
-                            "used_through": "2026-07-15",
-                            "used_coverage": {
-                                "AAPL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AMD": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AMZN": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "ANET": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "AVGO": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "COIN": {
-                                    "bars": 1319,
-                                    "first_session": "2021-04-14",
-                                    "last_session": "2026-07-15"
-                                },
-                                "CRWD": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "DELL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "GOOGL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "META": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MRVL": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MSFT": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MSTR": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "MU": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "NVDA": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "PANW": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "PLTR": {
-                                    "bars": 1453,
-                                    "first_session": "2020-09-30",
-                                    "last_session": "2026-07-15"
-                                },
-                                "QQQ": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "SMCI": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "SPY": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "TSLA": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                },
-                                "WDC": {
-                                    "bars": 1641,
-                                    "first_session": "2020-01-02",
-                                    "last_session": "2026-07-15"
-                                }
-                            },
-                            "used_canonical_sha256": "373e4103c4be8154b1b889a65eb723de037ec742d57a8ecf9f3c3d9cb7738969"
-                        },
-                        "recent_iex": {
-                            "provider": "Alpaca",
-                            "feed": "iex",
-                            "adjustment": "split",
-                            "storage": "atomic_refreshable_cache",
-                            "namespace": "alpaca-causal-tactical-rotation-v1-iex-split-1day-after-20260715",
-                            "used": true,
-                            "request": {
-                                "symbols": [
-                                    "AAPL",
-                                    "AMD",
-                                    "AMZN",
-                                    "ANET",
-                                    "AVGO",
-                                    "COIN",
-                                    "CRWD",
-                                    "DELL",
-                                    "GOOGL",
-                                    "META",
-                                    "MRVL",
-                                    "MSFT",
-                                    "MSTR",
-                                    "MU",
-                                    "NVDA",
-                                    "PANW",
-                                    "PLTR",
-                                    "QQQ",
-                                    "SMCI",
-                                    "SPY",
-                                    "TSLA",
-                                    "WDC"
-                                ],
-                                "timeframe": "1Day",
-                                "start": "2026-07-16",
-                                "end": "2026-09-14"
-                            },
-                            "coverage": {
-                                "AAPL": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "AMD": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "AMZN": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "ANET": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "AVGO": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "COIN": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "CRWD": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "DELL": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "GOOGL": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "META": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "MRVL": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "MSFT": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "MSTR": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "MU": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "NVDA": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "PANW": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "PLTR": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "QQQ": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "SMCI": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "SPY": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "TSLA": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                },
-                                "WDC": {
-                                    "bars": 42,
-                                    "first_session": "2026-07-16",
-                                    "last_session": "2026-09-14"
-                                }
-                            },
-                            "canonical_sha256": "3b0c9998ebe82de2cedf35c5f3cc7e5feef8789b297cbee94a4a0af67a469d35"
-                        }
+                    "qqq200_full_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     },
-                    "merged": {
-                        "effective_completed_session": "2026-09-14",
-                        "coverage": {
-                            "AAPL": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "AMD": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "AMZN": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "ANET": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "AVGO": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "COIN": {
-                                "bars": 1361,
-                                "first_session": "2021-04-14",
-                                "last_session": "2026-09-14"
-                            },
-                            "CRWD": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "DELL": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "GOOGL": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "META": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "MRVL": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "MSFT": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "MSTR": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "MU": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "NVDA": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "PANW": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "PLTR": {
-                                "bars": 1495,
-                                "first_session": "2020-09-30",
-                                "last_session": "2026-09-14"
-                            },
-                            "QQQ": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "SMCI": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "SPY": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "TSLA": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            },
-                            "WDC": {
-                                "bars": 1683,
-                                "first_session": "2020-01-02",
-                                "last_session": "2026-09-14"
-                            }
-                        },
-                        "canonical_sha256": "80b0c33367c4cb3f6280604463d0fb1697745eb7e8d298dd8a3c1cea650c4b6e"
+                    "qqq200_full_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq200_full_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "spy200_full_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase0": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "rebalance",
+                        "rebalance_due_next_session": true,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": "MSFT",
+                        "gross": 1.18,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase1": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
+                    },
+                    "qqq150_ex_crypto_rank0_phase2": {
+                        "signal_date": "2026-09-14",
+                        "execution": "next_session_open",
+                        "action": "hold",
+                        "rebalance_due_next_session": false,
+                        "current_symbol": null,
+                        "current_gross": 0,
+                        "symbol": null,
+                        "gross": 0,
+                        "ranked_symbol": "MSFT",
+                        "ranked_gross": 1.18,
+                        "circuit_cooldown_left": 0,
+                        "cooldown_after_next_open_tick": 0,
+                        "risk_exit_pending": false,
+                        "drawdown_rearm_pending": false,
+                        "shadow_only": true
                     }
                 }
             },
             "entry_eligibility": {
                 "allowed_now": false,
-                "actions": [],
                 "executable_buy_legs": [],
                 "blocked_reasons": [
                     {
-                        "code": "signal_validation_not_selected",
-                        "text": "frozen validation: новый tactical-сигнал не прошёл stress-gate; действий нет"
-                    },
-                    {
-                        "code": "runtime_error",
-                        "text": "защитная блокировка: signal_plan_blocked:9b9de15ec1ae"
-                    },
-                    {
-                        "code": "no_actionable_signal",
-                        "text": "сигнал HOLD: нового входа или докупки нет"
+                        "code": "orders_in_progress",
+                        "text": "Отправка и исполнение проверяются отдельно от целей модели."
                     }
-                ],
-                "candidates": [
-                    {
-                        "sleeve_id": "dynamic_loo10",
-                        "symbol": "MSFT",
-                        "ranked_gross": 0.9859999999999999,
-                        "cooldown_left": 0,
-                        "watch_only": true
-                    },
-                    {
-                        "sleeve_id": "qqq200_full",
-                        "symbol": "MSFT",
-                        "ranked_gross": 1.18,
-                        "cooldown_left": 0,
-                        "watch_only": true
-                    },
-                    {
-                        "sleeve_id": "spy200_full",
-                        "symbol": "MSFT",
-                        "ranked_gross": 1.18,
-                        "cooldown_left": 0,
-                        "watch_only": true
-                    },
-                    {
-                        "sleeve_id": "qqq150_ex_crypto",
-                        "symbol": "MSFT",
-                        "ranked_gross": 1.18,
-                        "cooldown_left": 0,
-                        "watch_only": true
-                    }
-                ],
-                "execution_window_status": null
+                ]
             },
             "notification_schedule": {
-                "close_status_key": "portfolio-close:d1d8ddc9925b:2026-09-14:55ef7eec11a4d3074fc94bf4d0485f35c30acbbe41714a87dd151f4cc1befa75:v3",
-                "close_status_session": "2026-09-14",
-                "close_status_catch_up": true,
-                "weekly_status_key": null,
-                "weekly_status_session": null,
-                "weekly_status_catch_up": null,
+                "close_status_key": "portfolio-close:hybrid-v4-candidate-2026-09-15:2026-09-14",
                 "open_status_key": "portfolio-open:d1d8ddc9925b:2026-09-14:v3",
-                "open_status_required_key": "portfolio-open:d1d8ddc9925b:2026-09-14:v3",
-                "open_status_session": "2026-09-14",
-                "open_status_catch_up": true
+                "open_status_required_key": "portfolio-open:d1d8ddc9925b:2026-09-14:v3"
             },
-            "errors": [
-                "signal_plan_blocked:9b9de15ec1ae"
-            ]
+            "errors": []
         },
         "sleeves": [
             {
-                "sleeve_id": "dynamic_loo10",
-                "allocation": 0.6,
-                "cash": 16540.596,
-                "initial_equity": 16540.596,
-                "last_signal_date": null,
-                "last_session": null
+                "sleeve_id": "dynamic_loo10_rank0_phase0",
+                "allocation": 0.16666666666667,
+                "cash": 4594.6100000001,
+                "initial_equity": 4594.6100000001,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
             },
             {
-                "sleeve_id": "qqq150_ex_crypto",
-                "allocation": 0.13333333333333,
-                "cash": 3675.6879999999,
-                "initial_equity": 3675.6879999999,
-                "last_signal_date": null,
-                "last_session": null
+                "sleeve_id": "dynamic_loo10_rank0_phase1",
+                "allocation": 0.16666666666667,
+                "cash": 4594.6100000001,
+                "initial_equity": 4594.6100000001,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
             },
             {
-                "sleeve_id": "qqq200_full",
-                "allocation": 0.13333333333333,
-                "cash": 3675.6879999999,
-                "initial_equity": 3675.6879999999,
-                "last_signal_date": null,
-                "last_session": null
+                "sleeve_id": "dynamic_loo10_rank0_phase2",
+                "allocation": 0.16666666666667,
+                "cash": 4594.6100000001,
+                "initial_equity": 4594.6100000001,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
             },
             {
-                "sleeve_id": "spy200_full",
-                "allocation": 0.13333333333333,
-                "cash": 3675.6880000002,
-                "initial_equity": 3675.6880000002,
-                "last_signal_date": null,
-                "last_session": null
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase0",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase1",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase2",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "qqq200_full_rank0_phase0",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "qqq200_full_rank0_phase1",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "qqq200_full_rank0_phase2",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase0",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase1",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666667,
+                "initial_equity": 1531.5366666667,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase2",
+                "allocation": 0.055555555555556,
+                "cash": 1531.5366666663,
+                "initial_equity": 1531.5366666663,
+                "last_signal_date": "2026-09-14",
+                "last_session": "2026-09-15"
             }
         ],
         "positions": [],
-        "active_intents": [],
-        "live_review_not_before": "2026-10-08"
+        "active_intents": [
+            {
+                "decision_id_short": "bcd92e1dab51",
+                "sleeve_id": "dynamic_loo10_rank0_phase0",
+                "signal_date": "2026-09-14",
+                "scheduled_session": "2026-09-15",
+                "symbol": "MSFT",
+                "side": "buy",
+                "requested_qty": 9,
+                "filled_qty": 0,
+                "status": "accepted",
+                "client_order_id": "ftt5-bcd92e1dab51d1f5e3b522aaaf3923331fd3c6e7",
+                "updated_at": "2026-09-15T01:51:47+00:00"
+            }
+        ],
+        "live_review_not_before": "2026-10-16T01:51:22+00:00"
     },
-    "errors": [
-        "tactical_heartbeat_failed",
-        "tactical_cycle_failed",
-        "tactical_run_failed"
-    ],
+    "errors": [],
     "explanation": {
         "schema": "paper-signal-explanation-v1",
         "execution_authority": "none",
-        "state": "entries_blocked",
+        "state": "broker_orders_open",
         "fresh_snapshot": true,
         "fresh_cycle": true,
         "same_run": true,
@@ -1639,56 +1337,90 @@
         "reported_plan_permitted": false,
         "reasons": [
             {
-                "id": "qualification",
-                "priority": 2,
-                "code": "signal_plan_blocked:9b9de15ec1ae",
-                "text": "Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.",
-                "next": "Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает."
-            },
-            {
-                "id": "runtime",
-                "priority": 3,
-                "code": "tactical_heartbeat_failed",
-                "text": "Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.",
-                "next": "Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое."
-            },
-            {
-                "id": "hold",
-                "priority": 6,
-                "code": "no_actionable_signal",
-                "text": "По расписанию и условиям модели новой покупки нет (HOLD). Лидер рейтинга может быть при этом указан.",
-                "next": "Дождаться следующего расчёта и разрешённого действия, а не покупать лидера вручную."
+                "id": "orders",
+                "priority": 4,
+                "code": "orders_in_progress",
+                "text": "Есть заявка в исполнении или сверке; новый дополнительный риск заблокирован.",
+                "next": "Дождаться ответа брокера и сверки фактического количества."
             }
         ],
         "targets": [
             {
-                "sleeve_id": "dynamic_loo10",
-                "text": "модель не планирует новую покупку",
+                "sleeve_id": "dynamic_loo10_rank0_phase0",
+                "text": "модель предлагает пересмотр позиции; допуск проверяется отдельно",
                 "watch_symbol": "MSFT",
-                "model_position_not_broker_fact": "MSFT"
+                "model_position_not_broker_fact": null
             },
             {
-                "sleeve_id": "qqq200_full",
+                "sleeve_id": "dynamic_loo10_rank0_phase1",
                 "text": "модель не планирует новую покупку",
                 "watch_symbol": "MSFT",
-                "model_position_not_broker_fact": "MSFT"
+                "model_position_not_broker_fact": null
             },
             {
-                "sleeve_id": "spy200_full",
+                "sleeve_id": "dynamic_loo10_rank0_phase2",
                 "text": "модель не планирует новую покупку",
                 "watch_symbol": "MSFT",
-                "model_position_not_broker_fact": "MSFT"
+                "model_position_not_broker_fact": null
             },
             {
-                "sleeve_id": "qqq150_ex_crypto",
+                "sleeve_id": "qqq200_full_rank0_phase0",
+                "text": "модель предлагает пересмотр позиции; допуск проверяется отдельно",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "qqq200_full_rank0_phase1",
                 "text": "модель не планирует новую покупку",
                 "watch_symbol": "MSFT",
-                "model_position_not_broker_fact": "MSFT"
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "qqq200_full_rank0_phase2",
+                "text": "модель не планирует новую покупку",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase0",
+                "text": "модель предлагает пересмотр позиции; допуск проверяется отдельно",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase1",
+                "text": "модель не планирует новую покупку",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "spy200_full_rank0_phase2",
+                "text": "модель не планирует новую покупку",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase0",
+                "text": "модель предлагает пересмотр позиции; допуск проверяется отдельно",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase1",
+                "text": "модель не планирует новую покупку",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
+            },
+            {
+                "sleeve_id": "qqq150_ex_crypto_rank0_phase2",
+                "text": "модель не планирует новую покупку",
+                "watch_symbol": "MSFT",
+                "model_position_not_broker_fact": null
             }
         ],
         "watch_symbols": [
             "MSFT"
         ],
-        "text": "ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ\nСнимок: 2026-09-14 21:46:48 Нью-Йорк\nУ брокера: позиций 0, открытых заявок 0.\nКапитал $27,567.66; деньги на счёте $27,567.66.\nЛимит покупок брокера $55,135.32: может включать заёмные средства, это не бюджет новой сделки.\nСтатус ACTIVE: учёт стратегии активен, но это не разрешение покупать.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.\nЧто дальше: Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает.\nПочему: По расписанию и условиям модели новой покупки нет (HOLD). Лидер рейтинга может быть при этом указан.\nЧто дальше: Дождаться следующего расчёта и разрешённого действия, а не покупать лидера вручную.\n\nРасчёт модели: закрытие 2026-09-14; план на 2026-09-15.\nНа наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 4 | модель не планирует новую покупку.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
+        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-09-14 21:51:52 Нью-Йорк\nУ брокера: позиций 0, открытых заявок 1.\nКапитал $27,567.66; деньги на счёте $27,567.66.\nЛимит покупок брокера $50,595.71: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: покупка MSFT; количество 9, исполнено 0. Наличие заявки не означает полного исполнения.\nСтатус ACTIVE: учёт стратегии активен, но это не разрешение покупать.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Есть заявка в исполнении или сверке; новый дополнительный риск заблокирован.\nЧто дальше: Дождаться ответа брокера и сверки фактического количества.\n\nРасчёт модели: закрытие 2026-09-14; план на 2026-09-15.\nНа наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.\nЧастей стратегии: 8 | модель не планирует новую покупку.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
     }
 }
