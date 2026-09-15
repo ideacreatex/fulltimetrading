@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
-Снимок: 2026-09-15 15:55:44 Нью-Йорк
+Снимок: 2026-09-15 16:10:52 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,567.66; деньги на счёте $27,567.66.
 Лимит покупок брокера $55,135.32: может включать заёмные средства, это не бюджет новой сделки.
@@ -22,8 +22,8 @@ ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
 
 ## Технические Подробности
 
-- Generated: `2026-09-15T19:55:44+00:00`
-- Market open: `yes`
+- Generated: `2026-09-15T20:10:52+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
@@ -48,11 +48,11 @@ ALPACA PAPER | НАБЛЮДЕНИЕ, НОВОЙ ПОКУПКИ НЕТ
 - none
 
 ## Recent Actions
-- `2026-09-15T19:55:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:54:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:53:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:51:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:50:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:49:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:48:51` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T19:47:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:10:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:09:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:08:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:07:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:06:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:05:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:04:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T20:03:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
