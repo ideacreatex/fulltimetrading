@@ -343,6 +343,45 @@ if (!mkdir($temp, 0775, true) && !is_dir($temp)) {
     throw new RuntimeException('Unable to create artifact-guard test directory.');
 }
 try {
+    $entry = $temp . '/fixture_entry.php';
+    $capital = (float) ((require $root . '/config/tactical_paper.php')['signal_epoch']['initial_equity'] ?? 30000.);
+    // Full dry-run must exercise the artifact boundary without credentials, network, or broker mutations.
+    $stub = <<<'PHP'
+<?php
+namespace FulltimeTrading\Support {
+    final class EnvLoader {
+        public static function load(string $path): void { /* This fixture must never load operational credentials. */ }
+    }
+}
+namespace FulltimeTrading\Trading {
+    final class AlpacaPaperClient {
+        public function __construct($http, $url) { if ($url !== 'https://paper-api.alpaca.markets/v2') { throw new \RuntimeException('Fixture refuses nonpaper URL.'); } }
+        public function account(): array { $equity = (string) getenv('FTT_ARTIFACT_TEST_CAPITAL'); return ['id' => 'artifact-fixture', 'multiplier' => '2',
+            'shorting_enabled' => true, 'status' => 'ACTIVE', 'trading_blocked' => false, 'account_blocked' => false,
+            'equity' => $equity, 'cash' => $equity, 'last_equity' => $equity, 'buying_power' => (string) ((float) $equity * 2)]; }
+        public function positions(): array { return []; }
+        public function openOrders(): array { return []; }
+        public function clock(): array {
+            $now = new \DateTimeImmutable('now', new \DateTimeZone('America/New_York'));
+            return ['timestamp' => $now->format(DATE_ATOM), 'is_open' => (int) $now->format('N') <= 5 && $now->format('H:i') >= '09:30' && $now->format('H:i') < '16:00',
+                'next_open' => $now->setTime(9, 30)->format(DATE_ATOM), 'next_close' => $now->setTime(16, 0)->format(DATE_ATOM)];
+        }
+        public function calendar(string $start, string $end): array {
+            $rows = []; $date = new \DateTimeImmutable($start);
+            while ($date->format('Y-m-d') <= $end) { if ((int) $date->format('N') <= 5) { $rows[] = ['date' => $date->format('Y-m-d'), 'open' => '09:30', 'close' => '16:00']; } $date = $date->modify('+1 day'); }
+            return $rows;
+        }
+        public function asset(string $symbol): array { return ['symbol' => $symbol, 'status' => 'active', 'tradable' => true]; }
+        public function orderByClientOrderId(string $id): ?array { return null; }
+        public function submitOrder(array $body): never { throw new \RuntimeException('TEST FORBIDS POST'); }
+        public function cancelOrder(string $id): never { throw new \RuntimeException('TEST FORBIDS DELETE'); }
+    }
+}
+namespace {
+    putenv('APCA_PAPER_BASE_URL=https://paper-api.alpaca.markets/v2');
+    putenv('APCA_PAPER_ACCOUNT_ID=artifact-fixture'); putenv('APCA_PAPER_EXPECTED_MULTIPLIER=2'); putenv('APCA_PAPER_EXPECTED_SHORTING_ENABLED=true');
+PHP;
+    file_put_contents($entry, $stub . "\n    putenv(" . var_export('FTT_ARTIFACT_TEST_CAPITAL=' . $capital, true) . ");\n    require " . var_export($root . '/bin/trade', true) . ";\n}\n");
     $integrationArtifact = artifactGuardFixture($root, $profile, require $root . '/config/tactical_paper.php');
     foreach (['validation', 'provenance', 'target_universe', 'implementation_hash', 'valid_target_old_hash'] as $name) {
         $path = $temp . '/' . $name . '.json';
@@ -355,7 +394,7 @@ try {
         $db = $temp . '/' . $name . '.sqlite';
         $parts = [
             PHP_BINARY,
-            $root . '/bin/trade',
+            $entry,
             'tactical-paper-executor',
             '--submit=false',
             '--telegram=false',
@@ -371,7 +410,7 @@ try {
         if ($name === 'validation') {
             artifactGuardExpect(
                 $exitCode === 0,
-                'Installer-style dry-run must accept a structurally valid non-selected artifact.',
+                'Installer-style dry-run must accept a structurally valid non-selected artifact: ' . implode("\n", $output),
             );
             continue;
         }

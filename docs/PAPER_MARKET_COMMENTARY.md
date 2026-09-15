@@ -6,17 +6,26 @@ No broker order is created/cancelled. The active release files are not edited.
 
 ## Scheduling
 
-The existing hourly research heartbeat checks eligibility before its research.
+The existing research heartbeat checks eligibility before its research.
 The daily post-close automation provides a duplicate-safe closing fallback.
-Typically this produces an opening report around 09:45 and a closing report
-around 16:45 New York time, subject to the app/host being available. It is not a
+The intended times are 09:00 before opening and 16:30 after closing, New York
+time, with the heartbeat scheduled at each hour and half hour. Delivery remains
+subject to the app/host and the task being available. It is not a
 new launchd trading service. Broker calendar and clock are authoritative:
 
-- Opening: 5 to 90 minutes after the official open; no lunchtime catch-up.
-- Closing: at least 20 minutes after the official close, on the same date.
+- Pre-opening (`pre_open`): 30 to 10 minutes before the official open; no late
+  catch-up after the auction. The previous completed close is explicitly dated.
+- Closing: at least 30 minutes after the official close, on the same date.
 - Holidays/weekends: no report. Early closes and US/EU DST differences are handled.
 - One message per active run, market date and phase; two scheduled jobs cannot
   duplicate a delivered message.
+
+This replaces the original 09:45 opinion slot: OPG orders execute in the opening
+auction, so pre-open explanation is more useful for understanding the plan.
+The normal daemon's broker-confirmed fill/stop notifications remain event-driven;
+they do not wait for either commentary slot. Old `open` receipts remain readable
+but are no longer scheduled. Timing is an operational choice, not a claim of
+statistically optimal prediction or a change in trading decisions.
 
 ## Assistant Workflow
 
@@ -39,7 +48,7 @@ Draft schema:
 ```json
 {
   "schema": "paper-market-commentary-v1",
-  "phase": "open",
+  "phase": "pre_open",
   "session_date": "YYYY-MM-DD",
   "context_path": "var/reports/market_commentary/contexts/TIMESTAMP_PID.json",
   "context_sha256": "SHA256_FROM_CONTEXT_COMMAND",

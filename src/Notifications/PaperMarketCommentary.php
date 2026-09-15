@@ -21,16 +21,17 @@ final class PaperMarketCommentary
         $open = new \DateTimeImmutable($date . ' ' . $today[0]['open'], $zone);
         $close = new \DateTimeImmutable($date . ' ' . $today[0]['close'], $zone);
         if ($close <= $open || ($local >= $open && $local < $close) !== $clock['is_open']) { throw new \RuntimeException('Calendar/clock mismatch.'); }
-        if ($local >= $open->modify('+5 minutes') && $local <= $open->modify('+90 minutes') && $local < $close) {
-            return ['phase' => 'open', 'session_date' => $date];
+        if ($local >= $open->modify('-30 minutes') && $local <= $open->modify('-10 minutes')) {
+            return ['phase' => 'pre_open', 'session_date' => $date];
         }
-        if ($local >= $close->modify('+20 minutes')) { return ['phase' => 'close', 'session_date' => $date]; }
+        if ($local >= $close->modify('+30 minutes')) { return ['phase' => 'close', 'session_date' => $date]; }
         return null;
     }
 
     public static function key(string $run, string $date, string $phase): string
     {
-        if (!preg_match('/^[A-Za-z0-9_-]{1,120}$/D', $run) || !in_array($phase, ['open', 'close'], true)
+        // Keep old open receipts readable, but phase() no longer schedules post-open opinion messages.
+        if (!preg_match('/^[A-Za-z0-9_-]{1,120}$/D', $run) || !in_array($phase, ['pre_open', 'open', 'close'], true)
             || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date)) { throw new \InvalidArgumentException('Invalid commentary identity.'); }
         return 'market-commentary:' . $run . ':' . $date . ':' . $phase . ':v1';
     }
@@ -48,7 +49,8 @@ final class PaperMarketCommentary
             if (!is_numeric($context['account'][$field] ?? null) || !is_finite((float) $context['account'][$field])) { throw new \InvalidArgumentException('Invalid broker account observation.'); }
         }
         if (!is_array($context['positions'] ?? null) || !is_array($context['open_orders'] ?? null)) { throw new \InvalidArgumentException('Missing broker exposure observation.'); }
-        $lines = ['АНАЛИТИЧЕСКИЙ КОММЕНТАРИЙ | ' . $draft['session_date'] . ' | ' . ($draft['phase'] === 'open' ? 'после открытия' : 'после закрытия'),
+        $label = match ($draft['phase']) { 'pre_open' => 'до открытия', 'open' => 'после открытия', 'close' => 'после закрытия' };
+        $lines = ['АНАЛИТИЧЕСКИЙ КОММЕНТАРИЙ | ' . $draft['session_date'] . ' | ' . $label,
             'Мнение ассистента. НЕ торговая команда и НЕ подтверждение сделки.', '',
             'Факты на ' . $at->setTimezone(new \DateTimeZone('America/New_York'))->format('H:i:s') . ' Нью-Йорк:',
             sprintf('Капитал $%.2f; деньги $%.2f; позиций %d; открытых заявок %d.', $context['account']['equity'], $context['account']['cash'],
