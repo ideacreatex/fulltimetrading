@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-15 03:04:18 Нью-Йорк
+Снимок: 2026-09-15 03:19:26 Нью-Йорк
 У брокера: позиций 0, открытых заявок 4.
 Капитал $27,567.66; деньги на счёте $27,567.66.
 Лимит покупок брокера $46,056.08: может включать заёмные средства, это не бюджет новой сделки.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-15T07:04:18+00:00`
+- Generated: `2026-09-15T07:19:26+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -56,11 +56,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` buy market qty `9`, limit `-`, status `accepted`
 
 ## Recent Actions
-- `2026-09-15T07:03:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T07:02:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T07:01:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T07:00:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T06:59:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T06:58:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T06:57:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-15T06:55:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:18:49` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:17:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:16:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:15:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:14:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:13:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:12:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-15T07:11:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
