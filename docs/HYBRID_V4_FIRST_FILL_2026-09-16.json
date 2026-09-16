@@ -1,0 +1,60 @@
+{
+  "schema": "bull5-forward-first-fill-v1",
+  "observed_at": "2026-09-16T13:32:58+00:00",
+  "run_id": "hybrid-v4-bull5-2026-09-15",
+  "runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+  "activated_at": "2026-09-15T13:41:18+00:00",
+  "paper_only": true,
+  "audit_orders_submitted": 0,
+  "audit_operational_database_modified": false,
+  "symbol": "MSFT",
+  "requested_shares": 18,
+  "filled_shares": 2,
+  "unfilled_shares": 16,
+  "fill_price": 492,
+  "cost_basis": 984,
+  "owner_sleeve": "qqq150_ex_crypto_rank0_phase1",
+  "broker_fill_at": "2026-09-16T13:30:10.09322804Z",
+  "cancel_reasons": ["partial_fill_protection"],
+  "all_buy_cancellations_after_open": true,
+  "stop": {
+    "quantity": 2,
+    "price": 432.96,
+    "type": "stop",
+    "side": "sell",
+    "time_in_force": "gtc",
+    "status": "new",
+    "extended_hours": false,
+    "broker_created_at": "2026-09-16T13:31:54.207235015Z",
+    "fill_to_stop_creation_seconds_approx": 104.114,
+    "uncovered_quantity": 0
+  },
+  "audit_ok": true,
+  "reconciliation_ok": true,
+  "broker": {"equity": 27569.4, "cash": 26583.66, "open_orders": 1},
+  "telegram": {
+    "fill_delivered_at": "2026-09-16T13:30:16+00:00",
+    "trading_delivered_count": 104,
+    "trading_pending": 0,
+    "trading_failed_pending": 0,
+    "pre_open_commentary_message_id": 891
+  },
+  "month": {
+    "as_of": "2026-09-16T13:32:18+00:00",
+    "elapsed_whole_days": 0,
+    "required_days": 31,
+    "observed_market_dates": 2,
+    "required_market_dates": 20,
+    "completed_exit_episodes": 0,
+    "earliest_review": "2026-10-16T13:41:18+00:00",
+    "gate": "blocked",
+    "live_enabled": false
+  },
+  "repeated_offline_regression": {"program": "tests/candidate_opg_auction_boundary.php", "assertions": 230, "scenarios": 14, "broker_access": false, "passed": true},
+  "evidence": [
+    {"path": "var/reports/candidate_forward_20260915/20260916_133221_33389.json", "sha256": "2bd6ab731ad18b153e753b7bf1173c5eacd11a68cecb2855a499816d49e6985c"},
+    {"path": "var/reports/candidate_forward_20260915/20260916_133258_33820.json", "sha256": "5aa4d60348667899181bf1d539c4a5175d9dbd2d88cec7ba45674677600cd8b2"},
+    {"path": "var/reports/heartbeat_20260916_1330/operational/latest_paper_status.json", "sha256": "671635b947cd480d8793c0bce5b076b4532d4e42970607c0f1ef9cc98286db75"}
+  ],
+  "limitations": ["Only partial entry/protection path observed, not full target execution", "Approximately 104 seconds between fill and stop creation", "Four same-symbol sleeve orders do not diversify symbol risk", "Stop execution price and extended-hours protection are not guaranteed", "Current marks are unrealized, not realized profit", "Historical full-fill results are not forward execution proof", "No active execution change made to address underfill or delay"]
+}
