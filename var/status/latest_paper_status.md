@@ -3,10 +3,10 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-16 06:32:50 Нью-Йорк
+Снимок: 2026-09-16 06:47:57 Нью-Йорк
 У брокера: позиций 0, открытых заявок 4.
 Капитал $27,567.66; деньги на счёте $27,567.66.
-Лимит покупок брокера $46,210.95: может включать заёмные средства, это не бюджет новой сделки.
+Лимит покупок брокера $46,208.07: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: покупка MSFT; количество 3, исполнено 0. Наличие заявки не означает полного исполнения.
 Заявка: покупка MSFT; количество 9, исполнено 0. Наличие заявки не означает полного исполнения.
 Заявка: покупка MSFT; количество 3, исполнено 0. Наличие заявки не означает полного исполнения.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-16T10:32:50+00:00`
+- Generated: `2026-09-16T10:47:57+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -35,7 +35,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
 - Equity: `$27,567.66`
 - Cash: `$27,567.66`
-- Buying power: `$46,210.95`
+- Buying power: `$46,208.07`
 - Hybrid-v4 runtime: `active`
 - Hybrid-v4 health: `healthy`
 - Telegram outbox: `0 pending, 0 failed pending, 103 delivered`
@@ -56,11 +56,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` buy market qty `3`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-09-16T10:31:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:30:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:29:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:28:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:27:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:26:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:25:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-16T10:24:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:47:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:46:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:45:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:44:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:43:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:42:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:41:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-16T10:40:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
