@@ -1,10 +1,10 @@
 {
-    "generated_at": "2026-09-16T20:52:57+00:00",
+    "generated_at": "2026-09-17T14:45:17+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "807dddbb",
-        "dirty": false
+        "commit": "a81bdc9f",
+        "dirty": true
     },
     "runtime": {
         "orders_enabled": true,
@@ -25,9 +25,9 @@
     "alpaca": {
         "snapshot_complete": true,
         "clock": {
-            "timestamp": "2026-09-16T16:52:56.916269752-04:00",
-            "is_open": false,
-            "next_open": "2026-09-17T09:30:00-04:00",
+            "timestamp": "2026-09-17T10:45:16.162574711-04:00",
+            "is_open": true,
+            "next_open": "2026-09-18T09:30:00-04:00",
             "next_close": "2026-09-17T16:00:00-04:00"
         },
         "account": {
@@ -36,8 +36,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 26583.66,
-            "equity": 27564.01,
-            "buying_power": 54147.67,
+            "equity": 27578.63,
+            "buying_power": 54162.29,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -52,12 +52,12 @@
                 "side": "long",
                 "qty": 2,
                 "avg_entry_price": 492,
-                "current_price": 490.1742,
-                "market_value": 980.3484,
+                "current_price": 497.56,
+                "market_value": 995.12,
                 "cost_basis": 984,
-                "unrealized_pl": -3.6516,
-                "unrealized_plpc": -0.00371,
-                "change_today": -0.01397
+                "unrealized_pl": 11.12,
+                "unrealized_plpc": 0.0113,
+                "change_today": 0.01481
             }
         ],
         "open_orders": [
@@ -75,9 +75,9 @@
                 "stop_price": 432.96,
                 "status": "new",
                 "time_in_force": "gtc",
-                "created_at": "2026-09-16T13:31:54.207235015Z",
-                "updated_at": "2026-09-16T13:31:54.215919882Z",
-                "submitted_at": "2026-09-16T13:31:54.214940119Z",
+                "created_at": "2026-09-16T13:31:54.207235Z",
+                "updated_at": "2026-09-16T13:31:54.21592Z",
+                "submitted_at": "2026-09-16T13:31:54.21494Z",
                 "filled_at": null
             }
         ]
@@ -415,8 +415,8 @@
         ],
         "recent_actions": [
             {
-                "id": 83534,
-                "created_at": "2026-09-16T20:52:24+00:00",
+                "id": 84243,
+                "created_at": "2026-09-17T14:45:01+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -427,11 +427,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83533,
-                "created_at": "2026-09-16T20:51:21+00:00",
+                "id": 84242,
+                "created_at": "2026-09-17T14:43:30+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -439,11 +439,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83532,
-                "created_at": "2026-09-16T20:50:19+00:00",
+                "id": 84241,
+                "created_at": "2026-09-17T14:41:59+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -451,11 +451,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83531,
-                "created_at": "2026-09-16T20:49:17+00:00",
+                "id": 84240,
+                "created_at": "2026-09-17T14:40:28+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -463,11 +463,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83530,
-                "created_at": "2026-09-16T20:48:15+00:00",
+                "id": 84239,
+                "created_at": "2026-09-17T14:38:56+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -475,11 +475,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83529,
-                "created_at": "2026-09-16T20:47:13+00:00",
+                "id": 84238,
+                "created_at": "2026-09-17T14:37:55+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -487,11 +487,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83528,
-                "created_at": "2026-09-16T20:46:10+00:00",
+                "id": 84237,
+                "created_at": "2026-09-17T14:36:34+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -499,11 +499,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83527,
-                "created_at": "2026-09-16T20:45:08+00:00",
+                "id": 84236,
+                "created_at": "2026-09-17T14:35:03+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -511,11 +511,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83526,
-                "created_at": "2026-09-16T20:44:06+00:00",
+                "id": 84235,
+                "created_at": "2026-09-17T14:33:31+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -523,11 +523,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83525,
-                "created_at": "2026-09-16T20:43:04+00:00",
+                "id": 84234,
+                "created_at": "2026-09-17T14:32:00+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -535,11 +535,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83524,
-                "created_at": "2026-09-16T20:42:01+00:00",
+                "id": 84233,
+                "created_at": "2026-09-17T14:30:29+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -547,11 +547,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83523,
-                "created_at": "2026-09-16T20:40:59+00:00",
+                "id": 84232,
+                "created_at": "2026-09-17T14:28:58+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -559,11 +559,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83522,
-                "created_at": "2026-09-16T20:39:57+00:00",
+                "id": 84231,
+                "created_at": "2026-09-17T14:27:26+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -571,11 +571,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83521,
-                "created_at": "2026-09-16T20:38:55+00:00",
+                "id": 84230,
+                "created_at": "2026-09-17T14:25:55+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -583,11 +583,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83520,
-                "created_at": "2026-09-16T20:37:53+00:00",
+                "id": 84229,
+                "created_at": "2026-09-17T14:24:24+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -595,11 +595,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83519,
-                "created_at": "2026-09-16T20:36:50+00:00",
+                "id": 84228,
+                "created_at": "2026-09-17T14:22:53+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -607,11 +607,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83518,
-                "created_at": "2026-09-16T20:35:48+00:00",
+                "id": 84227,
+                "created_at": "2026-09-17T14:21:21+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -619,11 +619,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83517,
-                "created_at": "2026-09-16T20:34:46+00:00",
+                "id": 84226,
+                "created_at": "2026-09-17T14:19:50+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -631,11 +631,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83516,
-                "created_at": "2026-09-16T20:33:44+00:00",
+                "id": 84225,
+                "created_at": "2026-09-17T14:18:19+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -643,11 +643,11 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 83515,
-                "created_at": "2026-09-16T20:32:42+00:00",
+                "id": 84224,
+                "created_at": "2026-09-17T14:16:48+00:00",
                 "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
+                "action": "monitor_error",
+                "severity": "error",
                 "dry_run": false,
                 "submitted": false,
                 "order_id_last4": null,
@@ -701,10 +701,10 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-09-16T20:52:24+00:00",
+        "generated_at": "2026-09-17T14:45:01+00:00",
         "dry_run": false,
         "submit_allowed": true,
-        "market_open": false,
+        "market_open": true,
         "positions_count": 0,
         "open_orders_count": 1,
         "actions": [],
@@ -735,7 +735,7 @@
             "expected": true,
             "ok": false,
             "max_age_seconds": 180,
-            "checked_at": "2026-09-16T20:52:57+00:00",
+            "checked_at": "2026-09-17T14:45:17+00:00",
             "errors": [
                 "tactical_heartbeat_failed",
                 "tactical_signal_refresh_failed",
@@ -748,8 +748,8 @@
             "ok": true,
             "pending_count": 0,
             "failed_pending_count": 0,
-            "delivered_count": 106,
-            "last_delivered_at": "2026-09-16T20:20:19+00:00",
+            "delivered_count": 107,
+            "last_delivered_at": "2026-09-17T14:44:29+00:00",
             "required": {
                 "signal": true,
                 "transition": false,
@@ -761,20 +761,20 @@
         "heartbeat": {
             "pid": 69275,
             "started_at": "2026-09-15T13:39:06+00:00",
-            "heartbeat_at": "2026-09-16T20:52:57+00:00",
+            "heartbeat_at": "2026-09-17T14:45:16+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
             "error": null,
             "last_executor_exit_code": 2,
-            "last_executor_finished_at": "2026-09-16T20:52:54+00:00",
+            "last_executor_finished_at": "2026-09-17T14:45:16+00:00",
             "last_executor_timed_out": false,
             "last_signal_exit_code": 255,
-            "last_signal_finished_at": "2026-09-16T20:48:06+00:00"
+            "last_signal_finished_at": "2026-09-17T14:41:39+00:00"
         },
         "cycle": {
-            "generated_at": "2026-09-16T20:52:54+00:00",
+            "generated_at": "2026-09-17T14:45:16+00:00",
             "run_id": "hybrid-v4-bull5-2026-09-15",
             "profile": "maximum-stop12-costband2-whole-bull5-v1",
             "dry_run": false,
@@ -1349,7 +1349,7 @@
                 "filled_qty": 0,
                 "status": "new",
                 "client_order_id": "ftt5-1dfbcbb4fcbd73af3ea30da3d0145aab675f6762",
-                "updated_at": "2026-09-16T20:52:51+00:00"
+                "updated_at": "2026-09-17T14:45:13+00:00"
             }
         ],
         "live_review_not_before": "2026-10-16T13:41:18+00:00"
@@ -1476,6 +1476,6 @@
         "watch_symbols": [
             "MSFT"
         ],
-        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-09-16 16:52:57 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,564.01; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,147.67: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтатус ACTIVE: учёт стратегии активен, но это не разрешение покупать.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.\nЧто дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.\nПочему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.\nЧто дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.\nПочему: Есть дополнительная блокировка: tactical_signal_refresh_failed.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nПочему: Есть заявка в исполнении или сверке; новый дополнительный риск заблокирован.\nЧто дальше: Дождаться ответа брокера и сверки фактического количества.\n\nРасчёт модели: закрытие 2026-09-15; план на 2026-09-16.\nНа наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 8 | модель не планирует новую покупку.\nЧастей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
+        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-09-17 10:45:17 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,578.63; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,162.29: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтатус ACTIVE: учёт стратегии активен, но это не разрешение покупать.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.\nЧто дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.\nПочему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.\nЧто дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.\nПочему: Есть дополнительная блокировка: tactical_signal_refresh_failed.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nПочему: Есть заявка в исполнении или сверке; новый дополнительный риск заблокирован.\nЧто дальше: Дождаться ответа брокера и сверки фактического количества.\n\nРасчёт модели: закрытие 2026-09-15; план на 2026-09-16.\nНа наблюдении: MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 8 | модель не планирует новую покупку.\nЧастей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
     }
 }
