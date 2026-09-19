@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-19 16:57:00 Нью-Йорк
+Снимок: 2026-09-19 17:12:08 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,571.22; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,154.88: может включать заёмные средства, это не бюджет новой сделки.
@@ -12,12 +12,12 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
+Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
+Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
+Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
+Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: candidate_run_paused.
-Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
-Почему: Есть дополнительная блокировка: candidate_terminal_incomplete:79796b9b9712.
-Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Почему: Торговый запуск ещё не активен или на паузе.
 Что дальше: Проверить этап перехода и защитные условия.
 Остальные причины сохранены в полном JSON-отчёте.
@@ -30,7 +30,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-19T20:57:00+00:00`
+- Generated: `2026-09-19T21:12:08+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -57,11 +57,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-09-19T20:56:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:55:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:54:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:53:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:52:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:50:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:49:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-19T20:48:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:11:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:10:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:09:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:08:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:07:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:06:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:05:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-19T21:04:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
