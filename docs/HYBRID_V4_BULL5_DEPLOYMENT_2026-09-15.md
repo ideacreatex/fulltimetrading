@@ -1,5 +1,10 @@
 # Bull5 deployed and opening-auction cancellation fixed
 
+Forward update, verified September 19: this release remains installed, but its
+run paused on September 18 after a zero-fill OPG expiry. Two MSFT remain protected.
+See `HYBRID_V4_WEEKLY_OPEN_INCIDENT_2026-09-19.md` for the new incident and reproduction.
+The deployment facts below are the dated September 15 receipt, not current health.
+
 ## Actual Deployment
 
 Experimental paper profile `maximum-stop12-costband2-whole-bull5-v1` is now

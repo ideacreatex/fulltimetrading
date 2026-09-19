@@ -44,6 +44,9 @@ try {
         $before = $read(); $s = $before;
         if (count($s['run']) !== 1 || $s['run'][0]['runtime_hash'] !== $release['runtime_hash']) { throw new RuntimeException('Run identity mismatch.'); }
         $report['run_status'] = $s['run'][0]['status']; $report['activated_at'] = $s['run'][0]['activated_at'];
+        $report['run_last_error_code'] = $s['run'][0]['last_error_code'];
+        $report['entry_authorization'] = $report['run_status'] === 'active' ? 'not_assessed' : 'blocked_run_not_active';
+        $report['audit_scope'] = 'Ownership, fills, native stop coverage and broker reconciliation only; audit.ok is not entry admission or a monthly gate PASS.';
         $s['account'] = $client->account(); $report['account_guard'] = AlpacaPaperAccountGuard::validateConfigured($s['account']);
         $s['positions'] = $client->positions(); $s['open_orders'] = $client->openOrders(); $s['broker_order_observations'] = [];
         $latest = array_slice(array_reverse($s['intents']), 0, 50); $lookup = [];

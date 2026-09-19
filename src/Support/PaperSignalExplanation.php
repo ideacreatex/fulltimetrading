@@ -227,6 +227,12 @@ final class PaperSignalExplanation
             $code === 'candidate_external_signal_stale' || str_starts_with($code, 'candidate_signal_invalid:') => ['source', 1,
                 'Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.',
                 'Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.'],
+            str_starts_with($code, 'candidate_terminal_incomplete:') => ['incomplete_order', 1,
+                'Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.',
+                'Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.'],
+            $code === 'candidate_run_paused' => ['candidate_paused', 2,
+                'Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.',
+                'Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.'],
             $code === 'signal_validation_not_selected' || str_starts_with($code, 'signal_plan_blocked:') => ['qualification', 2,
                 'Версия стратегии не допущена к новым покупкам по текущей проверке истории. Это не прогноз падения рынка и не отказ Alpaca.',
                 'Проверить новый paper-релиз. Наличие денег или наступление следующего дня эту блокировку не снимает.'],
@@ -255,6 +261,7 @@ final class PaperSignalExplanation
     {
         foreach (array_keys($codes) as $code) {
             if (str_starts_with($code, 'runtime') || str_starts_with($code, 'tactical_')
+                || $code === 'candidate_run_paused' || str_starts_with($code, 'candidate_terminal_incomplete:')
                 || str_starts_with($code, 'signal_plan_blocked:') || $code === 'qualification_unknown') { return true; }
         }
         return false;

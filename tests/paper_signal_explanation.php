@@ -116,4 +116,19 @@ foreach (['maximum-stop12-costband2-whole-v1', 'maximum-stop12-costband2-whole-b
         $expect(!str_contains($v['text'], 'только экспериментальный paper') && !$v['reported_plan_permitted'], 'Missing/mismatched proof is not paper admission: ' . $fault);
     }
 }
+$paused = $base;
+$paused['tactical']['run']['status'] = 'paused';
+$paused['tactical']['run']['last_error_code'] = 'candidate_terminal_incomplete:79796b9b9712';
+$paused['tactical']['cycle']['errors'] = ['candidate_run_paused'];
+$before = serialize($paused);
+$v = E::build($paused, $now);
+$expect($v['state'] === 'entries_blocked' && !$v['reported_plan_permitted'], 'A paused run is a block, not healthy observation.');
+$expect(str_contains($v['text'], 'неисполненным остатком') && str_contains($v['text'], 'Перезапуск не снимает'), 'Incomplete-order pause has a concrete non-restart explanation.');
+$expect(!str_contains($v['text'], 'Есть дополнительная блокировка: candidate_'), 'Known candidate pause codes are not opaque fallback text.');
+$expect(serialize($paused) === $before && $v['execution_authority'] === 'none', 'Pause wording cannot mutate or authorize the runtime.');
+$paused['alpaca']['positions'] = [['symbol' => 'MSFT', 'qty' => 2]];
+$paused['alpaca']['open_orders'] = [['symbol' => 'MSFT', 'side' => 'sell', 'type' => 'stop', 'qty' => 2, 'filled_qty' => 0]];
+$v = E::build($paused, $now);
+$expect($v['state'] === 'broker_orders_open' && str_contains($v['text'], 'не означает закрытие имеющихся позиций'), 'Paused run still shows actual ownership and standing orders.');
+$expect(strlen($v['text']) <= 3800 && preg_match('//u', $v['text']) === 1, 'New explanations preserve transport limits.');
 echo "paper_signal_explanation: {$checks} assertions PASS\n";
