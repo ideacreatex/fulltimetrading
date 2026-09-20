@@ -1,5 +1,10 @@
 # Weekly-open repair: full CLI gap closed
 
+08:40 UTC update: separate exact-source paper admission and package identity
+are now complete in isolated commit `4d3244bd`, with 60 passing programs.
+See `HYBRID_V4_WEEKLY_OPEN_ADMISSION_STATUS_2026-09-20.md` for the current state.
+No deployment or resume occurred; the earlier receipts below remain dated.
+
 Verified September 20, 2026, 03:18:35 UTC. Isolated commit
 `66d89e847eb6c050012b85cdead1f893462a16f6`, branch
 `codex/bull5-weekly-open-repair-20260919`, builds on scheduler fix `f165b150`.
@@ -71,15 +76,16 @@ under the isolated worktree, SHA256
 
 ## Still Not Deployed
 
-The previous full-CLI/full-suite verification gaps are closed. Exact-source
-release admission, package identity/handoff and fresh-current-signal preflight
-remain separate work; no new release manifest was issued. Existing installation
+The previous full-CLI/full-suite verification gaps are closed. The subsequent
+08:40 verification also completed exact-source admission and separate package
+identity. Safe handoff and fresh-current-broker preflight remain. Existing installation
 requires a stable flat account, not an in-place replacement over held shares.
 Do not clear the saved pause, change identity, bypass gates or force liquidation.
 
 Active hash stays `76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092`.
-Isolated hash stays `20abb8ff6b3939d00d9255f64c99c034d9bbaecbe392ef64f7c00be3e6ebcacc`.
-Only the scheduler differs in manifest-bound runtime files.
+The 03:18 isolated hash was `20abb8ff6b3939d00d9255f64c99c034d9bbaecbe392ef64f7c00be3e6ebcacc`,
+with only the scheduler changed. The newly admitted package has its own hash
+and identity, recorded in the later admission-status document.
 
 At 03:17:09 UTC, read-only audit still confirmed the paused run, 2 MSFT with
 native GTC stop 2 at $438.02, no uncovered shares, matching ownership/cash,

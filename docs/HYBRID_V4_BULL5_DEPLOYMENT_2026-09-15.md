@@ -7,6 +7,9 @@ September 20: isolated repair `f165b150` is verified but NOT deployed; see
 `HYBRID_V4_WEEKLY_OPEN_REPAIR_STATUS_2026-09-20.md`. The run is still paused.
 Later verification `66d89e84` closes the full CLI/regression gap: see
 `HYBRID_V4_WEEKLY_OPEN_CLI_STATUS_2026-09-20.md`. This is not a new deployment.
+Later isolated release `4d3244bd` completes exact-source paper admission:
+`HYBRID_V4_WEEKLY_OPEN_ADMISSION_STATUS_2026-09-20.md`. Still NOT installed;
+the active paused run, positions, protection and hash are unchanged.
 The deployment facts below are the dated September 15 receipt, not current health.
 
 ## Actual Deployment

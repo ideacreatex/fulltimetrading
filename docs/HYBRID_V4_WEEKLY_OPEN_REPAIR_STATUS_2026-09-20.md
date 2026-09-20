@@ -1,5 +1,9 @@
 # Weekly-open repair: isolated and verified, not deployed
 
+08:40 UTC update: exact-source admission and separate package identity are
+complete in isolated commit `4d3244bd`; see `HYBRID_V4_WEEKLY_OPEN_ADMISSION_STATUS_2026-09-20.md`.
+The active run is unchanged; held-position handoff remains blocked.
+
 03:18 UTC update: full CLI and all 59 regression programs now pass in isolated
 commit `66d89e84`. See `HYBRID_V4_WEEKLY_OPEN_CLI_STATUS_2026-09-20.md`.
 The earlier 02:37 results below remain dated evidence, not the latest test scope.
@@ -37,10 +41,10 @@ No operational source, strategy, manifest, commissioning or ledger changed.
 
 ## Remaining Release Work
 
-The subsequent 03:18 verification closes the full submitted-CLI and complete
-55-program-suite gaps (59 programs including additions). It does not issue a
-new admission proof. Complete exact-source admission and a supported safe
-handoff before treating this as a deployable package.
+The 03:18 verification closed the full submitted-CLI and complete 55-program
+suite gaps (59 including additions). The subsequent 08:40 admission completed
+exact-source proof and package identity with 60 programs. A supported safe
+handoff and fresh broker preflight remain necessary before actual deployment.
 
 Deployment is separately blocked by held shares and an open native paper stop.
 The current installer requires a stable flat account; it is not a supported
