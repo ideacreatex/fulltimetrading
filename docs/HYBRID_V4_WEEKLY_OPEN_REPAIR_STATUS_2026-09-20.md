@@ -1,5 +1,9 @@
 # Weekly-open repair: isolated and verified, not deployed
 
+03:18 UTC update: full CLI and all 59 regression programs now pass in isolated
+commit `66d89e84`. See `HYBRID_V4_WEEKLY_OPEN_CLI_STATUS_2026-09-20.md`.
+The earlier 02:37 results below remain dated evidence, not the latest test scope.
+
 Operational check completed September 20, 2026, 02:35:18 UTC. Targeted repair
 verification completed at 02:37 UTC. Heartbeat triggers without tool execution
 are not counted as completed operational checks.
@@ -33,11 +37,10 @@ No operational source, strategy, manifest, commissioning or ledger changed.
 
 ## Remaining Release Work
 
-This is not the complete 55-program release suite or a new admission proof.
-The full CLI preflight contract passes, but the submitted Friday-auction CLI
-path is not covered end-to-end by this new component integration; its outbox
-readiness rule is reproduced in the fixture. Close that verification gap and
-complete exact-source admission before treating this as a releasable package.
+The subsequent 03:18 verification closes the full submitted-CLI and complete
+55-program-suite gaps (59 programs including additions). It does not issue a
+new admission proof. Complete exact-source admission and a supported safe
+handoff before treating this as a deployable package.
 
 Deployment is separately blocked by held shares and an open native paper stop.
 The current installer requires a stable flat account; it is not a supported
