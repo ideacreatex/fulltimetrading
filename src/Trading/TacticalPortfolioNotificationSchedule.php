@@ -154,11 +154,13 @@ final class TacticalPortfolioNotificationSchedule
         $asOf = trim((string) ($signal['as_of'] ?? ''));
         $decisionHash = strtolower(trim((string) ($signal['decision_sha256'] ?? '')));
         $nextOpen = self::brokerClockDate((string) ($clock['next_open'] ?? ''));
+        $intendedSession = is_string($signal['intended_session'] ?? null) ? trim($signal['intended_session']) : '';
         if ($close === null
             || $brokerTime === null
             || $accountScope === null
             || $nextOpen === null
             || preg_match('/^\d{4}-\d{2}-\d{2}$/D', $asOf) !== 1
+            || preg_match('/^\d{4}-\d{2}-\d{2}$/D', $intendedSession) !== 1
             || preg_match('/^[a-f0-9]{64}$/D', $decisionHash) !== 1) {
             return null;
         }
@@ -166,11 +168,19 @@ final class TacticalPortfolioNotificationSchedule
         try {
             $timezone = new \DateTimeZone('America/New_York');
             $sessionDay = new \DateTimeImmutable($asOf . ' 12:00:00', $timezone);
+            $nextSessionDay = new \DateTimeImmutable($intendedSession . ' 12:00:00', $timezone);
         } catch (\Throwable) {
             return null;
         }
 
-        if ($sessionDay->format('o-W') === $nextOpen->format('o-W')) {
+        if ($sessionDay->format('Y-m-d') !== $asOf || $nextSessionDay->format('Y-m-d') !== $intendedSession
+            || $nextSessionDay <= $sessionDay || $nextOpen->format('Y-m-d') < $intendedSession) {
+            return null;
+        }
+
+        // next_open advances to Monday during Friday's auction. The validated
+        // signal's next session, not that moving clock field, identifies its week end.
+        if ($sessionDay->format('o-W') === $nextSessionDay->format('o-W')) {
             return null;
         }
 

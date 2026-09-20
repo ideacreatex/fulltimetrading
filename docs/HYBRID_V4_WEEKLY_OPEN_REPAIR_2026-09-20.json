@@ -1,0 +1,101 @@
+{
+  "schema": "weekly-open-targeted-repair-verification-v1",
+  "verified_at": "2026-09-20T02:37:00Z",
+  "branch": "codex/bull5-weekly-open-repair-20260919",
+  "base_commit": "ea99a4a2ae69b648853a160e777fa9344c8614bb",
+  "release_admission_proof": false,
+  "deployed": false,
+  "operational_runtime_changed": false,
+  "active_runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+  "staged_runtime_hash": "20abb8ff6b3939d00d9255f64c99c034d9bbaecbe392ef64f7c00be3e6ebcacc",
+  "changed_runtime_files": [
+    "src/Trading/TacticalPortfolioNotificationSchedule.php"
+  ],
+  "source_sha256": {
+    "src/Trading/TacticalPortfolioNotificationSchedule.php": "8248761d8d355fb5c27b4eb80986ee90984307d9bbb488ab5db630318cd65a5a",
+    "tools/reproduce_candidate_weekly_open_20260919.php": "8eb30f6dbc401c504b3d81bc4917857576fd2665efa25480595b8fb3bf9d8851",
+    "tests/candidate_weekly_open_integration.php": "e8d6909912bdf164633be30cc387dcd6a63b4ea89fcd3cea512ddcdcdea233e0",
+    "tests/tactical_weekly_session_boundary.php": "8384ae5739c007cdd7738ff9f4eb2a5b82470672549d227970e1b8d4024d76ce"
+  },
+  "tests": [
+    {
+      "command": "php tests/tactical_weekly_session_boundary.php",
+      "exit_code": 0,
+      "output": "Weekly completed-session boundary: 78 assertions PASS; no broker access\n"
+    },
+    {
+      "command": "php tests/candidate_weekly_open_integration.php",
+      "exit_code": 0,
+      "output": "{\n    \"result\": \"scheduler_repair_verified_existing_guards_preserved\",\n    \"assertions\": 56,\n    \"real_broker_mutations\": 0,\n    \"operational_database_access\": false,\n    \"findings\": [\n        \"no_premature_weekly\",\n        \"no_spurious_outbox_abort\",\n        \"actual_pending_outbox_still_aborts\"\n    ],\n    \"safety_verified\": [\n        \"terminal_expiry_pauses\",\n        \"original_two_shares_reprotected\",\n        \"no_automatic_resume\"\n    ]\n}\n"
+    },
+    {
+      "command": "php tests/tactical_portfolio_notification_schedule.php",
+      "exit_code": 0,
+      "output": "tactical portfolio notification schedule tests passed\n"
+    },
+    {
+      "command": "php tests/candidate_cycle_contract.php",
+      "exit_code": 0,
+      "output": "candidate_cycle_contract: 10 assertions PASS\n"
+    },
+    {
+      "command": "php tests/candidate_opg_auction_boundary.php",
+      "exit_code": 0,
+      "output": "OPG auction boundary: 230 assertions PASS; 14 restartable scenarios, no broker access\n"
+    },
+    {
+      "command": "php tests/candidate_entry_batch.php",
+      "exit_code": 0,
+      "output": "candidate_entry_batch: 86 assertions PASS\n"
+    },
+    {
+      "command": "php tests/candidate_execution_plan.php",
+      "exit_code": 0,
+      "output": "candidate_execution_plan: 32 assertions PASS\n"
+    },
+    {
+      "command": "php tests/tactical_portfolio_weekly_summary.php",
+      "exit_code": 0,
+      "output": "tactical portfolio weekly summary tests passed\n"
+    },
+    {
+      "command": "php tests/candidate_release_gate.php",
+      "exit_code": 0,
+      "output": "candidate_release_gate: 37 assertions PASS\n"
+    },
+    {
+      "command": "php tests/tactical_notification_health_guard.php",
+      "exit_code": 0,
+      "output": "tactical notification health guard tests passed\n"
+    },
+    {
+      "command": "php tests/tactical_notification_policy.php",
+      "exit_code": 0,
+      "output": "tactical notification policy tests passed\n"
+    },
+    {
+      "command": "php tests/tactical_run_identity_gate.php",
+      "exit_code": 0,
+      "output": "tactical run identity gate tests passed\n"
+    }
+  ],
+  "negative_controls": {
+    "unrepaired_scheduler_sha256": "a12f32cb9c77982892e4c7abb09a0f534f694d5ae10ca722c30fb1125051cac5",
+    "expected_exit_code": 255,
+    "programs": [
+      "tests/tactical_weekly_session_boundary.php",
+      "tests/candidate_weekly_open_integration.php"
+    ],
+    "both_failed_as_expected": true
+  },
+  "lint_passed": true,
+  "diff_check_passed": true,
+  "broker_mutations": 0,
+  "operational_database_mutations": 0,
+  "limitations": [
+    "Targeted suite only; full release admission not performed.",
+    "Component integration copies the executor outbox readiness rule; full submitted CLI Friday-auction scenario remains untested.",
+    "No guarantee of otherwise filled OPG or elimination of native-protection gaps.",
+    "Existing run remains paused with two owned MSFT and one acknowledged native stop; no deployment or resume."
+  ]
+}

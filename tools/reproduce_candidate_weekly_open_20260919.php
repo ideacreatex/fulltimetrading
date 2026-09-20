@@ -10,8 +10,10 @@ use FulltimeTrading\Trading\TacticalRotationExecutionWindow as Window;
 
 require dirname(__DIR__) . '/bootstrap.php';
 
-// Incident reproduction, NOT a passing release test or a production repair.
+// Default mode reproduces the old incident. The explicit repaired mode verifies
+// only the scheduler repair and preserves all existing admission/expiry guards.
 // No broker client, credentials, operational database or Telegram sender is used.
+$expectRepaired = in_array('--expect-repaired', $argv, true);
 $checks = 0;
 $check = static function (bool $ok, string $message) use (&$checks): void {
     ++$checks;
@@ -84,16 +86,30 @@ try {
     $check(Schedule::weeklyCloseStatus($clock, $account, $signal, new DateTimeImmutable($clock['timestamp'])) === null, 'No weekly report before Friday open.');
     $clock = ['timestamp' => '2026-09-18T09:30:05-04:00', 'is_open' => true, 'next_open' => '2026-09-21T09:30:00-04:00'];
     $weekly = Schedule::weeklyCloseStatus($clock, $account, $signal, new DateTimeImmutable($clock['timestamp']));
-    $check(($weekly['session_date'] ?? null) === '2026-09-17', 'KNOWN DEFECT: Friday open schedules a Thursday weekly close.');
+    if ($expectRepaired) {
+        $check($weekly === null, 'Repaired scheduler must not invent a Thursday weekly report at Friday open.');
+        $check($ledger->views->pendingNotifications() === [], 'No spurious notification closes entry admission.');
+        foreach (['09:30:05', '09:30:06', '09:30:07'] as $time) {
+            $a = $next($window($time, true), $gates);
+            $check($a['action'] === 'wait', 'Accepted OPG keeps waiting through successive opening observations.');
+        }
+        $w = $window('09:30:08', true);
+        $check($ledger->checkpoint($run, 'entry_batch')['payload']['aborted'] === null, 'No sticky batch abort from the corrected scheduler.');
+        // Negative control: an actual pending notification must still close
+        // admission. Do not change the gate merely to make the test pass.
+        $weekly = ['key' => 'fixture-real-pending-notification'];
+    } else {
+        $check(($weekly['session_date'] ?? null) === '2026-09-17', 'KNOWN DEFECT: Friday open schedules a Thursday weekly close.');
+    }
     $ledger->views->queueNotification($weekly['key'], 'Fixture weekly', ['run_id' => $run]);
     // Exact current executor rule: any due pending notification for this run closes admission.
     $outboxReady = $ledger->views->notificationDelivered($closeKey);
     foreach ($ledger->views->pendingNotifications(100) as $pending) {
         if (($pending['payload']['run_id'] ?? '') === $run) { $outboxReady = false; }
     }
-    $check(!$outboxReady, 'New weekly outbox row closes paper_admission before delivery.');
+    $check(!$outboxReady, 'An actual pending outbox row still closes paper_admission before delivery.');
     $a = $next($w, array_replace($gates, ['paper_admission' => $outboxReady]));
-    $check($a['action'] === 'cancel' && $a['reason'] === 'entry_window_expired', 'KNOWN DEFECT: admission loss is labelled expiry before 09:32.');
+    $check($a['action'] === 'cancel' && $a['reason'] === 'entry_window_expired', 'Existing admission-loss cleanup and its current reason code remain unchanged.');
     $cancel($a);
     $ledger->views->markNotificationDelivered($weekly['key']);
     $check($ledger->views->pendingNotifications() === [], 'Delivery clears the notification, not the sticky batch abort.');
@@ -113,9 +129,10 @@ try {
     $check($next($window('09:31:51', true), $gates)['reason'] === 'entry_batch_completed', 'Protection acknowledged before clearing batch.');
     $check(count($ledger->active($run)) === 1 && $ledger->run($run)['status'] === 'paused', 'Only the stop remains; no implicit resume.');
     $check($next($window('09:31:55', true), $gates)['reason'] === 'run_paused', 'No late retry or gate bypass.');
-    echo json_encode(['result' => 'known_failure_reproduced_not_fixed', 'assertions' => $checks,
+    echo json_encode(['result' => $expectRepaired ? 'scheduler_repair_verified_existing_guards_preserved' : 'known_failure_reproduced_not_fixed', 'assertions' => $checks,
         'real_broker_mutations' => 0, 'operational_database_access' => false,
-        'findings' => ['premature_weekly_at_friday_open', 'pending_outbox_aborts_resting_opg', 'admission_loss_mislabeled_as_expiry'],
+        'findings' => $expectRepaired ? ['no_premature_weekly', 'no_spurious_outbox_abort', 'actual_pending_outbox_still_aborts']
+            : ['premature_weekly_at_friday_open', 'pending_outbox_aborts_resting_opg', 'admission_loss_mislabeled_as_expiry'],
         'safety_verified' => ['terminal_expiry_pauses', 'original_two_shares_reprotected', 'no_automatic_resume']], JSON_PRETTY_PRINT), PHP_EOL;
 } finally {
     unset($protection, $ledger, $submit, $cancel, $next);
