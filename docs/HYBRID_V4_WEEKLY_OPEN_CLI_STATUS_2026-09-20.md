@@ -5,6 +5,37 @@ Verified September 20, 2026, 03:18:35 UTC. Isolated commit
 `codex/bull5-weekly-open-repair-20260919`, builds on scheduler fix `f165b150`.
 No operational runtime or broker mutation occurred.
 
+## 08:07 UTC Operational Follow-Up
+
+The completed 59-program receipt, all test/helper/runner hashes, dated input
+hashes, rebuilt signal and both runtime identities were checked again at
+08:07:50 UTC and still match. The programs were NOT rerun. Repair commit
+`66d89e84` is pushed; operational documentation commit `09ded553` is now pushed.
+
+That documentation commit had previously been left local. The scheduled
+exporter's status-only Git guard correctly refused to push it and returned
+exit 1. After the explicit documentation push, the normal status export
+successfully committed/pushed snapshot `81993935`. It returned exit 2 for the
+existing paused trading cycle, not a publication failure. No guard was relaxed,
+service restarted or paused run resumed. launchd's last-exit field still refers
+to its own scheduled invocation until that job runs again.
+
+Read-only broker audit completed at 08:04:56 UTC: unchanged 2 MSFT, fully covered
+by the same acknowledged stop at $438.02; reconciliation passes. Equity
+$27,571.22, cash $26,583.66, unrealized P/L +$3.56. Both trading PHP processes,
+PID/locks and heartbeats are healthy. Exact paper URL and account guard pass.
+Trading outbox remains 122 delivered, none pending/failed. Commentary has four
+delivered receipts, latest September 16 close, no uncertain/sending records;
+September 20 is a weekend with `due=null`, so no catch-up was sent.
+
+Month report remains 4/31 elapsed days and 4/20 market dates, with six stored
+snapshot dates (weekend observations do not add market dates). Gate blocked;
+earliest review remains October 16 at 13:41:18 UTC. No new orders or fills.
+Audit: `var/reports/candidate_forward_20260915/20260920_080456_29538.json`, SHA256
+`766c0a05d9d1268346abed673c12b7fb5b1d4d2187a50207b659e20b1ee5fdb7`.
+Status: `var/reports/heartbeat_20260920_0804/operational/latest_paper_status.json`,
+SHA256 `8ab57cbc7178ef002c5d53e08a1b9686c8bd3f3f91df1ad0e2b15c23b381a3bf`.
+
 ## Completed
 
 - Full submitted CLI: 711 assertions, 85 process restarts, five scenarios.
