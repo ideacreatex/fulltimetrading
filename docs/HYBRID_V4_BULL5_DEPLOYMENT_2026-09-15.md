@@ -3,6 +3,8 @@
 Forward update, verified September 19: this release remains installed, but its
 run paused on September 18 after a zero-fill OPG expiry. Two MSFT remain protected.
 See `HYBRID_V4_WEEKLY_OPEN_INCIDENT_2026-09-19.md` for the new incident and reproduction.
+September 20: isolated repair `f165b150` is verified but NOT deployed; see
+`HYBRID_V4_WEEKLY_OPEN_REPAIR_STATUS_2026-09-20.md`. The run is still paused.
 The deployment facts below are the dated September 15 receipt, not current health.
 
 ## Actual Deployment

@@ -1,5 +1,10 @@
 # Friday weekly-notification incident and paused paper run
 
+September 20 update: an isolated scheduler repair now passes targeted red/green
+regressions, but is NOT deployed. See
+`HYBRID_V4_WEEKLY_OPEN_REPAIR_STATUS_2026-09-20.md` for commit, scope and remaining
+release work. The operational scheduler and saved pause remain unchanged.
+
 Verified September 19, 2026, 21:04-21:13 UTC. Compared with the last completed
 daily baseline, September 16 at 20:51-20:54 UTC. Scheduled heartbeat messages
 alone are not evidence that the intervening checks executed.
@@ -108,8 +113,9 @@ existing schedule tests passing does NOT clear the newly reproduced failure.
 Runtime identity/commissioning still match after the edits; actual audits pass
 for protection and reconciliation. The trading cycle remains blocked.
 
-The scheduler, active entry/outbox admission and terminal-expiry behavior have
-NOT been patched or relaxed. A separately admitted repair must distinguish the
+At this incident audit, the scheduler, active entry/outbox admission and
+terminal-expiry behavior had NOT been patched or relaxed. A separately admitted
+repair must distinguish the
 last completed market session from `next_open`, include Friday/open, delayed
 Friday data, holiday-shortened week and catch-up cases, and test the full
 queue/gate/batch integration. Any decision to alter active-batch admission or
