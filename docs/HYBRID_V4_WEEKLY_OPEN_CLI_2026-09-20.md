@@ -1,5 +1,10 @@
 # Weekly-open full CLI and regression verification
 
+Later 08:40 update: the separate package now has exact-source experimental
+paper admission and 60 passing programs. See `HYBRID_V4_WEEKLY_OPEN_ADMISSION_2026-09-20.md`.
+The 03:18 receipt below remains dated evidence for the earlier runtime, not
+the latest package. The repair is still NOT deployed.
+
 Completed 2026-09-20T03:18:35Z in the existing isolated repair worktree,
 branch `codex/bull5-weekly-open-repair-20260919`.
 This supersedes the full-CLI and full-suite gaps in the earlier 02:37 targeted

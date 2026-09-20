@@ -7,7 +7,10 @@ use FulltimeTrading\Paper\CandidateSignalArtifact as Artifact;
 
 require dirname(__DIR__) . '/bootstrap.php';
 $root = dirname(__DIR__); $candidate = require $root . '/config/paper_candidate.php';
-if (!is_file($root . '/stage_sources.json') || is_file($root . '/.env')) { throw new RuntimeException('Run this post-admission test inside the isolated stage.'); }
+if ((!is_file($root . '/stage_sources.json') && ($candidate['run_id'] ?? null) !== \FulltimeTrading\Support\WeeklyOpenReleaseEvidence::RUN)
+    || is_file($root . '/.env') || is_file($root . '/var/db/trading.sqlite') || is_file($root . '/var/run/candidate_commission.json')) {
+    throw new RuntimeException('Run this post-admission test inside the isolated stage.');
+}
 $manifest = Release::verify($root, $candidate); $n = 0;
 $check = static function (bool $ok, string $why) use (&$n): void { ++$n; if (!$ok) { throw new RuntimeException($why); } };
 $check($manifest['paper_admission'] === true && $manifest['live_approved'] === false, 'Only experimental paper admission.');

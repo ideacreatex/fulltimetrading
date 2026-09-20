@@ -73,7 +73,7 @@ $deferred = [
     'tests/staged_bull5_maps.php' => 'Synthetic map test requires an explicit isolated stage inventory.',
 ];
 if ($withData) { $deferred = []; }
-foreach (['candidate_weekly_cli', 'candidate_weekly_open_integration', 'tactical_weekly_session_boundary', 'tactical_notification_health_guard'] as $name) {
+foreach (['candidate_weekly_cli', 'candidate_weekly_open_integration', 'tactical_weekly_session_boundary', 'tactical_notification_health_guard', 'weekly_open_release_evidence'] as $name) {
     $commands['tests/' . $name . '.php'] = true;
 }
 $commands = array_diff_key($commands, $deferred);
@@ -81,7 +81,8 @@ $proof = ['schema' => 'weekly-open-isolated-regressions-v1', 'started_at' => gmd
     'runtime_hash' => Release::hash($root), 'runtime_files' => Release::files($root),
     'reference_runtime_hash' => $manifest['runtime_hash'], 'reference_proof_sha256' => $manifest['proof_sha256'],
     'reference_programs' => $referenceCommands, 'deferred_programs' => $deferred, 'results' => [],
-    'support_files' => ['tests/fixtures/candidate_weekly_cli_runtime.php' => hash_file('sha256', $root . '/tests/fixtures/candidate_weekly_cli_runtime.php')],
+    'support_files' => ['tests/fixtures/candidate_weekly_cli_runtime.php' => hash_file('sha256', $root . '/tests/fixtures/candidate_weekly_cli_runtime.php'),
+        'src/Support/WeeklyOpenReleaseEvidence.php' => hash_file('sha256', $root . '/src/Support/WeeklyOpenReleaseEvidence.php')],
     'stage_input_inventory' => $inputInventory,
     'release_admission_proof' => false, 'release_manifest_published' => false, 'deployed' => false,
     'real_orders_submitted' => 0, 'operational_database_modified' => false,

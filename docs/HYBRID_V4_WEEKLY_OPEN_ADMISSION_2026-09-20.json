@@ -1,0 +1,418 @@
+{
+  "schema": "weekly-open-repair-admission-summary-v1",
+  "verified_at": "2026-09-20T08:44:53+00:00",
+  "run_id": "hybrid-v4-bull5-weekly-2026-09-20",
+  "predecessor_run_id": "hybrid-v4-bull5-2026-09-15",
+  "manifest_path": "var/releases/candidate-bull5-weekly-v1/manifest.json",
+  "manifest_sha256": "bde644f335811e66dea5720c7735d41214de6b40a26186a0416b20a76d912183",
+  "manifest": {
+    "generated_at": "2026-09-20T08:40:58+00:00",
+    "run_id": "hybrid-v4-bull5-weekly-2026-09-20",
+    "profile": "maximum-stop12-costband2-whole-bull5-v1",
+    "execution_contract": "candidate-whole-close-stop-v1",
+    "paper_only": true,
+    "live_approved": false,
+    "paper_admission": true,
+    "policy": "experimental-capital-or-drawdown-execution-v1",
+    "runtime_hash": "59a61cb8b98f1325fcda2b76e7947468a11b9bab6ee1142f279f7b9f0f0214f1",
+    "files": {
+      "bin/install-hybrid-launchd": "56249290728cdffb8a56a0a252ec2a099c950c2037dec1a5587bb65fe3d16d91",
+      "bin/trade": "27f14ca1aed6c629247760b61afe5d55cbab69a0e81cc0a32c28724f0669f5a2",
+      "bootstrap.php": "0f8f4a5f51bafbc523e5859ecfc4ca222132588e42703c255b365ecc219bb5ee",
+      "config/config.php": "cb70231a86f1a821cf67ef0c174249ccaa18d10360b858ffd7eb4834f59ac362",
+      "config/paper_candidate.php": "a99ab01e3d2eb3c23f02df10af2c968c71e698abdecbd34df0d05b2c14ca1fd1",
+      "config/tactical_rotation.php": "0e29673e0c4c83505077cb1e770f110aaa3e8f55c3612790b4b4c294cfb3705c",
+      "src/Backtest/CausalTacticalRotationBacktester.php": "f90496f1421080ce4f07591fe278a50dbf468140306aeaf2bfce2b307fd476a4",
+      "src/Backtest/CausalTacticalRotationEnsembleBacktester.php": "3e6f9fa4808da4cb3a99f2f2d36fc556057155b0ef8aa7b0704b6cd1a4a29e96",
+      "src/Data/AlpacaBarsProvider.php": "07366124f176da1c2f694993af1503cc02e6de9c77dc3747227b86e5a2ef7007",
+      "src/Data/HttpClient.php": "bb67f6af0174cef933274f044672ea9af5198e1244824e18710862af1b56d82e",
+      "src/Data/MarketDataProvider.php": "b3b775e00585ad9d041aace53ddb26bb4cd3ac09b5ed8d3271794984496603e1",
+      "src/Domain/Bar.php": "d031b14aa9083af91b9f06aa8dbe58f475840b652eb1fd986b30ee24009e6824",
+      "src/Indicators/IndicatorCalculator.php": "1589e9f42a64a905fda7d18c1eb7553c7c2da31ad6fa338b3af6f16d5bb9ea43",
+      "src/Notifications/TelegramNotifier.php": "b896fdbbc18121a1238053898bab9c01aad4a8ee5842e22b976bf3bd07007a86",
+      "src/Paper/AlpacaCandidateGateway.php": "21dd309966b7826876d4a0337e4919427a0dffce3f95734224aa49126c642e20",
+      "src/Paper/CandidateAccountReconciliation.php": "af1e162d9fc45d756dcfd6af1dadc73af573b75d1adf8ac4c7a0097e2a3caa98",
+      "src/Paper/CandidateBrokerGateway.php": "3a46cc9993d9635c33d7d5715b51a4a49f9c64fe86ea7229eff24528c9537290",
+      "src/Paper/CandidateBrokerOrderPolicy.php": "b558f74ff28ccf381640535cecb3b91d9c6669dc600df573cf562897b208449c",
+      "src/Paper/CandidateCircuit.php": "ced4814b30f85a31da898ad6fd924f4b64115972b52c432a3287190919520b0e",
+      "src/Paper/CandidateCloseEngine.php": "a425747b82d8c224145c31742baf46a52eb4d919cef32d93e8cd02736458b24a",
+      "src/Paper/CandidateDataSnapshot.php": "246e10d77d2c61ccb18dd6ddfc75ef9450b29740800f5857a04acc21d25da916",
+      "src/Paper/CandidateDefinition.php": "2884f98a0d628cb6b5140610753711d1dc77bd3bd73e442cd9f94e6c82bddb10",
+      "src/Paper/CandidateEntryBatch.php": "187764a44befda7ad35f1f481b0d7bd49baf9dcf50ddd9aedc40ccac3b59ea6b",
+      "src/Paper/CandidateExecutionPlan.php": "c123f734bcefdb6cbcb97ac8cb752c174a98d20ef1a75fc8dbee7627329fec9d",
+      "src/Paper/CandidateLedger.php": "83ee4fd5d8ab741e235f8161d28f8c0b7f16b2d8bd7ea2a34e1ce6df10f9a5fb",
+      "src/Paper/CandidateMessages.php": "aa6127a99f0b484973587b504fb0b20ddf75597c038fb22551595e6a3f67f9ea",
+      "src/Paper/CandidateOrder.php": "fc1fc9a446c03d4624cb880f803d5489d4f31d4832563ade54f93ce6d6f419ee",
+      "src/Paper/CandidateOrderReconciler.php": "e25c912e858d11a703dfce450089647e6e7416a1b68fba6a9b569a0346419185",
+      "src/Paper/CandidateProtection.php": "b7f13a85703f19bc4db5a528e54376831bcf5a39cfb1acad626dd114b4aaf9af",
+      "src/Paper/CandidateRelease.php": "6cf3f162ccd165485f9c72c7d03e0b6ff49c20e46dfe6ffc1f0f5ff30a13c58e",
+      "src/Paper/CandidateRuntimeSelection.php": "ac82c5f601a8f6c90314f32ce0729f590a079998fd0f4165bf186e8d76564f74",
+      "src/Paper/CandidateSession.php": "81d0650cb24c542ffd4cb6cbff59ee17e9791137e6198f294f2262e779d3403e",
+      "src/Paper/CandidateSignalArtifact.php": "0902470dc13a56c27d2cb40dd8d9ac4b46df4c490a48b1bf313b4675aa3f913c",
+      "src/Paper/CandidateSleeveState.php": "b511fc7d425923a5e16b753c430c218a68da3a2133e501f80de6cf12bafab94f",
+      "src/Paper/CandidateSnapshotReader.php": "92e0a9223d3a1bf646ab184cac710f499ff3f3ace657892f96dc7be48b6a12cf",
+      "src/Research/AdaptiveResearchFactory.php": "be4035e3fd23a0a5600978248bb305f570a0e35006e376be4664b001ecd274a0",
+      "src/Research/AdaptiveRotationBacktester.php": "2c5bd383d7a4643999e8f12fc57081ef31f5f1d656f35a05066c0e84f4a6e3c1",
+      "src/Research/AdaptiveRotationEnsembleBacktester.php": "0fc2db4f9ea75e93eefd2dc20aa1a0aaeb4c189f058696557dd680bc7e979862",
+      "src/Research/AlgorithmSignalPolicy.php": "72744b5602efcd4acf79cdb2faa2e76351ee40ff8aa0ace0077f27a871e28e1e",
+      "src/Research/AlgorithmTrendResearch.php": "8c3eccc61b2b76d6d709d460bb6a2399f5ebdf59357afeea3291e6532b718a85",
+      "src/Research/AlpacaStopResearchGrid.php": "a18c0cad206d028894c4bab9ddf04ce9b135c284ebeab86a82807063388ef772",
+      "src/Research/BreadthVolatilityResearch.php": "4ddf9ba79a08ab1b9889f57c56432000712167595a612daa3f954d54dbf6ccda",
+      "src/Research/CandidateBullRiskStudy.php": "565de4986fd80f67946a8e1ee1dfd33f0a1f9d706a6bf82cb0fd8e875f961ee6",
+      "src/Research/CandidateInteractionStudy.php": "b1d795f43a95ce4804d95d584872aec216e1073fc1c64e56e259c9da94edb8e2",
+      "src/Research/DailyDataAudit.php": "f2b7550bd13da76560d4e4056ff119dbf3d4400ae759c83fd06e0caf249590e5",
+      "src/Research/DeployedCandidateStudy.php": "a1ee6a5fd172c008e793107c845a36eb72b56630e4bf268c9bb3839ffeb6e2e7",
+      "src/Research/HybridV4Research.php": "fba803a16912858fa0c73e59165aebb21bf6917fe7ce95c90be4eb0587278176",
+      "src/Research/OpportunityPolicy.php": "7a9887d18310003e2f5480e67cdd31b487de0c006060e375f2e0a9bddd85b43b",
+      "src/Research/PaperExecutionRotationBacktester.php": "d5f42b257dccf3ce4e86d169d17ec49cfe3d16efcf8aee9b368e4e1a762706d5",
+      "src/Research/PaperExecutionRotationEnsembleBacktester.php": "a86fc39f34f9832fa6256485ead8958b5f7fa266a8ef4593299785009ba4ca7b",
+      "src/Research/PortfolioCircuitController.php": "4ffe96edf9b9429ab96d05f5a0f5b293d3b698ecf5f3bcd02df5a0a6ce160edd",
+      "src/Research/SelectedMaximumResearch.php": "1d3cff5ea4189d1b1b144735bb61df036cbea7fda611b0c33ee26d2c452b7ca0",
+      "src/Storage/SqliteRepository.php": "6039e5dc1f77523b15fa0bf06443c20bc96f77731360825a21eb43101cf00e4e",
+      "src/Storage/TacticalPaperRepository.php": "2694f2ebddbab62f893e3f38a6559fc36b6424a5ec318b97248d469b4a619d0c",
+      "src/Support/Config.php": "07fe0c1c67ef550f5302aebad26333634d84d70205f4d18d6e4fe51811aa0dd5",
+      "src/Support/EnvLoader.php": "897648f105e807969c26135d9dea8921bbbe9627d766480b47029679c4c2a002",
+      "src/Support/ProcessLock.php": "446ebef5826c2f2ba8782f8cbb69ece3f77bb8d5f144550b422401718183df1e",
+      "src/Trading/AlpacaPaperAccountGuard.php": "7ea4124a9ed1cf72daa5b0f5b3b4b20e9ea2a19ba8fd070570db6faac1ef2cfa",
+      "src/Trading/AlpacaPaperClient.php": "93844b0333ee657f7b61283a4b2f2bd76367fc4be6b660f973e6299b207e1972",
+      "src/Trading/TacticalOrderGateway.php": "b2c5ac648d5b60b8beb531786753f9c9a12074112250742207b6f43ca0c582d5",
+      "src/Trading/TacticalPortfolioNotificationSchedule.php": "8248761d8d355fb5c27b4eb80986ee90984307d9bbb488ab5db630318cd65a5a",
+      "src/Trading/TacticalPortfolioWeeklySummary.php": "c7200f77e371b2d5b06229a235a77ab41ebc693e224b79d9e9934cb89f782bb3",
+      "src/Trading/TacticalRotationExecutionWindow.php": "444aee22c74ec117a05e698849b12b663e7ddc1d1f9677d4e3fe72c180a30640",
+      "src/Trading/WholeShareSizing.php": "a6dc8ad5fc692be1c8b1e5601b831a0cf47f19c14d560ab2a54a16d0c32035f4",
+      "tools/candidate_paper_cycle.php": "2b089634e41c3cabc70e9fb64c02ba62f8a221224ab589615862dc0f0e1446be",
+      "tools/candidate_paper_daemon.php": "94ddf59694bc2a4be6d525ccd7493b4a15fe520e89648370cd83bcebefe91319",
+      "tools/fetch_candidate_execution_data.php": "d07af05cc2104f40ccc4aef974de001ef76d981a501a1b504efe09bd7b570478",
+      "tools/fetch_candidate_external_data.php": "8f01afb43c244e41e22d278c5d0fcb0117199cf511541aa3815e3f41372da8f7",
+      "tools/prepare_candidate_signal.php": "6b608de782569ecc3c6ca17a019a29bd3b1600f233b5841cd4dcd37a89e33da1",
+      "tools/verify_candidate_release.php": "4da8eae3e2b6950f083ce148b676c6e4139e112d673a48c4d3054ed8d944485e",
+      "tools/verify_staged_bull5_release.php": "c067a116f6532c7631f45aba8c67b497bbff743f7453ecc015e09d6367300f4a"
+    },
+    "proof_path": "var/reports/bull5_weekly_release_20260920/verification.json",
+    "proof_sha256": "086e852440c121cd3a9effeb775e1402bcfe34a46fb460b5df73f1072acf7916",
+    "capital_reviewed": 27567.66,
+    "limits": [
+      "Adaptively selected history, not an independent holdout.",
+      "Incremental money gain is capital/circuit-path sensitive.",
+      "S5TW/VVIX external inputs are not Alpaca data. Minute touches are not broker fills.",
+      "Fresh source-bound signal, starting-capital match, flat-account handoff and LaunchAgent commissioning remain mandatory."
+    ]
+  },
+  "assessment": {
+    "policy": "experimental-capital-or-drawdown-execution-v1",
+    "paper_admission": true,
+    "failed_checks": [],
+    "strict_validation_selected": false,
+    "live_approved": false,
+    "fresh_current_signal_still_required": true,
+    "independent_holdout": false
+  },
+  "repair_binding": {
+    "receipt_path": "var/reports/weekly_open_regressions/20260920_083956_45223.json",
+    "receipt_sha256": "751cd8bf58d8eebdb1a7bb80749f600e8b809c6909993afd03f6064d27fcea4c",
+    "helper_sha256": "6df12ed33e68b6867cff954348c69649d62f26ce859fac493e1cb812968352c4",
+    "reference_proof_sha256": "c6073045cb49a188aba55424896e994964a7bf10d5fce8be9ece58c4691f54ba",
+    "runtime_delta": [
+      "config/paper_candidate.php",
+      "src/Trading/TacticalPortfolioNotificationSchedule.php",
+      "tools/verify_staged_bull5_release.php"
+    ]
+  },
+  "programs": 60,
+  "tests": {
+    "tools/verify_staged_bull5_snapshot.php": {
+      "exit_code": 0,
+      "sha256": "15444dffd92f88a3c3295a1dd0af985e72a3b8c559fa0647a9b4f31a3a322118"
+    },
+    "tests/adaptive_rotation_research.php": {
+      "exit_code": 0,
+      "sha256": "d411d55b34ac435618ba603d247ac98c6e1bfa7ae622b9a6c0fdccb3d49bf562"
+    },
+    "tests/algorithm_trend_research.php": {
+      "exit_code": 0,
+      "sha256": "47fbaf686769a2c3343308f6640526075f60990f5855118c3e920db558d0850f"
+    },
+    "tests/alpaca_paper_account_guard.php": {
+      "exit_code": 0,
+      "sha256": "3b1952bc45ad8b23fc4b9017b75c5d1a3001d92b9d895a3837b74eb18987254b"
+    },
+    "tests/alpaca_paper_client_guard.php": {
+      "exit_code": 0,
+      "sha256": "fc7172ada2d82ba4df3380c206b0f9011d60c78ae12e06d6981510de0a45f210"
+    },
+    "tests/alpaca_stop_grid.php": {
+      "exit_code": 0,
+      "sha256": "9cf5799655c853baf1cc55841f3ee2237b6044cee601be791858e3c34240ccc0"
+    },
+    "tests/breadth_volatility_research.php": {
+      "exit_code": 0,
+      "sha256": "f2288b90d208b074fb15102c1397d7dce55a4a78bf3a5739d366a9a9ecbfc0a0"
+    },
+    "tests/candidate_circuit.php": {
+      "exit_code": 0,
+      "sha256": "e7b7db96b4d77efccb73dd962b3e2f7a73c9565dedf5adadb9f782ec264cc849"
+    },
+    "tests/candidate_close_engine.php": {
+      "exit_code": 0,
+      "sha256": "a3b3ee272c890980ccc9c46383869bdedbe05895be4c26df505175f1fe60d244"
+    },
+    "tests/candidate_cycle_contract.php": {
+      "exit_code": 0,
+      "sha256": "845f65eaec58260ce9955e226079b6f859145d17a58fce65fa27d88a7232f318"
+    },
+    "tests/candidate_entry_batch.php": {
+      "exit_code": 0,
+      "sha256": "179dadd2d63968c8ce94d5035d4045638d4885582ffcdd49ab28ff07b11324b7"
+    },
+    "tests/candidate_execution_plan.php": {
+      "exit_code": 0,
+      "sha256": "923bd3edf66553635e193b9f9d6a45c53947ec8379e057504fdef9c605460826"
+    },
+    "tests/candidate_fault_matrix.php": {
+      "exit_code": 0,
+      "sha256": "924d426c2ce780fa9311096e338e7a399630ee71c790176271bf4da31a16a744"
+    },
+    "tests/candidate_paper_ledger.php": {
+      "exit_code": 0,
+      "sha256": "ff65afd57da451e9588dd7588b1aa1ab5dc9d874afdee3f9241f33a71677c772"
+    },
+    "tests/candidate_release_gate.php": {
+      "exit_code": 0,
+      "sha256": "51e491dd197aeb2112a2acd5421c1c47201bd721ba6d3c29aecc8d0335249237"
+    },
+    "tests/candidate_runtime_selection.php": {
+      "exit_code": 0,
+      "sha256": "1be34d941bce94a75ffcb327374dc1bdb74b7f47945317f0447523d3d6a0bee3"
+    },
+    "tests/candidate_signal_artifact.php": {
+      "exit_code": 0,
+      "sha256": "d952fc909823e49cc9b26564db7f493868053001ce9263ab0d59740d612a25b8"
+    },
+    "tests/candidate_snapshot_reader.php": {
+      "exit_code": 0,
+      "sha256": "f88b9487611713a9ea21465960a21b3e543dd8b109c4711352b7a4f61dff7ab2"
+    },
+    "tests/causal_tactical_rotation_backtester.php": {
+      "exit_code": 0,
+      "sha256": "f807821ca00df0dd24f8b6b75f5bea7fe539433c4aadb886afedcccad61d2d0a"
+    },
+    "tests/causal_tactical_rotation_ensemble_backtester.php": {
+      "exit_code": 0,
+      "sha256": "4b735147d40fe59fc0f486a7b7676ed4e4251fc5760a2bcdc89f6122810e5109"
+    },
+    "tests/daily_data_audit.php": {
+      "exit_code": 0,
+      "sha256": "d4432cb1ae429ea54c9af8fb2c0a7ded247ef0c9500144e8530dc832a785a654"
+    },
+    "tests/economic_benefit_review.php": {
+      "exit_code": 0,
+      "sha256": "a0e7377d5851725f5949533b494a8b4b33bd9eb66107f9c67aa76f6c5931811c"
+    },
+    "tests/frozen_sip_iex_daily_bars_provider.php": {
+      "exit_code": 0,
+      "sha256": "149b28163172dddc97e2c92ef7ba4e162fd336a4d6d79c17ed6f8581cd173d0c"
+    },
+    "tests/hybrid_php_memory_profile.php": {
+      "exit_code": 0,
+      "sha256": "4b5d7839834c077394b64d492e9be1386598973957199d031c88c53553cc7c28"
+    },
+    "tests/hybrid_v4_research.php": {
+      "exit_code": 0,
+      "sha256": "682376bb28811110ce5b634937c072ecd3dc73def88b0cde7f765120889119d4"
+    },
+    "tests/install_hybrid_launchd_rollback.php": {
+      "exit_code": 0,
+      "sha256": "8c8e00b56dabe412a538298624407f7c79543f4d55f4773779f3a8b7d7428255"
+    },
+    "tests/market_data_cache_determinism.php": {
+      "exit_code": 0,
+      "sha256": "1bfe62180d3db494b8796db37001bd5e4921a45d4de28ad2049cf27c167ebe25"
+    },
+    "tests/market_data_coverage.php": {
+      "exit_code": 0,
+      "sha256": "200146065bd2f7339037af7ddfa4bf0bfcea1355a40fe71df48690ec90e6dc19"
+    },
+    "tests/opportunity_cost_stress.php": {
+      "exit_code": 0,
+      "sha256": "8003eeb9adb3638d754cf827252aa93486d9853aba399b7c55fadef5a5aa3059"
+    },
+    "tests/opportunity_research.php": {
+      "exit_code": 0,
+      "sha256": "c13d9c87b2b24c4740636d7f316e70eb5af244369d549fe34d6cb73fefad2180"
+    },
+    "tests/paper_explanation_preview.php": {
+      "exit_code": 0,
+      "sha256": "ba6e57dcace0679f5c80a99e493637bd79f81607ea49f7b3080ad6c4c59391d3"
+    },
+    "tests/paper_signal_explanation.php": {
+      "exit_code": 0,
+      "sha256": "f2d826932a95512fccc375e7080e5830864e3eca6ce0720d7dd4bbe9ff5ed441"
+    },
+    "tests/paper_status_observation_time.php": {
+      "exit_code": 0,
+      "sha256": "c5a58c665cb3716183d27a0569b8d52ada532ee241396366cc482ff617dd4e50"
+    },
+    "tests/portfolio_stop_research.php": {
+      "exit_code": 0,
+      "sha256": "ca5a3ac0795d56135871076da29d1b5c374564815caa6de7d8e44e70e1859f53"
+    },
+    "tests/research_multiplicity_audit.php": {
+      "exit_code": 0,
+      "sha256": "42c61b8e18fbd0b1398cde97334174ace183991deeec9e78acb1483452b3a319"
+    },
+    "tests/research_trade_ledger.php": {
+      "exit_code": 0,
+      "sha256": "d04ab28afedcc3d18ca4b6178cc406af3ba70138c551941b8947c4fb3758758e"
+    },
+    "tests/selected_maximum_research.php": {
+      "exit_code": 0,
+      "sha256": "ae78b3728adee850c7a9c1a3ed09e2739f254033cd698eda0d97a77c08dcd15c"
+    },
+    "tests/standard_etf_research.php": {
+      "exit_code": 0,
+      "sha256": "5581a49476cf407ddaaefdb98ed3861f5680dafb5dc1d9890ce1af55005342d6"
+    },
+    "tests/status_snapshot_safety.php": {
+      "exit_code": 0,
+      "sha256": "ecdaaa1e27fd24ae472e4290049670a8e4569b5c3c177623f8a03f733b7b5f18"
+    },
+    "tests/tactical_intent_status_message.php": {
+      "exit_code": 0,
+      "sha256": "d84b2ae6e5f7193a85ee17a37bbf6eb5f735d25388dfde7d9c6a71b1b372bfc9"
+    },
+    "tests/tactical_notification_policy.php": {
+      "exit_code": 0,
+      "sha256": "0fa0e2de43d541b160ead19a3e05261876679f52a15125e977267b14880c6c6d"
+    },
+    "tests/tactical_paper_month_gate.php": {
+      "exit_code": 0,
+      "sha256": "3f438dcbbb3c4f4a1e4fde13dcc245bc42dab6b005b416536016dcfd82bc9990"
+    },
+    "tests/tactical_paper_runtime.php": {
+      "exit_code": 0,
+      "sha256": "1f74b5c2c5caa87a12b3c7006376f9858d0f769894c2357af5b099978a65e07b"
+    },
+    "tests/tactical_paper_signal_epoch.php": {
+      "exit_code": 0,
+      "sha256": "7faee255015a67860b2f0033ba5bd0b183a20bc9f365fa160bccf52a5c4781f4"
+    },
+    "tests/tactical_portfolio_notification_schedule.php": {
+      "exit_code": 0,
+      "sha256": "d36624d2e142b5ba15b226767c99b32dd8249e4133b40a82d98556f731a4d207"
+    },
+    "tests/tactical_portfolio_status_message.php": {
+      "exit_code": 0,
+      "sha256": "ffd106649dc8508b76a2b62303ac31d55292c12af9e1ac81afde4b6ed23575f1"
+    },
+    "tests/tactical_portfolio_weekly_summary.php": {
+      "exit_code": 0,
+      "sha256": "fa226cd64bec655ee28430992fddd027d15be32d711a8435c16ce17ebdc87e84"
+    },
+    "tests/tactical_rotation_shadow_context.php": {
+      "exit_code": 0,
+      "sha256": "d76276e2f49656ae40381d305997868e06ec8f3f8ad16e1c99a0dced92fc75e3"
+    },
+    "tests/tactical_run_identity_gate.php": {
+      "exit_code": 0,
+      "sha256": "4382ddc5df8cb04b0277a1dd6e0259426bd741bc71fbe6a1acdf848377bd3bd1"
+    },
+    "tests/tactical_signal_artifact_guard.php": {
+      "exit_code": 0,
+      "sha256": "3aa5bb9175ca8adb2aeb1749d5df9db38d77ce9df4d062a87ff2821cfd0d870f"
+    },
+    "tests/whole_share_sizing.php": {
+      "exit_code": 0,
+      "sha256": "416c747f694fb439fbd516ab27f3913ddd53aaad68c95e07c38c0a1af7e70ad1"
+    },
+    "tests/staged_bull5_fault_matrix.php": {
+      "exit_code": 0,
+      "sha256": "5a8e446d2d289e0ea4a5f2a6c1abceea3b6357e72468c46831a58af3cf980c4f"
+    },
+    "tests/staged_bull5_maps.php": {
+      "exit_code": 0,
+      "sha256": "cffdbca46e9a7a754dab9d7320d6360166691dc66019e6452cfc5c47b270e85b"
+    },
+    "tests/paper_market_commentary.php": {
+      "exit_code": 0,
+      "sha256": "d283e078fb4192d3326a70e19c209098a959a9d07bdfcd0381c3c9be2947219d"
+    },
+    "tests/candidate_opg_auction_boundary.php": {
+      "exit_code": 0,
+      "sha256": "41007a2c7e5e32e72f798b383069bef957f2e49af0308068085cc09edc630af4"
+    },
+    "tests/candidate_weekly_cli.php": {
+      "exit_code": 0,
+      "sha256": "9b884298ed8b8cb4a05ab905385434673e5286731d23b9de96031abd7fcd3e60"
+    },
+    "tests/candidate_weekly_open_integration.php": {
+      "exit_code": 0,
+      "sha256": "e8d6909912bdf164633be30cc387dcd6a63b4ea89fcd3cea512ddcdcdea233e0"
+    },
+    "tests/tactical_weekly_session_boundary.php": {
+      "exit_code": 0,
+      "sha256": "8384ae5739c007cdd7738ff9f4eb2a5b82470672549d227970e1b8d4024d76ce"
+    },
+    "tests/tactical_notification_health_guard.php": {
+      "exit_code": 0,
+      "sha256": "d9c9e7c8d0cb7de4dcdb25ee8708d522e26b26e1b7e8fc6d370ecb579f77be0e"
+    },
+    "tests/weekly_open_release_evidence.php": {
+      "exit_code": 0,
+      "sha256": "83fdee87b78ab8697e0ad7723cf4d93e3f55c4e5038ae9c66fadada9db00079f"
+    }
+  },
+  "lint_programs": 72,
+  "historical_evidence_reused": true,
+  "reference_files_verified": 218,
+  "economic_comparisons_rechecked": 8,
+  "parity_receipts_rechecked": 8,
+  "post_admission": {
+    "path": "tests/staged_bull5_release.php",
+    "sha256": "630fe46ebeeb0bee2efd680ef8f210b57ef524e2fc7dc7d3b7aee7f8e96acea3",
+    "assertions": 14,
+    "exit_code": 0
+  },
+  "dated_signal_receipt_path": "var/reports/weekly_open_current_signal/20260918/verification.json",
+  "dated_signal_receipt_sha256": "1fa464aef1d399013c9ec8716aeb3a00041f6e4e16b3e97a14e00295239432c5",
+  "dated_signal": {
+    "schema": "weekly-open-dated-signal-parity-v1",
+    "completed_at": "2026-09-20T08:43:31+00:00",
+    "passed": true,
+    "assertions": 21,
+    "as_of": "2026-09-18",
+    "scheduled_session": "2026-09-21",
+    "run_id": "hybrid-v4-bull5-weekly-2026-09-20",
+    "runtime_hash": "59a61cb8b98f1325fcda2b76e7947468a11b9bab6ee1142f279f7b9f0f0214f1",
+    "reference_runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+    "reference_signal_sha256": "62162d0056848ecd0a52b01d227ecb4ee675e50eae5d91186b1d8cab80d0d5bc",
+    "reference_manifest_sha256": "ad4b58ab39e197aa53dfbe80fec18b31eb5ed98c45c62f509ddf04a6dd4aa3f5",
+    "admission_proof_sha256": "086e852440c121cd3a9effeb775e1402bcfe34a46fb460b5df73f1072acf7916",
+    "input_sha256": {
+      "var/reports/candidate_execution_data_20260918/raw.json": "d6cb73d91dcb74a4a23ce2efde6b35a22b9e2cf5bf5dc77464a21638fe0fc083",
+      "var/reports/candidate_execution_data_20260918/split.json": "44474db6bb7b4ed3ed0558fd948c63da4da74cd034a600a03aaaaf44fe81d91c",
+      "var/reports/candidate_execution_data_20260918/protocol.json": "4294b364b8f790ffb178e25ee612c5da53dccd0c4d92aacfb4a55e71f32cb25a",
+      "var/reports/candidate_execution_data_20260918/raw_manifest.json": "4d960658d3e277e973b139436b924f4be2d15458087b45d9b3c52c55ca3cd857",
+      "var/reports/candidate_execution_data_20260918/split_manifest.json": "771ff859aa82ee8377305ebf514b5078222555d638c5e2c0f8feb05c4852a726",
+      "var/reports/candidate_external_data_20260918/s5tw.json": "9c7f20bdb657a6ddfc976c3fa216ddab330e4851d26d88366cc6c57c6bdf6e1f",
+      "var/reports/candidate_external_data_20260918/vvix.json": "791db8cd40c78728cf33a005ccb57859fc3876c5645cba0c7d02a5bef5daa3cf",
+      "var/reports/candidate_external_data_20260918/manifest.json": "f38a300d3b8269f298c7e9580a0811c07bbc3478f3a6d1ab6c6a36aeae7c6bfd"
+    },
+    "signal_path": "var/reports/weekly_open_current_signal/20260918/signal.json",
+    "signal_sha256": "3068b03eea823e4be215756a9023f1949b0141db3e7a51a2a8424746ff5ce47d",
+    "script_sha256": "6184f215554f46111b75350e1779ceea9f57878130d57d18fe4544e4c6ca5748",
+    "peak_memory_bytes": 371195904,
+    "orders_submitted": 0,
+    "broker_requests": 0,
+    "operational_database_modified": false,
+    "deployed": false,
+    "fresh_current_broker_preflight": false,
+    "scope": "Full rebuild from copied hash-verified Alpaca/external histories and comparison to the source-bound operational artifact. No independent current broker calendar/account call; not permission to install or enter."
+  },
+  "deployed": false,
+  "commissioned": false,
+  "real_orders_submitted": 0,
+  "operational_database_modified": false,
+  "activation_changed": false,
+  "capital_reset": false,
+  "fresh_current_broker_preflight": false
+}

@@ -9,18 +9,28 @@ use FulltimeTrading\Paper\CandidateRelease as Release;
 use FulltimeTrading\Paper\CandidateSignalArtifact as Artifact;
 use FulltimeTrading\Research\EconomicBenefitReview as Benefit;
 use FulltimeTrading\Research\SelectedMaximumResearch as Hash;
+use FulltimeTrading\Support\ProcessLock;
+use FulltimeTrading\Support\WeeklyOpenReleaseEvidence as Repair;
 
 require dirname(__DIR__) . '/bootstrap.php';
 set_error_handler(static function (int $n, string $message): never { throw new RuntimeException($message); });
 $root = dirname(__DIR__); $sourceRoot = realpath($argv[1] ?? '') ?: '';
 $candidate = require $root . '/config/paper_candidate.php';
-if ($sourceRoot === '' || realpath($sourceRoot . '/var/staging/bull5-v1') !== $root
-    || !is_file($root . '/stage_sources.json') || is_file($root . '/.env')
+$repair = ($argv[2] ?? null) === '--weekly-open-repair';
+if ((!$repair && count($argv) !== 2) || ($repair && count($argv) !== 4)) { throw new InvalidArgumentException('Invalid admission arguments'); }
+$stagePath = $repair ? '/var/staging/weekly-open-repair-20260919' : '/var/staging/bull5-v1';
+if ($sourceRoot === '' || realpath($sourceRoot . $stagePath) !== $root
+    || (!$repair && !is_file($root . '/stage_sources.json')) || is_file($root . '/.env')
     || is_file($root . '/var/db/trading.sqlite') || is_file($root . '/var/run/candidate_commission.json')
     || Definition::PROFILE !== 'maximum-stop12-costband2-whole-bull5-v1'
     || Definition::INDICATOR_RECIPE !== 'bull_v110_ma50_boost105'
     || $candidate['paper_only'] !== true || $candidate['live_enabled'] !== false) {
     throw new RuntimeException('Admission builder requires the isolated, uncommissioned bull5 stage; never run it against the operational checkout.');
+}
+if ($repair) {
+    Repair::configuration($candidate, require $sourceRoot . '/config/paper_candidate.php');
+    $lock = ProcessLock::tryAcquire($root . '/var/run/weekly_open_regressions.lock');
+    if ($lock === null) { exit(75); }
 }
 $proof = ['started_at' => gmdate(DATE_ATOM), 'manual_orders_submitted' => 0, 'operational_database_modified' => false,
     'runtime_hash' => Release::hash($root), 'files' => Release::files($root), 'tests' => [], 'lint' => [], 'evidence_sha256' => [], 'failures' => []];
@@ -29,8 +39,11 @@ $read = static function (string $relative) use ($sourceRoot, &$proof): array {
     $data = Data::read($sourceRoot . '/' . $relative);
     $proof['evidence_sha256'][$relative] = hash_file('sha256', $sourceRoot . '/' . $relative); return $data;
 };
-$checkHashes = static function (array $files, string $base) use ($require): void {
-    foreach ($files as $file => $sha) { $require(hash_file('sha256', $base . '/' . $file) === $sha, 'Evidence/source drift: ' . $file); }
+$checkHashes = static function (array $files, string $base) use ($require, $sourceRoot, &$proof): void {
+    foreach ($files as $file => $sha) {
+        $require(hash_file('sha256', $base . '/' . $file) === $sha, 'Evidence/source drift: ' . $file);
+        $proof['verified_reference_files'][substr($base . '/' . $file, strlen($sourceRoot) + 1)] = $sha;
+    }
 };
 $run = static function (array $command, string $cwd): array {
     $p = proc_open($command, [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['redirect', 1]], $pipes, $cwd,
@@ -39,19 +52,27 @@ $run = static function (array $command, string $cwd): array {
     $output = stream_get_contents($pipes[1]); fclose($pipes[1]); return ['exit_code' => proc_close($p), 'output' => $output];
 };
 try {
-    $source = Data::read($root . '/stage_sources.json'); $stage = $read('var/reports/bull5_admission_20260915/stage.json');
     $activeConfig = require $sourceRoot . '/config/paper_candidate.php'; $activeManifest = $read($activeConfig['release_manifest']);
     $checkHashes($activeManifest['files'], $sourceRoot);
-    $require($activeManifest['runtime_hash'] === $source['reference_runtime_hash']
-        && $activeManifest['proof_sha256'] === hash_file('sha256', $sourceRoot . '/' . $activeManifest['proof_path']), 'Operational release changed while staging.');
+    $require($activeManifest['proof_sha256'] === hash_file('sha256', $sourceRoot . '/' . $activeManifest['proof_path']), 'Operational release changed while staging.');
     $activeProof = $read($activeManifest['proof_path']);
-    $require($stage['passed'] === true && $stage['programs'] >= 55 && $stage['failed_programs'] === []
-        && $stage['network_disabled'] === true && $stage['credential_environment_stripped'] === true
-        && $stage['stage_source_sha256'] === hash_file('sha256', $root . '/stage_sources.json')
-        && $stage['script_sha256'] === hash_file('sha256', $sourceRoot . '/tools/verify_bull5_stage_20260915.php'), 'Staged regression proof invalid.');
-    foreach ($source['files'] as $file => $record) {
-        $require(hash_file('sha256', $root . '/' . $file) === $record['sha256']
-            && hash_file('sha256', $sourceRoot . '/' . $record['source']) === $record['sha256'], 'Staged build drift: ' . $file);
+    if ($repair) {
+        $stage = Repair::inspect($root, $sourceRoot, $argv[3]);
+        $proof['repair_binding'] = array_diff_key($stage, ['results' => true, 'snapshot' => true]);
+        $checkHashes($activeProof['evidence_sha256'], $sourceRoot);
+        $proof['historical_evidence_reused'] = true;
+        $proof['historical_reuse_scope'] = 'Unchanged research/strategy/price code and exact prior evidence hashes. Criteria below are recomputed from saved receipts; no new return simulation or holdout.';
+    } else {
+        $source = Data::read($root . '/stage_sources.json'); $stage = $read('var/reports/bull5_admission_20260915/stage.json');
+        $require($activeManifest['runtime_hash'] === $source['reference_runtime_hash'], 'Reference runtime changed');
+        $require($stage['passed'] === true && $stage['programs'] >= 55 && $stage['failed_programs'] === []
+            && $stage['network_disabled'] === true && $stage['credential_environment_stripped'] === true
+            && $stage['stage_source_sha256'] === hash_file('sha256', $root . '/stage_sources.json')
+            && $stage['script_sha256'] === hash_file('sha256', $sourceRoot . '/tools/verify_bull5_stage_20260915.php'), 'Staged regression proof invalid.');
+        foreach ($source['files'] as $file => $record) {
+            $require(hash_file('sha256', $root . '/' . $file) === $record['sha256']
+                && hash_file('sha256', $sourceRoot . '/' . $record['source']) === $record['sha256'], 'Staged build drift: ' . $file);
+        }
     }
     foreach ($stage['results'] as $file => $result) {
         $require($result['exit_code'] === 0 && hash_file('sha256', $root . '/' . $file) === $result['sha256'], 'Staged test drift.');
@@ -62,12 +83,15 @@ try {
     $proof['fault_matrix_verified'] = $stage['results']['tests/staged_bull5_fault_matrix.php']['exit_code'] === 0;
     $proof['auction_boundary_verified'] = ($stage['results']['tests/candidate_opg_auction_boundary.php']['exit_code'] ?? -1) === 0;
     $require($proof['auction_boundary_verified'], 'The observed OPG submission-cutoff regression must be fixed.');
-    foreach ($proof['files'] + ['tools/verify_staged_bull5_release.php' => hash_file('sha256', __FILE__)] as $file => $_) {
+    $lintFiles = $proof['files'] + ['tools/verify_staged_bull5_release.php' => hash_file('sha256', __FILE__)];
+    if ($repair) { $lintFiles[Repair::HELPER] = hash_file('sha256', $root . '/' . Repair::HELPER); }
+    foreach ($lintFiles as $file => $_) {
         $proof['lint'][$file] = $run(str_ends_with($file, '.php') || $file === 'bin/trade'
             ? [PHP_BINARY, '-l', $root . '/' . $file] : ['sh', '-n', $root . '/' . $file], $root);
     }
     $proof['lint_passed'] = array_filter($proof['lint'], static fn ($r): bool => $r['exit_code'] !== 0) === [];
-    $proof['diff_clean'] = $run(['git', 'diff', '--check'], $sourceRoot)['exit_code'] === 0;
+    $proof['diff_clean'] = $run(['git', 'diff', '--check'], $sourceRoot)['exit_code'] === 0
+        && $run(['git', 'diff', '--check'], $root)['exit_code'] === 0;
     $frozen = $read('var/reports/opportunity_calendar_20260910/protocol.json'); $checkHashes($frozen['code_sha256'], $sourceRoot);
     $proof['frozen_research_unchanged'] = true;
     $parent = $read('var/reports/candidate_bull_risk_20260915/protocol.json');
@@ -150,11 +174,17 @@ try {
         && $snapshot['runtime_hash'] === $proof['runtime_hash'] && $snapshot['peak_memory_bytes'] <= 512 * 1024 * 1024
         && $snapshot['signal_sha256'] === hash_file('sha256', $root . '/var/reports/staging/signal.json'), 'Real snapshot proof changed.');
     $proof['snapshot_contract_verified'] = true; $proof['snapshot_peak_memory_bytes'] = $snapshot['peak_memory_bytes'];
+    $require(Release::files($root) === $proof['files'] && Release::files($sourceRoot) === $activeManifest['files'], 'Runtime changed during admission');
+    if ($repair) {
+        $require(Repair::inspect($root, $sourceRoot, $argv[3]) === $stage, 'Repair evidence changed during admission');
+        $proof['weekly_open_cli_verified'] = $stage['results']['tests/candidate_weekly_cli.php']['exit_code'] === 0;
+    }
 } catch (Throwable $e) { $proof['failures'][] = $e->getMessage(); }
 $proof['completed_at'] = gmdate(DATE_ATOM); $proof['assessment'] = Release::assess($proof);
 $proof['scope'] = 'Uncommissioned staged paper package, not a deployed strategy, independent validation PASS or month-gate completion.';
 $proof['verifier_sha256'] = hash_file('sha256', __FILE__);
-$proofPath = 'var/reports/bull5_release_20260915/verification.json'; Artifact::write($root . '/' . $proofPath, $proof);
+$proofPath = $repair ? 'var/reports/bull5_weekly_release_20260920/verification.json' : 'var/reports/bull5_release_20260915/verification.json';
+Artifact::write($root . '/' . $proofPath, $proof);
 $manifest = ['generated_at' => gmdate(DATE_ATOM), 'run_id' => $candidate['run_id'], 'profile' => Definition::PROFILE,
     'execution_contract' => Order::CONTRACT, 'paper_only' => true, 'live_approved' => false, 'paper_admission' => $proof['assessment']['paper_admission'],
     'policy' => $proof['assessment']['policy'], 'runtime_hash' => $proof['runtime_hash'], 'files' => $proof['files'],
