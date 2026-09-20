@@ -1,0 +1,362 @@
+{
+  "schema": "weekly-open-cli-and-regression-summary-v1",
+  "verified_at": "2026-09-20T03:18:35+00:00",
+  "receipt_path": "var/reports/weekly_open_regressions/20260920_031759_9427.json",
+  "receipt_sha256": "a5341fd3e4890cb9e414c9c9ae94536a286a4595404a099363f3abe2165ae1ad",
+  "runtime_hash": "20abb8ff6b3939d00d9255f64c99c034d9bbaecbe392ef64f7c00be3e6ebcacc",
+  "reference_runtime_hash": "76b2c102b4de98e9351ad78d937d939e173cd734fd4acbd322bf824c2cf4f092",
+  "deferred_programs": [],
+  "support_files": {
+    "tests/fixtures/candidate_weekly_cli_runtime.php": "b575689502e1a1becef61c91e82d0e6684deba62eab43565d2471bed6a0a56ec"
+  },
+  "release_admission_proof": false,
+  "release_manifest_published": false,
+  "deployed": false,
+  "real_orders_submitted": 0,
+  "operational_database_modified": false,
+  "failed_programs": [],
+  "programs": 59,
+  "reference_runtime_unchanged": true,
+  "tested_runtime_unchanged": true,
+  "support_files_unchanged": true,
+  "stage_inputs_unchanged": true,
+  "snapshot_verification": {
+    "passed": true,
+    "assertions": 13,
+    "runtime_hash": "20abb8ff6b3939d00d9255f64c99c034d9bbaecbe392ef64f7c00be3e6ebcacc",
+    "recipe": "bull_v110_ma50_boost105",
+    "targets": {
+      "dynamic_loo10_rank0_phase0": {
+        "MSFT": 9
+      },
+      "qqq200_full_rank0_phase0": {
+        "MSFT": 3
+      },
+      "spy200_full_rank0_phase0": {
+        "MSFT": 3
+      },
+      "qqq150_ex_crypto_rank0_phase0": {
+        "MSFT": 3
+      }
+    },
+    "peak_memory_bytes": 369098752,
+    "signal_sha256": "9482ebbdf14e24d5b7009d96cf2b0e18a5831ee7a2efc50af24e85fefa4bcd06",
+    "orders_submitted": 0,
+    "release_admitted": false
+  },
+  "isolation_verified": true,
+  "passed": true,
+  "runner_sha256": "006b683a2d8cb8a395ea128d9ca51da1b46505800c266fff4992f764edddae26",
+  "tests": {
+    "tools/verify_staged_bull5_snapshot.php": {
+      "exit_code": 0,
+      "output": "Staged bull5 snapshot/ledger: 13 assertions PASS\n",
+      "sha256": "15444dffd92f88a3c3295a1dd0af985e72a3b8c559fa0647a9b4f31a3a322118"
+    },
+    "tests/adaptive_rotation_research.php": {
+      "exit_code": 0,
+      "output": "Adaptive rotation research tests OK\n",
+      "sha256": "d411d55b34ac435618ba603d247ac98c6e1bfa7ae622b9a6c0fdccb3d49bf562"
+    },
+    "tests/algorithm_trend_research.php": {
+      "exit_code": 0,
+      "output": "Algorithm trend research tests OK: 156 variants, 78 prefix checks, 37 exercised policies\n",
+      "sha256": "47fbaf686769a2c3343308f6640526075f60990f5855118c3e920db558d0850f"
+    },
+    "tests/alpaca_paper_account_guard.php": {
+      "exit_code": 0,
+      "output": "Alpaca paper account guard OK\n",
+      "sha256": "3b1952bc45ad8b23fc4b9017b75c5d1a3001d92b9d895a3837b74eb18987254b"
+    },
+    "tests/alpaca_paper_client_guard.php": {
+      "exit_code": 0,
+      "output": "Alpaca paper client URL guard OK\n",
+      "sha256": "fc7172ada2d82ba4df3380c206b0f9011d60c78ae12e06d6981510de0a45f210"
+    },
+    "tests/alpaca_stop_grid.php": {
+      "exit_code": 0,
+      "output": "Alpaca stop grid, confirmation prefix, repeated drawdown and RTH audit tests OK\n",
+      "sha256": "9cf5799655c853baf1cc55841f3ee2237b6044cee601be791858e3c34240ccc0"
+    },
+    "tests/breadth_volatility_research.php": {
+      "exit_code": 0,
+      "output": "Breadth/volatility tests OK; 285 prefix checks; 233 hybrid hypotheses\n",
+      "sha256": "f2288b90d208b074fb15102c1397d7dce55a4a78bf3a5739d366a9a9ecbfc0a0"
+    },
+    "tests/candidate_circuit.php": {
+      "exit_code": 0,
+      "output": "candidate_circuit: 466 assertions PASS\n",
+      "sha256": "e7b7db96b4d77efccb73dd962b3e2f7a73c9565dedf5adadb9f782ec264cc849"
+    },
+    "tests/candidate_close_engine.php": {
+      "exit_code": 0,
+      "output": "candidate_close_engine: 31 assertions PASS\n",
+      "sha256": "a3b3ee272c890980ccc9c46383869bdedbe05895be4c26df505175f1fe60d244"
+    },
+    "tests/candidate_cycle_contract.php": {
+      "exit_code": 0,
+      "output": "candidate_cycle_contract: 10 assertions PASS\n",
+      "sha256": "845f65eaec58260ce9955e226079b6f859145d17a58fce65fa27d88a7232f318"
+    },
+    "tests/candidate_entry_batch.php": {
+      "exit_code": 0,
+      "output": "candidate_entry_batch: 86 assertions PASS\n",
+      "sha256": "179dadd2d63968c8ce94d5035d4045638d4885582ffcdd49ab28ff07b11324b7"
+    },
+    "tests/candidate_execution_plan.php": {
+      "exit_code": 0,
+      "output": "candidate_execution_plan: 32 assertions PASS\n",
+      "sha256": "923bd3edf66553635e193b9f9d6a45c53947ec8379e057504fdef9c605460826"
+    },
+    "tests/candidate_fault_matrix.php": {
+      "exit_code": 0,
+      "output": "candidate_fault_matrix: 100 deterministic scenarios, 1306 assertions PASS\n",
+      "sha256": "924d426c2ce780fa9311096e338e7a399630ee71c790176271bf4da31a16a744"
+    },
+    "tests/candidate_paper_ledger.php": {
+      "exit_code": 0,
+      "output": "candidate_paper_ledger: 43 assertions PASS\n",
+      "sha256": "ff65afd57da451e9588dd7588b1aa1ab5dc9d874afdee3f9241f33a71677c772"
+    },
+    "tests/candidate_release_gate.php": {
+      "exit_code": 0,
+      "output": "candidate_release_gate: 37 assertions PASS\n",
+      "sha256": "51e491dd197aeb2112a2acd5421c1c47201bd721ba6d3c29aecc8d0335249237"
+    },
+    "tests/candidate_runtime_selection.php": {
+      "exit_code": 0,
+      "output": "candidate_runtime_selection: 17 assertions PASS\n",
+      "sha256": "1be34d941bce94a75ffcb327374dc1bdb74b7f47945317f0447523d3d6a0bee3"
+    },
+    "tests/candidate_signal_artifact.php": {
+      "exit_code": 0,
+      "output": "candidate_signal_artifact: 38 assertions PASS\n",
+      "sha256": "d952fc909823e49cc9b26564db7f493868053001ce9263ab0d59740d612a25b8"
+    },
+    "tests/candidate_snapshot_reader.php": {
+      "exit_code": 0,
+      "output": "candidate_snapshot_reader: 18 assertions; 100000 rows; 2097152 peak bytes PASS\n",
+      "sha256": "f88b9487611713a9ea21465960a21b3e543dd8b109c4711352b7a4f61dff7ab2"
+    },
+    "tests/causal_tactical_rotation_backtester.php": {
+      "exit_code": 0,
+      "output": "Causal tactical rotation backtester OK\n",
+      "sha256": "f807821ca00df0dd24f8b6b75f5bea7fe539433c4aadb886afedcccad61d2d0a"
+    },
+    "tests/causal_tactical_rotation_ensemble_backtester.php": {
+      "exit_code": 0,
+      "output": "Causal tactical rotation ensemble backtester OK\n",
+      "sha256": "4b735147d40fe59fc0f486a7b7676ed4e4251fc5760a2bcdc89f6122810e5109"
+    },
+    "tests/daily_data_audit.php": {
+      "exit_code": 0,
+      "output": "Daily data audit tests OK\n",
+      "sha256": "d4432cb1ae429ea54c9af8fb2c0a7ded247ef0c9500144e8530dc832a785a654"
+    },
+    "tests/economic_benefit_review.php": {
+      "exit_code": 0,
+      "output": "economic_benefit_review: 22 assertions PASS\n",
+      "sha256": "a0e7377d5851725f5949533b494a8b4b33bd9eb66107f9c67aa76f6c5931811c"
+    },
+    "tests/frozen_sip_iex_daily_bars_provider.php": {
+      "exit_code": 0,
+      "output": "Frozen SIP/IEX daily bars provider OK\n",
+      "sha256": "149b28163172dddc97e2c92ef7ba4e162fd336a4d6d79c17ed6f8581cd173d0c"
+    },
+    "tests/hybrid_php_memory_profile.php": {
+      "exit_code": 0,
+      "output": "Paper-only parent/child 512M cap, default extensions and installer profile PASS\n",
+      "sha256": "4b5d7839834c077394b64d492e9be1386598973957199d031c88c53553cc7c28"
+    },
+    "tests/hybrid_v4_research.php": {
+      "exit_code": 0,
+      "output": "Hybrid-v4 offline research tests OK\n",
+      "sha256": "682376bb28811110ce5b634937c072ecd3dc73def88b0cde7f765120889119d4"
+    },
+    "tests/install_hybrid_launchd_rollback.php": {
+      "exit_code": 0,
+      "output": "hybrid launchd rollback tests passed\n",
+      "sha256": "8c8e00b56dabe412a538298624407f7c79543f4d55f4773779f3a8b7d7428255"
+    },
+    "tests/market_data_cache_determinism.php": {
+      "exit_code": 0,
+      "output": "Market data cache determinism OK\n",
+      "sha256": "1bfe62180d3db494b8796db37001bd5e4921a45d4de28ad2049cf27c167ebe25"
+    },
+    "tests/market_data_coverage.php": {
+      "exit_code": 0,
+      "output": "Market data coverage analyzer OK\n",
+      "sha256": "200146065bd2f7339037af7ddfa4bf0bfcea1355a40fe71df48690ec90e6dc19"
+    },
+    "tests/opportunity_cost_stress.php": {
+      "exit_code": 0,
+      "output": "Fixed-threshold cost stress equivalence OK: 1681 switch comparisons\n",
+      "sha256": "8003eeb9adb3638d754cf827252aa93486d9853aba399b7c55fadef5a5aa3059"
+    },
+    "tests/opportunity_research.php": {
+      "exit_code": 0,
+      "output": "Opportunity factors, matured labels, future-mutation tests, policy validation and exact legacy replay OK\n",
+      "sha256": "c13d9c87b2b24c4740636d7f316e70eb5af244369d549fe34d6cb73fefad2180"
+    },
+    "tests/paper_explanation_preview.php": {
+      "exit_code": 0,
+      "output": "paper_explanation_preview: 14 assertions PASS; mocked transport, no network\n",
+      "sha256": "ba6e57dcace0679f5c80a99e493637bd79f81607ea49f7b3080ad6c4c59391d3"
+    },
+    "tests/paper_signal_explanation.php": {
+      "exit_code": 0,
+      "output": "paper_signal_explanation: 68 assertions PASS\n",
+      "sha256": "f2d826932a95512fccc375e7080e5830864e3eca6ce0720d7dd4bbe9ff5ed441"
+    },
+    "tests/paper_status_observation_time.php": {
+      "exit_code": 0,
+      "output": "Export observation clock race reproduced and fixed; stale, future and failed executor checks preserved\n",
+      "sha256": "c5a58c665cb3716183d27a0569b8d52ada532ee241396366cc482ff617dd4e50"
+    },
+    "tests/portfolio_stop_research.php": {
+      "exit_code": 0,
+      "output": "Adaptive rotation research tests OK\nPortfolio/standing-stop research tests OK\n",
+      "sha256": "ca5a3ac0795d56135871076da29d1b5c374564815caa6de7d8e44e70e1859f53"
+    },
+    "tests/research_multiplicity_audit.php": {
+      "exit_code": 0,
+      "output": "Research multiplicity audit tests OK\n",
+      "sha256": "42c61b8e18fbd0b1398cde97334174ace183991deeec9e78acb1483452b3a319"
+    },
+    "tests/research_trade_ledger.php": {
+      "exit_code": 0,
+      "output": "Research trade ledger tests OK\n",
+      "sha256": "d04ab28afedcc3d18ca4b6178cc406af3ba70138c551941b8947c4fb3758758e"
+    },
+    "tests/selected_maximum_research.php": {
+      "exit_code": 0,
+      "output": "Selected maximum rebasing, scale caps, policy scopes, stop inheritance and causal lag OK\n",
+      "sha256": "ae78b3728adee850c7a9c1a3ed09e2739f254033cd698eda0d97a77c08dcd15c"
+    },
+    "tests/standard_etf_research.php": {
+      "exit_code": 0,
+      "output": "108 configurations: cost/cash conservation, chronological execution, prefix/future mutation, coverage and research-only tests OK\n",
+      "sha256": "5581a49476cf407ddaaefdb98ed3861f5680dafb5dc1d9890ce1af55005342d6"
+    },
+    "tests/status_snapshot_safety.php": {
+      "exit_code": 0,
+      "output": "Status snapshot safety OK\n",
+      "sha256": "ecdaaa1e27fd24ae472e4290049670a8e4569b5c3c177623f8a03f733b7b5f18"
+    },
+    "tests/tactical_intent_status_message.php": {
+      "exit_code": 0,
+      "output": "tactical intent status message tests passed\n",
+      "sha256": "d84b2ae6e5f7193a85ee17a37bbf6eb5f735d25388dfde7d9c6a71b1b372bfc9"
+    },
+    "tests/tactical_notification_policy.php": {
+      "exit_code": 0,
+      "output": "tactical notification policy tests passed\n",
+      "sha256": "0fa0e2de43d541b160ead19a3e05261876679f52a15125e977267b14880c6c6d"
+    },
+    "tests/tactical_paper_month_gate.php": {
+      "exit_code": 0,
+      "output": "Tactical paper month gate OK\n",
+      "sha256": "3f438dcbbb3c4f4a1e4fde13dcc245bc42dab6b005b416536016dcfd82bc9990"
+    },
+    "tests/tactical_paper_runtime.php": {
+      "exit_code": 0,
+      "output": "tactical paper runtime tests passed\n",
+      "sha256": "1f74b5c2c5caa87a12b3c7006376f9858d0f769894c2357af5b099978a65e07b"
+    },
+    "tests/tactical_paper_signal_epoch.php": {
+      "exit_code": 0,
+      "output": "Tactical paper signal epoch tests OK\n",
+      "sha256": "7faee255015a67860b2f0033ba5bd0b183a20bc9f365fa160bccf52a5c4781f4"
+    },
+    "tests/tactical_portfolio_notification_schedule.php": {
+      "exit_code": 0,
+      "output": "tactical portfolio notification schedule tests passed\n",
+      "sha256": "d36624d2e142b5ba15b226767c99b32dd8249e4133b40a82d98556f731a4d207"
+    },
+    "tests/tactical_portfolio_status_message.php": {
+      "exit_code": 0,
+      "output": "tactical portfolio status message tests passed\n",
+      "sha256": "ffd106649dc8508b76a2b62303ac31d55292c12af9e1ac81afde4b6ed23575f1"
+    },
+    "tests/tactical_portfolio_weekly_summary.php": {
+      "exit_code": 0,
+      "output": "tactical portfolio weekly summary tests passed\n",
+      "sha256": "fa226cd64bec655ee28430992fddd027d15be32d711a8435c16ce17ebdc87e84"
+    },
+    "tests/tactical_rotation_shadow_context.php": {
+      "exit_code": 0,
+      "output": "Tactical rotation shadow context OK\n",
+      "sha256": "d76276e2f49656ae40381d305997868e06ec8f3f8ad16e1c99a0dced92fc75e3"
+    },
+    "tests/tactical_run_identity_gate.php": {
+      "exit_code": 0,
+      "output": "tactical run identity gate tests passed\n",
+      "sha256": "4382ddc5df8cb04b0277a1dd6e0259426bd741bc71fbe6a1acdf848377bd3bd1"
+    },
+    "tests/tactical_signal_artifact_guard.php": {
+      "exit_code": 0,
+      "output": "tactical signal artifact guard tests passed\n",
+      "sha256": "3aa5bb9175ca8adb2aeb1749d5df9db38d77ce9df4d062a87ff2821cfd0d870f"
+    },
+    "tests/whole_share_sizing.php": {
+      "exit_code": 0,
+      "output": "whole_share_sizing: 3176 assertions PASS\n",
+      "sha256": "416c747f694fb439fbd516ab27f3913ddd53aaad68c95e07c38c0a1af7e70ad1"
+    },
+    "tests/staged_bull5_fault_matrix.php": {
+      "exit_code": 0,
+      "output": "staged_bull5_fault_matrix: 100 actual-snapshot deterministic scenarios, 1128 assertions PASS\n",
+      "sha256": "5a8e446d2d289e0ea4a5f2a6c1abceea3b6357e72468c46831a58af3cf980c4f"
+    },
+    "tests/staged_bull5_maps.php": {
+      "exit_code": 0,
+      "output": "Staged bull-risk maps: 17518 assertions PASS\n",
+      "sha256": "cffdbca46e9a7a754dab9d7320d6360166691dc66019e6452cfc5c47b270e85b"
+    },
+    "tests/paper_market_commentary.php": {
+      "exit_code": 0,
+      "output": "Paper market commentary: 52 assertions PASS\n",
+      "sha256": "d283e078fb4192d3326a70e19c209098a959a9d07bdfcd0381c3c9be2947219d"
+    },
+    "tests/candidate_opg_auction_boundary.php": {
+      "exit_code": 0,
+      "output": "OPG auction boundary: 230 assertions PASS; 14 restartable scenarios, no broker access\n",
+      "sha256": "41007a2c7e5e32e72f798b383069bef957f2e49af0308068085cc09edc630af4"
+    },
+    "tests/candidate_weekly_cli.php": {
+      "exit_code": 0,
+      "output": "Weekly submitted CLI: 711 assertions PASS; 85 restarted cycles; 5 scenarios; no network or operational database access\n",
+      "sha256": "9b884298ed8b8cb4a05ab905385434673e5286731d23b9de96031abd7fcd3e60"
+    },
+    "tests/candidate_weekly_open_integration.php": {
+      "exit_code": 0,
+      "output": "{\n    \"result\": \"scheduler_repair_verified_existing_guards_preserved\",\n    \"assertions\": 56,\n    \"real_broker_mutations\": 0,\n    \"operational_database_access\": false,\n    \"findings\": [\n        \"no_premature_weekly\",\n        \"no_spurious_outbox_abort\",\n        \"actual_pending_outbox_still_aborts\"\n    ],\n    \"safety_verified\": [\n        \"terminal_expiry_pauses\",\n        \"original_two_shares_reprotected\",\n        \"no_automatic_resume\"\n    ]\n}\n",
+      "sha256": "e8d6909912bdf164633be30cc387dcd6a63b4ea89fcd3cea512ddcdcdea233e0"
+    },
+    "tests/tactical_weekly_session_boundary.php": {
+      "exit_code": 0,
+      "output": "Weekly completed-session boundary: 78 assertions PASS; no broker access\n",
+      "sha256": "8384ae5739c007cdd7738ff9f4eb2a5b82470672549d227970e1b8d4024d76ce"
+    },
+    "tests/tactical_notification_health_guard.php": {
+      "exit_code": 0,
+      "output": "tactical notification health guard tests passed\n",
+      "sha256": "d9c9e7c8d0cb7de4dcdb25ee8708d522e26b26e1b7e8fc6d370ecb579f77be0e"
+    }
+  },
+  "negative_control": {
+    "baseline_scheduler_sha256": "a12f32cb9c77982892e4c7abb09a0f534f694d5ae10ca722c30fb1125051cac5",
+    "exit_code": 255,
+    "observed_time": "2026-09-18T09:30:05-04:00",
+    "weekly_session": "2026-09-17",
+    "observed_action": "cancel",
+    "observed_reason": "entry_window_expired",
+    "scope": "Unrepaired scheduler substituted only in disposable CLI fixture; actual source unchanged."
+  },
+  "limitations": [
+    "The CLI fixture begins with a flat provisioned ledger; initial held-position transition is tested separately by the 56-assertion component test.",
+    "Temporary executor copy imports a frozen test clock; decision, queue, gate and order logic are not replaced.",
+    "Synthetic CLI bars/fills are not historical price evidence. Separate data-bound snapshot program uses frozen September 14 Alpaca/external data.",
+    "Full software suite is not release admission, current-signal preflight, flat handoff, commissioning, or resumed paper execution."
+  ]
+}

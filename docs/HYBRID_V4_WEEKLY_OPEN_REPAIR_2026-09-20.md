@@ -1,5 +1,9 @@
 # Isolated weekly-open scheduler repair
 
+Later verification at 03:18 UTC closes the CLI/full-suite gaps recorded below:
+59/59 programs and 711 submitted-CLI assertions pass. See
+`HYBRID_V4_WEEKLY_OPEN_CLI_2026-09-20.md`. No deployment or resume occurred.
+
 Verified September 20, 2026, 02:37 UTC. This is a targeted software repair,
 NOT a release-admission proof, deployment, automatic resume or performance claim.
 
