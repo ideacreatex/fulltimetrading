@@ -3,23 +3,23 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-22 16:16:06 Нью-Йорк
+Снимок: 2026-09-22 16:31:13 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
-Капитал $27,580.06; деньги на счёте $26,583.66.
-Лимит покупок брокера $54,163.72: может включать заёмные средства, это не бюджет новой сделки.
+Капитал $27,579.66; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,163.32: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
+Почему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.
+Что дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.
 Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
 Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
 Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Торговый запуск ещё не активен или на паузе.
-Что дальше: Проверить этап перехода и защитные условия.
 Остальные причины сохранены в полном JSON-отчёте.
 
 Расчёт модели: закрытие 2026-09-21; план на 2026-09-22.
@@ -30,38 +30,38 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-22T20:16:06+00:00`
+- Generated: `2026-09-22T20:31:13+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$27,580.06`
+- Equity: `$27,579.66`
 - Cash: `$26,583.66`
-- Buying power: `$54,163.72`
+- Buying power: `$54,163.32`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 130 delivered`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_failed, tactical_run_failed`
+- Telegram outbox: `0 pending, 0 failed pending, 131 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
-- Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-09-22:v3`
+- Telegram opening report key: `not_due`
 - Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-21`
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$498.20`, value `$996.40`, P/L `$12.40` (`+1.26%`), today `-0.68%`
+- `MSFT` qty `2`, avg `$492.00`, price `$498.00`, value `$996.00`, P/L `$12.00` (`+1.22%`), today `-0.72%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-09-22T20:15:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:14:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:13:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:11:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:10:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:09:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:08:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-22T20:07:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:30:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:29:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:28:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:27:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:26:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:25:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:24:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-22T20:23:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
