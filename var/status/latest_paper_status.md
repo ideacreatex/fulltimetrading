@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
-Снимок: 2026-09-23 03:38:08 Нью-Йорк
+Снимок: 2026-09-23 03:54:46 Нью-Йорк
 Позиции и заявки: достоверного текущего снимка нет. Пустой ответ не означает нулевой счёт.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
@@ -27,7 +27,7 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 
 ## Технические Подробности
 
-- Generated: `2026-09-23T07:38:08+00:00`
+- Generated: `2026-09-23T07:54:46+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `failed`
@@ -38,7 +38,7 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 - Buying power: `$0.00`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 134 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -54,11 +54,11 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 - none
 
 ## Recent Actions
+- `2026-09-23T07:52:51` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:50:18` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:47:45` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:45:12` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:42:39` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:40:05` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T07:37:32` `-` `monitor_error`: details_redacted_use_local_logs
 - `2026-09-23T07:35:00` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:33:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:32:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:31:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:30:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:29:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:28:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-23T07:27:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
