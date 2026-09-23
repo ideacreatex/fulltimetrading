@@ -2,21 +2,24 @@
 
 ## Что Происходит
 
-ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
-Снимок: 2026-09-23 03:54:46 Нью-Йорк
-Позиции и заявки: достоверного текущего снимка нет. Пустой ответ не означает нулевой счёт.
+ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
+Снимок: 2026-09-23 04:09:54 Нью-Йорк
+У брокера: позиций 1, открытых заявок 1.
+Капитал $27,586.16; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,169.82: может включать заёмные средства, это не бюджет новой сделки.
+Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
 Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
-Почему: Свежесть данных, принадлежность запуска или paper-счёт не подтверждены.
-Что дальше: Получить свежий проверенный снимок. Не делать вывод о нулевых позициях по отсутствующим данным.
 Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
 Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
-Почему: Есть дополнительная блокировка: alpaca_sync_or_account_validation_failed.
-Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
+Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
+Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
+Почему: Торговый запуск ещё не активен или на паузе.
+Что дальше: Проверить этап перехода и защитные условия.
 Остальные причины сохранены в полном JSON-отчёте.
 
 Расчёт модели: закрытие 2026-09-22; план на 2026-09-23.
@@ -27,18 +30,18 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 
 ## Технические Подробности
 
-- Generated: `2026-09-23T07:54:46+00:00`
+- Generated: `2026-09-23T08:09:54+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
-- Paper account guard: `failed`
+- Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$0.00`
-- Cash: `$0.00`
-- Buying power: `$0.00`
+- Equity: `$27,586.16`
+- Cash: `$26,583.66`
+- Buying power: `$54,169.82`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_stale, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 134 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -48,17 +51,17 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- none
+- `MSFT` qty `2`, avg `$492.00`, price `$501.25`, value `$1002.50`, P/L `$18.50` (`+1.88%`), today `+0.65%`
 
 ## Open Orders
-- none
+- `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-09-23T07:52:51` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:50:18` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:47:45` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:45:12` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:42:39` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:40:05` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:37:32` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-09-23T07:35:00` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-09-23T08:09:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:08:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:07:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:06:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:05:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:04:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:03:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-23T08:02:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
