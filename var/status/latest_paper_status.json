@@ -1,10 +1,10 @@
 {
-    "generated_at": "2026-09-24T14:25:28+00:00",
+    "generated_at": "2026-09-24T14:55:55+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "0ad1d9c4",
-        "dirty": false
+        "commit": "6075fce4",
+        "dirty": true
     },
     "runtime": {
         "orders_enabled": true,
@@ -25,7 +25,7 @@
     "alpaca": {
         "snapshot_complete": true,
         "clock": {
-            "timestamp": "2026-09-24T10:25:27.630589846-04:00",
+            "timestamp": "2026-09-24T10:55:54.446734215-04:00",
             "is_open": true,
             "next_open": "2026-09-25T09:30:00-04:00",
             "next_close": "2026-09-24T16:00:00-04:00"
@@ -36,8 +36,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 26583.66,
-            "equity": 27571.12,
-            "buying_power": 54154.78,
+            "equity": 27572.52,
+            "buying_power": 54156.18,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -52,12 +52,12 @@
                 "side": "long",
                 "qty": 2,
                 "avg_entry_price": 492,
-                "current_price": 493.728,
-                "market_value": 987.456,
+                "current_price": 494.43,
+                "market_value": 988.86,
                 "cost_basis": 984,
-                "unrealized_pl": 3.456,
-                "unrealized_plpc": 0.00351,
-                "change_today": -0.01371
+                "unrealized_pl": 4.86,
+                "unrealized_plpc": 0.00494,
+                "change_today": -0.01231
             }
         ],
         "open_orders": [
@@ -415,8 +415,8 @@
         ],
         "recent_actions": [
             {
-                "id": 93922,
-                "created_at": "2026-09-24T14:25:18+00:00",
+                "id": 93951,
+                "created_at": "2026-09-24T14:55:24+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -427,8 +427,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93921,
-                "created_at": "2026-09-24T14:24:16+00:00",
+                "id": 93950,
+                "created_at": "2026-09-24T14:54:22+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -439,8 +439,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93920,
-                "created_at": "2026-09-24T14:23:13+00:00",
+                "id": 93949,
+                "created_at": "2026-09-24T14:53:20+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -451,8 +451,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93919,
-                "created_at": "2026-09-24T14:22:11+00:00",
+                "id": 93948,
+                "created_at": "2026-09-24T14:52:17+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -463,8 +463,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93918,
-                "created_at": "2026-09-24T14:21:09+00:00",
+                "id": 93947,
+                "created_at": "2026-09-24T14:51:15+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -475,8 +475,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93917,
-                "created_at": "2026-09-24T14:20:07+00:00",
+                "id": 93946,
+                "created_at": "2026-09-24T14:50:13+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -487,8 +487,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93916,
-                "created_at": "2026-09-24T14:19:04+00:00",
+                "id": 93945,
+                "created_at": "2026-09-24T14:49:10+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -499,8 +499,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93915,
-                "created_at": "2026-09-24T14:18:02+00:00",
+                "id": 93944,
+                "created_at": "2026-09-24T14:48:08+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -511,8 +511,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93914,
-                "created_at": "2026-09-24T14:17:00+00:00",
+                "id": 93943,
+                "created_at": "2026-09-24T14:47:06+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -523,8 +523,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93913,
-                "created_at": "2026-09-24T14:15:57+00:00",
+                "id": 93942,
+                "created_at": "2026-09-24T14:46:03+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -535,8 +535,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93912,
-                "created_at": "2026-09-24T14:14:55+00:00",
+                "id": 93941,
+                "created_at": "2026-09-24T14:45:01+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -547,8 +547,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93911,
-                "created_at": "2026-09-24T14:13:53+00:00",
+                "id": 93940,
+                "created_at": "2026-09-24T14:43:59+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -559,8 +559,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93910,
-                "created_at": "2026-09-24T14:12:51+00:00",
+                "id": 93939,
+                "created_at": "2026-09-24T14:42:56+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -571,8 +571,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93909,
-                "created_at": "2026-09-24T14:11:48+00:00",
+                "id": 93938,
+                "created_at": "2026-09-24T14:41:54+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -583,8 +583,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93908,
-                "created_at": "2026-09-24T14:10:46+00:00",
+                "id": 93937,
+                "created_at": "2026-09-24T14:40:52+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -595,8 +595,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93907,
-                "created_at": "2026-09-24T14:09:44+00:00",
+                "id": 93936,
+                "created_at": "2026-09-24T14:39:50+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -607,8 +607,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93906,
-                "created_at": "2026-09-24T14:08:41+00:00",
+                "id": 93935,
+                "created_at": "2026-09-24T14:38:47+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -619,8 +619,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93905,
-                "created_at": "2026-09-24T14:07:39+00:00",
+                "id": 93934,
+                "created_at": "2026-09-24T14:37:45+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -631,8 +631,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93904,
-                "created_at": "2026-09-24T14:06:37+00:00",
+                "id": 93933,
+                "created_at": "2026-09-24T14:36:43+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -643,8 +643,8 @@
                 "reason": "details_redacted_use_local_logs"
             },
             {
-                "id": 93903,
-                "created_at": "2026-09-24T14:05:34+00:00",
+                "id": 93932,
+                "created_at": "2026-09-24T14:35:40+00:00",
                 "symbol": null,
                 "action": "monitor_heartbeat",
                 "severity": "info",
@@ -701,7 +701,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-09-24T14:25:18+00:00",
+        "generated_at": "2026-09-24T14:55:24+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": true,
@@ -735,7 +735,7 @@
             "expected": true,
             "ok": false,
             "max_age_seconds": 180,
-            "checked_at": "2026-09-24T14:25:28+00:00",
+            "checked_at": "2026-09-24T14:55:55+00:00",
             "errors": [
                 "tactical_heartbeat_failed",
                 "tactical_signal_refresh_failed",
@@ -761,20 +761,20 @@
         "heartbeat": {
             "pid": 69275,
             "started_at": "2026-09-15T13:39:06+00:00",
-            "heartbeat_at": "2026-09-24T14:25:27+00:00",
+            "heartbeat_at": "2026-09-24T14:55:54+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
             "error": null,
             "last_executor_exit_code": 2,
-            "last_executor_finished_at": "2026-09-24T14:25:25+00:00",
+            "last_executor_finished_at": "2026-09-24T14:55:33+00:00",
             "last_executor_timed_out": false,
             "last_signal_exit_code": 255,
-            "last_signal_finished_at": "2026-09-24T14:23:01+00:00"
+            "last_signal_finished_at": "2026-09-24T14:54:06+00:00"
         },
         "cycle": {
-            "generated_at": "2026-09-24T14:25:25+00:00",
+            "generated_at": "2026-09-24T14:55:32+00:00",
             "run_id": "hybrid-v4-bull5-2026-09-15",
             "profile": "maximum-stop12-costband2-whole-bull5-v1",
             "dry_run": false,
@@ -1350,7 +1350,7 @@
                 "filled_qty": 0,
                 "status": "new",
                 "client_order_id": "ftt5-a15b744ed1d4082ffccc6aea38790c6c1f61e628",
-                "updated_at": "2026-09-24T14:25:22+00:00"
+                "updated_at": "2026-09-24T14:55:52+00:00"
             }
         ],
         "live_review_not_before": "2026-10-16T13:41:18+00:00"
@@ -1499,6 +1499,6 @@
             "PLTR",
             "MSFT"
         ],
-        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-09-24 10:25:28 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,571.12; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,154.78: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтратегия не в состоянии ACTIVE; новые покупки не подтверждены.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.\nЧто дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.\nПочему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.\nЧто дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.\nПочему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.\nЧто дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.\nПочему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.\nЧто дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.\nОстальные причины сохранены в полном JSON-отчёте.\n\nРасчёт модели: закрытие 2026-09-22; план на 2026-09-23.\nНа наблюдении: PLTR, MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.\nЧастей стратегии: 8 | модель не планирует новую покупку.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
+        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-09-24 10:55:55 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,572.52; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,156.18: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтратегия не в состоянии ACTIVE; новые покупки не подтверждены.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.\nЧто дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.\nПочему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.\nЧто дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.\nПочему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.\nЧто дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.\nПочему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.\nЧто дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.\nОстальные причины сохранены в полном JSON-отчёте.\n\nРасчёт модели: закрытие 2026-09-22; план на 2026-09-23.\nНа наблюдении: PLTR, MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.\nЧастей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.\nЧастей стратегии: 8 | модель не планирует новую покупку.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
     }
 }
