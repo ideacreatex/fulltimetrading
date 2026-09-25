@@ -3,10 +3,10 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-25 10:22:41 Нью-Йорк
+Снимок: 2026-09-25 10:37:50 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
-Капитал $27,608.26; деньги на счёте $26,583.66.
-Лимит покупок брокера $54,191.92: может включать заёмные средства, это не бюджет новой сделки.
+Капитал $27,612.64; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,196.30: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
@@ -30,18 +30,18 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-25T14:22:41+00:00`
+- Generated: `2026-09-25T14:37:50+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$27,608.26`
+- Equity: `$27,612.64`
 - Cash: `$26,583.66`
-- Buying power: `$54,191.92`
+- Buying power: `$54,196.30`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 139 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -51,17 +51,17 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$512.37`, value `$1024.74`, P/L `$40.74` (`+4.14%`), today `+2.90%`
+- `MSFT` qty `2`, avg `$492.00`, price `$514.42`, value `$1028.84`, P/L `$44.84` (`+4.56%`), today `+3.31%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-09-25T14:21:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:20:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:19:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:18:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:17:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:16:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:15:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-25T14:14:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:37:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:36:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:35:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:34:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:33:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:32:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:30:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-25T14:29:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
