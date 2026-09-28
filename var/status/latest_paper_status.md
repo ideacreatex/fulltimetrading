@@ -3,10 +3,10 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-09-28 01:56:57 Нью-Йорк
+Снимок: 2026-09-28 02:12:04 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
-Капитал $27,616.90; деньги на счёте $26,583.66.
-Лимит покупок брокера $54,200.56: может включать заёмные средства, это не бюджет новой сделки.
+Капитал $27,616.92; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,200.58: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
@@ -27,15 +27,15 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-09-28T05:56:57+00:00`
+- Generated: `2026-09-28T06:12:04+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$27,616.90`
+- Equity: `$27,616.92`
 - Cash: `$26,583.66`
-- Buying power: `$54,200.56`
+- Buying power: `$54,200.58`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
 - Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
@@ -48,17 +48,17 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$516.62`, value `$1033.24`, P/L `$49.24` (`+5.00%`), today `+0.09%`
+- `MSFT` qty `2`, avg `$492.00`, price `$516.63`, value `$1033.26`, P/L `$49.26` (`+5.01%`), today `+0.09%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `accepted`
 
 ## Recent Actions
-- `2026-09-28T05:56:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:55:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:54:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:53:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:52:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:51:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:50:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-09-28T05:49:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:11:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:10:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:09:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:08:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:07:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:06:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:05:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-09-28T06:04:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
