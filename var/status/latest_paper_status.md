@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-10-03 07:47:36 Нью-Йорк
+Снимок: 2026-10-03 08:02:43 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,618.72; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,202.38: может включать заёмные средства, это не бюджет новой сделки.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-10-03T11:47:36+00:00`
+- Generated: `2026-10-03T12:02:43+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -54,11 +54,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` sell stop qty `2`, limit `-`, status `accepted`
 
 ## Recent Actions
-- `2026-10-03T11:47:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:46:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:45:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:44:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:43:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:42:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:41:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-03T11:40:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T12:02:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T12:01:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T12:00:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T11:59:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T11:58:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T11:57:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-03T11:56:11` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-10-03T11:54:40` `-` `monitor_error`: details_redacted_use_local_logs
