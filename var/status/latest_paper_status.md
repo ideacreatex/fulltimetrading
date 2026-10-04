@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-10-04 02:41:46 Нью-Йорк
+Снимок: 2026-10-04 02:56:54 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,618.72; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,202.38: может включать заёмные средства, это не бюджет новой сделки.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-10-04T06:41:46+00:00`
+- Generated: `2026-10-04T06:56:54+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -54,11 +54,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` sell stop qty `2`, limit `-`, status `accepted`
 
 ## Recent Actions
-- `2026-10-04T06:40:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:39:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:38:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:37:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:36:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:35:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:34:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-04T06:33:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:56:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:55:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:54:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:53:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:52:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:51:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:50:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-04T06:49:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
