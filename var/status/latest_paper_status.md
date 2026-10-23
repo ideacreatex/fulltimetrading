@@ -3,10 +3,10 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-10-23 07:37:40 Нью-Йорк
+Снимок: 2026-10-23 07:52:47 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
-Капитал $27,621.52; деньги на счёте $26,583.66.
-Лимит покупок брокера $54,205.18: может включать заёмные средства, это не бюджет новой сделки.
+Капитал $27,620.50; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,204.16: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
@@ -16,9 +16,9 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: tactical_cycle_mismatch.
-Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
+Почему: Есть дополнительная блокировка: details_in_local_logs.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
@@ -27,18 +27,18 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-10-23T11:37:40+00:00`
+- Generated: `2026-10-23T11:52:47+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$27,621.52`
+- Equity: `$27,620.50`
 - Cash: `$26,583.66`
-- Buying power: `$54,205.18`
+- Buying power: `$54,204.16`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
 - Telegram outbox: `0 pending, 0 failed pending, 198 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -48,17 +48,17 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$518.93`, value `$1037.86`, P/L `$53.86` (`+5.47%`), today `-0.41%`
+- `MSFT` qty `2`, avg `$492.00`, price `$518.42`, value `$1036.84`, P/L `$52.84` (`+5.37%`), today `-0.51%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-10-23T11:36:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:35:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:34:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:33:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:32:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:31:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:30:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T11:29:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:52:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:51:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:50:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:49:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:48:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:47:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:46:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T11:45:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
