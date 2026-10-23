@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-10-23 00:04:03 Нью-Йорк
+Снимок: 2026-10-23 00:19:10 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,620.68; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,204.34: может включать заёмные средства, это не бюджет новой сделки.
@@ -16,9 +16,9 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: tactical_cycle_mismatch.
-Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
+Почему: Есть дополнительная блокировка: details_in_local_logs.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-10-23T04:04:03+00:00`
+- Generated: `2026-10-23T04:19:10+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -38,7 +38,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Buying power: `$54,204.34`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
 - Telegram outbox: `0 pending, 0 failed pending, 198 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -54,11 +54,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-10-23T04:03:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T04:02:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T04:01:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T04:00:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T03:59:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T03:58:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T03:57:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-23T03:56:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:18:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:17:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:16:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:15:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:14:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:13:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:12:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-23T04:11:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
