@@ -1,9 +1,9 @@
 {
-    "generated_at": "2026-10-29T05:47:43+00:00",
+    "generated_at": "2026-10-30T12:40:18+00:00",
     "host": "Mac-Studio-Tod.local",
     "repo": {
         "branch": "codex/hybrid-paper-runtime-2026-07-17",
-        "commit": "c95697f9",
+        "commit": "de985078",
         "dirty": false
     },
     "runtime": {
@@ -25,10 +25,10 @@
     "alpaca": {
         "snapshot_complete": true,
         "clock": {
-            "timestamp": "2026-10-29T01:47:42.333048753-04:00",
+            "timestamp": "2026-10-30T08:40:16.272014713-04:00",
             "is_open": false,
-            "next_open": "2026-10-29T09:30:00-04:00",
-            "next_close": "2026-10-29T16:00:00-04:00"
+            "next_open": "2026-10-30T09:30:00-04:00",
+            "next_close": "2026-10-30T16:00:00-04:00"
         },
         "account": {
             "id_statusExportLast4": "5e95",
@@ -36,8 +36,8 @@
             "status": "ACTIVE",
             "currency": "USD",
             "cash": 26583.66,
-            "equity": 27690.46,
-            "buying_power": 54274.12,
+            "equity": 27639.66,
+            "buying_power": 54223.32,
             "multiplier": "2",
             "pattern_day_trader": null,
             "daytrade_count": null,
@@ -52,12 +52,12 @@
                 "side": "long",
                 "qty": 2,
                 "avg_entry_price": 492,
-                "current_price": 553.4,
-                "market_value": 1106.8,
+                "current_price": 528,
+                "market_value": 1056,
                 "cost_basis": 984,
-                "unrealized_pl": 122.8,
-                "unrealized_plpc": 0.1248,
-                "change_today": 0.04216
+                "unrealized_pl": 72,
+                "unrealized_plpc": 0.07317,
+                "change_today": -0.00404
             }
         ],
         "open_orders": [
@@ -415,6 +415,54 @@
         ],
         "recent_actions": [
             {
+                "id": 142110,
+                "created_at": "2026-10-29T05:51:10+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 142109,
+                "created_at": "2026-10-29T05:50:04+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 142108,
+                "created_at": "2026-10-29T05:48:58+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
+                "id": 142107,
+                "created_at": "2026-10-29T05:47:50+00:00",
+                "symbol": null,
+                "action": "monitor_heartbeat",
+                "severity": "info",
+                "dry_run": false,
+                "submitted": false,
+                "order_id_last4": null,
+                "client_order_id": null,
+                "reason": "details_redacted_use_local_logs"
+            },
+            {
                 "id": 142106,
                 "created_at": "2026-10-29T05:46:44+00:00",
                 "symbol": null,
@@ -605,54 +653,6 @@
                 "order_id_last4": null,
                 "client_order_id": null,
                 "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 142090,
-                "created_at": "2026-10-29T05:28:59+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 142089,
-                "created_at": "2026-10-29T05:27:53+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 142088,
-                "created_at": "2026-10-29T05:26:46+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
-            },
-            {
-                "id": 142087,
-                "created_at": "2026-10-29T05:25:40+00:00",
-                "symbol": null,
-                "action": "monitor_heartbeat",
-                "severity": "info",
-                "dry_run": false,
-                "submitted": false,
-                "order_id_last4": null,
-                "client_order_id": null,
-                "reason": "details_redacted_use_local_logs"
             }
         ]
     },
@@ -701,7 +701,7 @@
         }
     },
     "latest_monitor": {
-        "generated_at": "2026-10-29T05:46:44+00:00",
+        "generated_at": "2026-10-29T05:51:10+00:00",
         "dry_run": false,
         "submit_allowed": true,
         "market_open": false,
@@ -735,9 +735,12 @@
             "expected": true,
             "ok": false,
             "max_age_seconds": 180,
-            "checked_at": "2026-10-29T05:47:43+00:00",
+            "checked_at": "2026-10-30T12:40:18+00:00",
             "errors": [
+                "tactical_heartbeat_stale",
+                "tactical_heartbeat_pid_mismatch",
                 "tactical_heartbeat_failed",
+                "tactical_cycle_stale",
                 "tactical_cycle_failed",
                 "tactical_run_failed",
                 "tactical_notification_signal_missing"
@@ -763,20 +766,20 @@
         "heartbeat": {
             "pid": 986,
             "started_at": "2026-10-21T09:43:54+00:00",
-            "heartbeat_at": "2026-10-29T05:47:43+00:00",
+            "heartbeat_at": "2026-10-29T05:51:24+00:00",
             "submit": true,
             "telegram": true,
             "paper_only": true,
             "account_guard_verified": true,
             "error": null,
             "last_executor_exit_code": 2,
-            "last_executor_finished_at": "2026-10-29T05:47:28+00:00",
+            "last_executor_finished_at": "2026-10-29T05:50:30+00:00",
             "last_executor_timed_out": false,
             "last_signal_exit_code": 0,
             "last_signal_finished_at": "2026-10-29T01:37:45+00:00"
         },
         "cycle": {
-            "generated_at": "2026-10-29T05:47:25+00:00",
+            "generated_at": "2026-10-29T05:50:29+00:00",
             "run_id": "hybrid-v4-bull5-2026-09-15",
             "profile": "maximum-stop12-costband2-whole-bull5-v1",
             "dry_run": false,
@@ -937,13 +940,16 @@
                 "filled_qty": 0,
                 "status": "new",
                 "client_order_id": "ftt5-b437d4cda723ca120a2b6a087c722a54b6fd106a",
-                "updated_at": "2026-10-29T05:47:12+00:00"
+                "updated_at": "2026-10-29T05:50:22+00:00"
             }
         ],
         "live_review_not_before": "2026-10-16T13:41:18+00:00"
     },
     "errors": [
+        "tactical_heartbeat_stale",
+        "tactical_heartbeat_pid_mismatch",
         "tactical_heartbeat_failed",
+        "tactical_cycle_stale",
         "tactical_cycle_failed",
         "tactical_run_failed",
         "tactical_notification_signal_missing"
@@ -951,9 +957,9 @@
     "explanation": {
         "schema": "paper-signal-explanation-v1",
         "execution_authority": "none",
-        "state": "broker_orders_open",
+        "state": "unverified",
         "fresh_snapshot": true,
-        "fresh_cycle": true,
+        "fresh_cycle": false,
         "same_run": true,
         "broker_snapshot_verified": true,
         "reported_plan_permitted": false,
@@ -966,11 +972,39 @@
                 "next": "Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя."
             },
             {
+                "id": "snapshot",
+                "priority": 1,
+                "code": "snapshot_not_current",
+                "text": "Свежесть данных, принадлежность запуска или paper-счёт не подтверждены.",
+                "next": "Получить свежий проверенный снимок. Не делать вывод о нулевых позициях по отсутствующим данным."
+            },
+            {
+                "id": "other:tactical_heartbeat_stale",
+                "priority": 3,
+                "code": "tactical_heartbeat_stale",
+                "text": "Есть дополнительная блокировка: tactical_heartbeat_stale.",
+                "next": "Проверить локальную диагностику; разрешение не подтверждено."
+            },
+            {
+                "id": "other:tactical_heartbeat_pid_mismatch",
+                "priority": 3,
+                "code": "tactical_heartbeat_pid_mismatch",
+                "text": "Есть дополнительная блокировка: tactical_heartbeat_pid_mismatch.",
+                "next": "Проверить локальную диагностику; разрешение не подтверждено."
+            },
+            {
                 "id": "runtime",
                 "priority": 3,
                 "code": "tactical_heartbeat_failed",
                 "text": "Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.",
                 "next": "Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое."
+            },
+            {
+                "id": "other:tactical_cycle_stale",
+                "priority": 3,
+                "code": "tactical_cycle_stale",
+                "text": "Есть дополнительная блокировка: tactical_cycle_stale.",
+                "next": "Проверить локальную диагностику; разрешение не подтверждено."
             },
             {
                 "id": "other:tactical_notification_signal_missing",
@@ -1003,6 +1037,6 @@
         ],
         "targets": [],
         "watch_symbols": [],
-        "text": "ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА\nСнимок: 2026-10-29 01:47:43 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,690.46; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,274.12: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтратегия не в состоянии ACTIVE; новые покупки не подтверждены.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.\nЧто дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.\nПочему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.\nЧто дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.\nПочему: Есть дополнительная блокировка: tactical_notification_signal_missing.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nПочему: Есть дополнительная блокировка: details_in_local_logs.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nОстальные причины сохранены в полном JSON-отчёте.\n\nРасчёт модели: закрытие 2026-10-28; план на 2026-10-29.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
+        "text": "ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО\nСнимок: 2026-10-30 08:40:18 Нью-Йорк\nУ брокера: позиций 1, открытых заявок 1.\nКапитал $27,639.66; деньги на счёте $26,583.66.\nЛимит покупок брокера $54,223.32: может включать заёмные средства, это не бюджет новой сделки.\nЗаявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.\nСтратегия не в состоянии ACTIVE; новые покупки не подтверждены.\nДопуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.\n\nБот: новые покупки сейчас не разрешены или разрешение не подтверждено.\nПочему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.\nЧто дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.\nПочему: Свежесть данных, принадлежность запуска или paper-счёт не подтверждены.\nЧто дальше: Получить свежий проверенный снимок. Не делать вывод о нулевых позициях по отсутствующим данным.\nПочему: Есть дополнительная блокировка: tactical_heartbeat_stale.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nПочему: Есть дополнительная блокировка: tactical_heartbeat_pid_mismatch.\nЧто дальше: Проверить локальную диагностику; разрешение не подтверждено.\nОстальные причины сохранены в полном JSON-отчёте.\n\nРасчёт модели: закрытие 2026-10-28; план на 2026-10-29.\nРучных действий по этому сообщению не требуется. Сообщение не отправляет заявки."
     }
 }
