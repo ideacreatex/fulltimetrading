@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-10-30 11:26:59 Нью-Йорк
+Снимок: 2026-10-30 11:42:07 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,627.38; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,211.04: может включать заёмные средства, это не бюджет новой сделки.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-10-30T15:26:59+00:00`
+- Generated: `2026-10-30T15:42:07+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -48,17 +48,17 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$521.86`, value `$1043.72`, P/L `$59.72` (`+6.07%`), today `-1.56%`
+- `MSFT` qty `2`, avg `$492.00`, price `$521.73`, value `$1043.46`, P/L `$59.46` (`+6.04%`), today `-1.59%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-10-30T15:26:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:25:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:24:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:23:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:22:29` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:21:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:20:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-10-30T15:19:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:41:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:40:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:39:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:38:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:37:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:36:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:34:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-10-30T15:33:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
