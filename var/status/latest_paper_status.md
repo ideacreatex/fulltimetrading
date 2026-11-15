@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-11-15 00:56:09 Нью-Йорк
+Снимок: 2026-11-15 01:11:17 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
 Капитал $27,631.42; деньги на счёте $26,583.66.
 Лимит покупок брокера $54,215.08: может включать заёмные средства, это не бюджет новой сделки.
@@ -27,7 +27,7 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 
 ## Технические Подробности
 
-- Generated: `2026-11-15T05:56:09+00:00`
+- Generated: `2026-11-15T06:11:17+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -54,11 +54,11 @@ ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-11-15T05:55:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:54:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:53:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:52:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:51:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:50:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:49:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-15T05:48:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:10:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:09:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:08:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:07:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:06:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:05:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:04:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-15T06:03:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
