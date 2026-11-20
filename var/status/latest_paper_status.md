@@ -3,65 +3,62 @@
 ## Что Происходит
 
 ALPACA PAPER | ЕСТЬ ОТКРЫТЫЕ ЗАЯВКИ У БРОКЕРА
-Снимок: 2026-11-19 23:28:43 Нью-Йорк
+Снимок: 2026-11-19 23:43:51 Нью-Йорк
 У брокера: позиций 1, открытых заявок 1.
-Капитал $27,572.14; деньги на счёте $26,583.66.
-Лимит покупок брокера $54,155.80: может включать заёмные средства, это не бюджет новой сделки.
+Капитал $27,572.30; деньги на счёте $26,583.66.
+Лимит покупок брокера $54,155.96: может включать заёмные средства, это не бюджет новой сделки.
 Заявка: продажа MSFT; количество 2, исполнено 0. Наличие заявки не означает полного исполнения.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
-Почему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.
-Что дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.
 Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
-Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
-Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
+Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
+Почему: Есть дополнительная блокировка: details_in_local_logs.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
-Расчёт модели: закрытие 2026-11-18; план на 2026-11-19.
-На наблюдении: PLTR, MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.
-Частей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.
-Частей стратегии: 8 | модель не планирует новую покупку.
+Расчёт модели: закрытие 2026-11-19; план на 2026-11-20.
 Ручных действий по этому сообщению не требуется. Сообщение не отправляет заявки.
 
 ## Технические Подробности
 
-- Generated: `2026-11-20T04:28:43+00:00`
+- Generated: `2026-11-20T04:43:51+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$27,572.14`
+- Equity: `$27,572.30`
 - Cash: `$26,583.66`
-- Buying power: `$54,155.80`
+- Buying power: `$54,155.96`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 268 delivered`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
+- Telegram outbox: `0 pending, 0 failed pending, 269 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
 - Telegram opening report key: `not_due`
-- Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-22`
+- Telegram close report key: `not_due`
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
-- `MSFT` qty `2`, avg `$492.00`, price `$494.24`, value `$988.48`, P/L `$4.48` (`+0.46%`), today `-0.81%`
+- `MSFT` qty `2`, avg `$492.00`, price `$494.32`, value `$988.64`, P/L `$4.64` (`+0.47%`), today `-0.80%`
 
 ## Open Orders
 - `MSFT` sell stop qty `2`, limit `-`, status `new`
 
 ## Recent Actions
-- `2026-11-20T04:28:13` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:27:10` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:26:08` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:25:06` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:24:04` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:23:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:21:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-20T04:20:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:43:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:42:44` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:41:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:40:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:39:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:38:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:37:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-20T04:36:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
