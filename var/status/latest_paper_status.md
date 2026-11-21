@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-20 23:26:02 Нью-Йорк
+Снимок: 2026-11-20 23:41:09 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.76; деньги на счёте $27,561.76.
 Лимит покупок брокера $55,123.52: может включать заёмные средства, это не бюджет новой сделки.
@@ -11,25 +11,22 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
 Бот: новые покупки сейчас не разрешены или разрешение не подтверждено.
-Почему: Нет полного свежего сигнала: цены Alpaca, S5TW и VVIX должны относиться к одному закрытию рынка.
-Что дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.
 Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
-Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
-Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
+Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
+Почему: Есть дополнительная блокировка: details_in_local_logs.
+Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
-Расчёт модели: закрытие 2026-11-19; план на 2026-11-20.
-На наблюдении: PLTR, MSFT. Это лидеры рейтинга, НЕ заявка и НЕ факт покупки.
-Частей стратегии: 4 | модель предлагает пересмотр позиции; допуск проверяется отдельно.
-Частей стратегии: 8 | модель не планирует новую покупку.
+Расчёт модели: закрытие 2026-11-20; план на 2026-11-23.
 Ручных действий по этому сообщению не требуется. Сообщение не отправляет заявки.
 
 ## Технические Подробности
 
-- Generated: `2026-11-21T04:26:02+00:00`
+- Generated: `2026-11-21T04:41:09+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -40,13 +37,13 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - Buying power: `$55,123.52`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 272 delivered`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
+- Telegram outbox: `0 pending, 0 failed pending, 273 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
 - Telegram opening report key: `not_due`
-- Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-22`
+- Telegram close report key: `not_due`
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
 ## Positions
@@ -56,11 +53,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-21T04:25:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:24:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:23:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:22:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:21:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:20:36` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:19:34` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T04:18:32` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:40:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:39:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:38:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:37:11` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:36:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:35:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:34:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T04:33:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
