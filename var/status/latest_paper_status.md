@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-21 05:44:11 Нью-Йорк
+Снимок: 2026-11-21 05:59:19 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.72; деньги на счёте $27,561.72.
 Лимит покупок брокера $55,123.44: может включать заёмные средства, это не бюджет новой сделки.
@@ -17,7 +17,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: unreconciled_cash_activity.
+Почему: Есть дополнительная блокировка: tactical_cycle_mismatch.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
@@ -29,7 +29,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-11-21T10:44:11+00:00`
+- Generated: `2026-11-21T10:59:19+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -40,7 +40,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - Buying power: `$55,123.44`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 275 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -56,11 +56,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-21T10:43:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:42:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:41:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:40:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:39:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:38:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:37:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T10:36:39` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:58:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:57:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:56:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:55:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:54:18` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:53:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:52:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T10:51:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
