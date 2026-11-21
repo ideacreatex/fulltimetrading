@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-21 00:56:46 Нью-Йорк
+Снимок: 2026-11-21 01:11:54 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.76; деньги на счёте $27,561.76.
 Лимит покупок брокера $55,123.52: может включать заёмные средства, это не бюджет новой сделки.
@@ -15,9 +15,9 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
+Почему: Есть дополнительная блокировка: tactical_cycle_mismatch.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
-Почему: Есть дополнительная блокировка: details_in_local_logs.
+Почему: Есть дополнительная блокировка: tactical_notification_signal_missing.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
@@ -26,7 +26,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-11-21T05:56:46+00:00`
+- Generated: `2026-11-21T06:11:54+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -37,7 +37,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - Buying power: `$55,123.52`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed, tactical_notification_signal_missing`
 - Telegram outbox: `0 pending, 0 failed pending, 273 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -53,11 +53,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-21T05:56:01` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:54:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:53:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:52:54` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:51:52` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:50:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:49:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-21T05:48:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:11:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:10:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:09:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:08:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:07:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:06:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:05:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-21T06:04:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
