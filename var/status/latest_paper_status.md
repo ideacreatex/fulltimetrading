@@ -2,9 +2,11 @@
 
 ## Что Происходит
 
-ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
-Снимок: 2026-11-23 18:01:09 Нью-Йорк
-Позиции и заявки: достоверного текущего снимка нет. Пустой ответ не означает нулевой счёт.
+ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
+Снимок: 2026-11-23 18:16:16 Нью-Йорк
+У брокера: позиций 0, открытых заявок 0.
+Капитал $27,561.72; деньги на счёте $27,561.72.
+Лимит покупок брокера $55,123.44: может включать заёмные средства, это не бюджет новой сделки.
 Стратегия не в состоянии ACTIVE; новые покупки не подтверждены.
 Допуск нового выпуска: только экспериментальный paper. validation_selected=false: строгий исторический отбор не пройден; это не live-допуск.
 
@@ -13,10 +15,10 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 Что дальше: Дождаться публикации и проверки источников. Старые значения не подставляются; новые покупки запрещены.
 Почему: Брокер сообщил окончательный статус заявки с неисполненным остатком. Это остановило новые покупки, но не означает закрытие имеющихся позиций.
 Что дальше: Сверить конкретную заявку, исполнения и стопы. Перезапуск не снимает эту паузу; повторять остаток вручную нельзя.
-Почему: Свежесть данных, принадлежность запуска или paper-счёт не подтверждены.
-Что дальше: Получить свежий проверенный снимок. Не делать вывод о нулевых позициях по отсутствующим данным.
 Почему: Запуск находится на защитной паузе. Даже свежий сигнал не разрешает новые покупки.
 Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
+Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
+Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
 Остальные причины сохранены в полном JSON-отчёте.
 
 Расчёт модели: закрытие 2026-11-20; план на 2026-11-23.
@@ -27,18 +29,18 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 
 ## Технические Подробности
 
-- Generated: `2026-11-23T23:01:09+00:00`
+- Generated: `2026-11-23T23:16:16+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
-- Paper account guard: `failed`
+- Paper account guard: `verified`
 - New production entries: `blocked`
 - Entry block reason: `author_style_unqualified_tactical_rotation_shadow_only_2026-07-16`
-- Equity: `$0.00`
-- Cash: `$0.00`
-- Buying power: `$0.00`
+- Equity: `$27,561.72`
+- Cash: `$27,561.72`
+- Buying power: `$55,123.44`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_stale, tactical_cycle_failed, tactical_run_failed`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_signal_refresh_failed, tactical_cycle_failed, tactical_run_failed`
 - Telegram outbox: `0 pending, 0 failed pending, 279 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
@@ -54,11 +56,11 @@ ALPACA PAPER | СОСТОЯНИЕ НЕ ПОДТВЕРЖДЕНО
 - none
 
 ## Recent Actions
-- `2026-11-23T22:57:40` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-11-23T22:55:09` `-` `monitor_error`: details_redacted_use_local_logs
-- `2026-11-23T22:54:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-23T22:53:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-23T22:52:03` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-23T22:51:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-23T22:49:58` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-23T22:48:56` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:15:27` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:14:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:13:23` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:12:21` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:11:19` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:10:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-23T23:07:45` `-` `monitor_error`: details_redacted_use_local_logs
+- `2026-11-23T23:05:14` `-` `monitor_error`: details_redacted_use_local_logs
