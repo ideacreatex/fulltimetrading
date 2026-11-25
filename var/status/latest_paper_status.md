@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-25 15:54:42 Нью-Йорк
+Снимок: 2026-11-25 16:09:49 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.72; деньги на счёте $27,561.72.
 Лимит покупок брокера $55,123.44: может включать заёмные средства, это не бюджет новой сделки.
@@ -29,8 +29,8 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-11-25T20:54:42+00:00`
-- Market open: `yes`
+- Generated: `2026-11-25T21:09:49+00:00`
+- Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
 - New production entries: `blocked`
@@ -45,7 +45,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
-- Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-11-25:v3`
+- Telegram opening report key: `not_due`
 - Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-22`
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
@@ -56,11 +56,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-25T20:54:16` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:53:14` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:52:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:51:09` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:50:07` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:49:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:48:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-25T20:47:00` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:08:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:07:47` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:06:45` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:05:42` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:04:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:03:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:02:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-25T21:01:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
