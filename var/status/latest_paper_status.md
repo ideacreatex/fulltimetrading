@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-27 09:32:39 Нью-Йорк
+Снимок: 2026-11-27 09:47:46 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.72; деньги на счёте $27,561.72.
 Лимит покупок брокера $55,123.44: может включать заёмные средства, это не бюджет новой сделки.
@@ -17,7 +17,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 Что дальше: Проверить сохранённую причину паузы и защиту фактических акций. Не сбрасывать историю и не снимать блокировку автоматически.
 Почему: Последний торговый цикл завершился с блокировкой или ошибкой. Это само по себе не доказывает, что сервис упал.
 Что дальше: Проверить причину цикла и heartbeat; сначала диагностика, затем восстановление при подтверждённом сбое.
-Почему: Есть дополнительная блокировка: tactical_cycle_mismatch.
+Почему: Есть дополнительная блокировка: unreconciled_cash_activity.
 Что дальше: Проверить локальную диагностику; разрешение не подтверждено.
 Остальные причины сохранены в полном JSON-отчёте.
 
@@ -29,7 +29,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-11-27T14:32:39+00:00`
+- Generated: `2026-11-27T14:47:46+00:00`
 - Market open: `yes`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -40,12 +40,12 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - Buying power: `$55,123.44`
 - Hybrid-v4 runtime: `paused`
 - Hybrid-v4 health: `failed`
-- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_mismatch, tactical_cycle_failed, tactical_run_failed`
-- Telegram outbox: `0 pending, 0 failed pending, 288 delivered`
+- Hybrid-v4 health errors: `tactical_heartbeat_failed, tactical_cycle_failed, tactical_run_failed`
+- Telegram outbox: `0 pending, 0 failed pending, 289 delivered`
 - Hybrid reconciliation: `blocked_candidate_cycle`
 - Hybrid entry/add now: `blocked`
 - Hybrid entry/add reasons: `Отправка и исполнение проверяются отдельно от целей модели.`
-- Telegram opening report key: `not_due`
+- Telegram opening report key: `portfolio-open:d1d8ddc9925b:2026-11-27:v3`
 - Telegram close report key: `portfolio-close:hybrid-v4-bull5-2026-09-15:2026-09-22`
 - Live review not before: `2026-10-16T13:41:18+00:00`
 
@@ -56,11 +56,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-27T14:31:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:30:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:29:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:28:46` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:27:43` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:26:41` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:25:38` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-27T14:24:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:47:30` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:46:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:45:25` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:44:22` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:43:20` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:42:17` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:41:15` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-27T14:40:12` `-` `monitor_heartbeat`: details_redacted_use_local_logs
