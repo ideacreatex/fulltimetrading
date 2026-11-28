@@ -3,7 +3,7 @@
 ## Что Происходит
 
 ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
-Снимок: 2026-11-28 06:28:03 Нью-Йорк
+Снимок: 2026-11-28 06:43:10 Нью-Йорк
 У брокера: позиций 0, открытых заявок 0.
 Капитал $27,561.72; деньги на счёте $27,561.72.
 Лимит покупок брокера $55,123.44: может включать заёмные средства, это не бюджет новой сделки.
@@ -29,7 +29,7 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 
 ## Технические Подробности
 
-- Generated: `2026-11-28T11:28:03+00:00`
+- Generated: `2026-11-28T11:43:10+00:00`
 - Market open: `no`
 - Orders enabled: `yes`
 - Paper account guard: `verified`
@@ -56,11 +56,11 @@ ALPACA PAPER | НОВЫЕ ПОКУПКИ ЗАБЛОКИРОВАНЫ
 - none
 
 ## Recent Actions
-- `2026-11-28T11:27:05` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:26:02` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:24:59` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:23:57` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:22:55` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:21:53` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:20:50` `-` `monitor_heartbeat`: details_redacted_use_local_logs
-- `2026-11-28T11:19:48` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:42:40` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:41:37` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:40:35` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:39:33` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:38:31` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:37:28` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:36:26` `-` `monitor_heartbeat`: details_redacted_use_local_logs
+- `2026-11-28T11:35:24` `-` `monitor_heartbeat`: details_redacted_use_local_logs
